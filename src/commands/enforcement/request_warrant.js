@@ -26,6 +26,7 @@ __IGNORANCE IS NOT A DEFENSE.__
 
 If you are sure you wish to proceed with the request warrant given the aforementioned terms, \
 please type \`I'm sure\`.`;
+const empty_argument = Symbol('Empty Argument');
 
 module.exports = new class RequestWarrant extends Command {
   constructor() {
@@ -49,6 +50,7 @@ module.exports = new class RequestWarrant extends Command {
           key: 'evidence',
           name: 'evidence',
           type: 'string',
+          defaultValue: empty_argument,
           remainder: true
         })
       ],
@@ -59,10 +61,24 @@ module.exports = new class RequestWarrant extends Command {
   }
 
   async run(msg, args) {
+    if (args.evidence === empty_argument && !msg.attachments.length) {
+      return CommandResult.fromError('You must provide evidence in an image or link.');
+    }
+
     const verified = await discord.verify_msg(msg, `**${discord.tag(msg.author)}**, ${content}`);
 
     if (!verified) {
       return CommandResult.fromError('The command has been cancelled.');
+    }
+
+    let evidence;
+
+    if (args.evidence !== empty_argument && msg.attachments.length) {
+      evidence = `${args.evidence}\n\n${msg.attachments.map(x => x.proxy_url).join('\n')}`;
+    } else if (msg.attachments.length) {
+      evidence = msg.attachments.map(x => x.proxy_url).join('\n');
+    } else {
+      ({ evidence } = args);
     }
 
     db.insert('warrants', {
@@ -70,7 +86,7 @@ module.exports = new class RequestWarrant extends Command {
       law_id: args.law.id,
       defendant_id: args.member.id,
       officer_id: msg.author.id,
-      evidence: args.evidence,
+      evidence,
       request: 1
     });
     await discord.create_msg(
