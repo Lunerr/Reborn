@@ -14,6 +14,7 @@
  */
 'use strict';
 const { Argument, Command, CommandResult } = require('patron.js');
+const { config } = require('../../services/data.js');
 const catch_discord = require('../../utilities/catch_discord.js');
 const client = require('../../services/client.js');
 const verdict = require('../../enums/verdict.js');
@@ -23,7 +24,6 @@ const number = require('../../utilities/number.js');
 const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const half_hour = 18e5;
-const repeat_felon_count = 3;
 const content = `Declaring unlawful verdicts will result in \
 impeachment and **national disgrace**.
 
@@ -144,7 +144,7 @@ charged with committing a misdemeanor'}.`;
           count++;
         }
 
-        if (count >= repeat_felon_count) {
+        if (count >= config.repeat_felon_count) {
           mute = true;
           break;
         }

@@ -13,6 +13,9 @@ db_backup_dir: "backups"
 # Interval for backing up the database
 db_backup_time: 36e5
 
+# Number of repeats before they get muted
+repeat_felon_count: 3
+
 # Auto close warrant interval in ms.
 auto_close_warrant_interval: 3e5
 
