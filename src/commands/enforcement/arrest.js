@@ -131,16 +131,17 @@ ${discord.formatUsername(defendant.username)}`,
     await channel.edit({ nsfw: true });
 
     const law = db.get_law(warrant.law_id);
-    const embed = { description: `${officer.mention} VS ${defendant.mention}
+    const content = `${officer.mention} VS ${defendant.mention}
 
 ${judge.mention} will be presiding over this court proceeding.
 
 The defense is accused of violating the following law: ${law.name}
 
-${warrant.evidence ? `Evidence: ${warrant.evidence}.` : ''}` };
-    const msg = await channel.createMessage({
-      content: judge.mention, embed: discord.embed(embed).embed
-    });
+${warrant.evidence ? `Evidence: ${warrant.evidence}.` : ''}
+
+A plea should be given in this court case. The defendant has the right to remain silent and both \
+the prosecutor and defendant have the right to request a qualified and earnest attorney.`;
+    const msg = await channel.createMessage(content);
 
     await msg.pin();
     db.insert('cases', {
