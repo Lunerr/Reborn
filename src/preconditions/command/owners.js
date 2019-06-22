@@ -26,8 +26,7 @@ module.exports = new class Owners extends Precondition {
 
     if (msg.channel.guild && notOwner) {
       return PreconditionResult.fromError(
-        cmd,
-        'this command may only be used by the server owner.'
+        cmd, 'This command may only be used by the those with the administrator permission.'
       );
     }
 
