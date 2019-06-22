@@ -20,7 +20,6 @@ const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
 const verdict = require('../enums/verdict.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
-const tick_time = 10;
 
 Timer(async () => {
   const guilds = [...client.guilds.keys()];
@@ -55,4 +54,4 @@ Timer(async () => {
       await remove_role(guild.id, defendant.id, imprisoned_role, 'Auto unmute');
     }
   }
-}, config.auto_unmute / tick_time);
+}, config.auto_unmute);
