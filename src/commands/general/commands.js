@@ -45,7 +45,7 @@ module.exports = new class Commands extends Command {
       for (let j = 0; j < group.commands.length; j++) {
         const command = group.commands[j];
 
-        embed.fields[embed.fields.length - 1].value += `${prefix}${command.names[0]}`;
+        embed.fields[embed.fields.length - 1].value += `\`${prefix}${command.names[0]}\``;
 
         if (j !== group.commands.length - 1 && group.commands.length - 1 !== 1) {
           embed.fields[embed.fields.length - 1].value += ',';
