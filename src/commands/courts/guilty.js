@@ -33,7 +33,7 @@ do not proceed with this verdict.
 __IGNORANCE IS NOT A DEFENSE.__
 
 If you are sure you wish to proceed with verdict given the aforementioned \
-terms, please type \`I'm sure\`.`;
+terms, please type \`yes\`.`;
 
 module.exports = new class Guilty extends Command {
   constructor() {
@@ -88,7 +88,7 @@ after the case has started.');
     }
 
     const prefix = `**${discord.tag(msg.author)}**, `;
-    const verified = await discord.verify_msg(msg, `${prefix}**Warning:** ${content}`);
+    const verified = await discord.verify_msg(msg, `${prefix}${content}`, null, 'yes');
 
     if (!verified) {
       return CommandResult.fromError('The command has been cancelled.');

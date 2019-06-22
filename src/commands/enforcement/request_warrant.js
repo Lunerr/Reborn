@@ -25,7 +25,7 @@ do not proceed with this request warrant.
 __IGNORANCE IS NOT A DEFENSE.__
 
 If you are sure you wish to proceed with the request warrant given the aforementioned terms, \
-please type \`I'm sure\`.`;
+please type \`yes\`.`;
 const empty_argument = Symbol('Empty Argument');
 
 module.exports = new class RequestWarrant extends Command {
@@ -65,7 +65,9 @@ module.exports = new class RequestWarrant extends Command {
       return CommandResult.fromError('You must provide evidence in an image or link.');
     }
 
-    const verified = await discord.verify_msg(msg, `**${discord.tag(msg.author)}**, ${content}`);
+    const verified = await discord.verify_msg(
+      msg, `**${discord.tag(msg.author)}**, ${content}`, null, 'yes'
+    );
 
     if (!verified) {
       return CommandResult.fromError('The command has been cancelled.');

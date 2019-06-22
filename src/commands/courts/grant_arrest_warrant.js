@@ -25,7 +25,7 @@ do not proceed with this grant.
 __IGNORANCE IS NOT A DEFENSE.__
 
 If you are sure you wish to proceed with granting this request warrant given the aforementioned \
-terms, please type \`I'm sure\`.`;
+terms, please type \`yes\`.`;
 
 module.exports = new class GrantArrestWarrant extends Command {
   constructor() {
@@ -46,7 +46,9 @@ module.exports = new class GrantArrestWarrant extends Command {
   }
 
   async run(msg, args) {
-    const verified = await discord.verify_msg(msg, `**${discord.tag(msg.author)}**, ${content}`);
+    const verified = await discord.verify_msg(
+      msg, `**${discord.tag(msg.author)}**, ${content}`, null, 'yes'
+    );
 
     if (!verified) {
       return CommandResult.fromError('The command has been cancelled.');
