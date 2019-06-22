@@ -37,6 +37,7 @@ module.exports = new class NotGuilty extends Command {
       groupName: 'courts',
       names: ['not_guilty']
     });
+    this.bitfield = 2048;
   }
 
   async run(msg, args) {
@@ -76,9 +77,9 @@ module.exports = new class NotGuilty extends Command {
 
     const prefix = `**${discord.tag(msg.author)}**, `;
 
-    await Promise.all(
-      msg.channel.permissionOverwrites.map(x => msg.channel.deletePermission(x.id, 'Case is over'))
-    );
+    await Promise.all(msg.channel.permissionOverwrites.map(
+      x => msg.channel.editPermission(x.id, 0, this.bitfield, 'member', 'Case is over')
+    ));
     await discord.create_msg(
       msg.channel, `${prefix} The court has found ${defendant.mention} not guilty.`
     );

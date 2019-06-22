@@ -30,6 +30,7 @@ module.exports = new class Guilty extends Command {
       groupName: 'courts',
       names: ['mistrial']
     });
+    this.bitfield = 2048;
   }
 
   async run(msg) {
@@ -70,9 +71,9 @@ module.exports = new class Guilty extends Command {
     db.insert('impeachments', {
       member_id: plaintiff_id, guild_id: msg.channel.guild.id
     });
-    await Promise.all(
-      msg.channel.permissionOverwrites.map(x => msg.channel.deletePermission(x.id, 'Case is over'))
-    );
+    await Promise.all(msg.channel.permissionOverwrites.map(
+      x => msg.channel.editPermission(x.id, 0, this.bitfield, 'member', 'Case is over')
+    ));
     await discord.create_msg(
       msg.channel,
       `${prefix}This court case has been declared as a mistrial.\n${cop.mention} has been \
