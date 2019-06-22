@@ -71,9 +71,6 @@ module.exports = new class Guilty extends Command {
     db.insert('impeachments', {
       member_id: plaintiff_id, guild_id: msg.channel.guild.id
     });
-    await Promise.all(msg.channel.permissionOverwrites.map(
-      x => msg.channel.editPermission(x.id, 0, this.bitfield, x.type, 'Case is over')
-    ));
     await discord.create_msg(
       msg.channel,
       `${prefix}This court case has been declared as a mistrial.\n${cop.mention} has been \
@@ -82,5 +79,8 @@ impeached and will not be able to recieve any government official role for ${wee
 No verdict has been delivered and the accused may be prosecuted again.`
     );
     await msg.pin();
+    await Promise.all(msg.channel.permissionOverwrites.map(
+      x => msg.channel.editPermission(x.id, 0, this.bitfield, x.type, 'Case is over')
+    ));
   }
 }();

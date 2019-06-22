@@ -113,13 +113,13 @@ after the case has started.');
 ${hours} hours in prison${repeated ? ` for repeatedly breaking the law \`${law.name}\`` : ''}` : '\
 charged with committing a misdemeanor'}.`;
 
-    await Promise.all(msg.channel.permissionOverwrites.map(
-      x => msg.channel.editPermission(x.id, 0, this.bitfield, x.type, 'Case is over')
-    ));
     await discord.create_msg(
       msg.channel, `${prefix}${defendant.mention} has been found guilty and was ${ending}`
     );
     await msg.pin();
+    await Promise.all(msg.channel.permissionOverwrites.map(
+      x => msg.channel.editPermission(x.id, 0, this.bitfield, x.type, 'Case is over')
+    ));
   }
 
   async shouldMute({ ids, opinion, sentence, law }) {
