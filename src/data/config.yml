@@ -10,8 +10,8 @@ logs_dir: "logs/"
 # Database backup directory.
 db_backup_dir: "backups"
 
-# Time detain lasts for in ms.
-detain_time: 3e5
+# Interval for backing up the database
+db_backup_time: 36e5
 
 # Auto close warrant interval in ms.
 auto_close_warrant_interval: 3e5
