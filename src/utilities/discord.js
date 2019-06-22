@@ -18,7 +18,6 @@ const client = require('../services/client.js');
 const { config, constants } = require('../services/data.js');
 const msg_collector = require('../services/message_collector.js');
 const create_message = catch_discord((...args) => client.createMessage(...args));
-const delete_message = catch_discord(client.deleteMessage.bind(client));
 const fetch = require('node-fetch');
 
 module.exports = {
@@ -64,9 +63,8 @@ module.exports = {
 
       msg_collector.add(
         m => m.author.id === msg.author.id && m.content.toLowerCase() === verify.toLowerCase(),
-        yes => {
+        () => {
           clearTimeout(timeout);
-          delete_message(yes.channel.id, yes.id);
           res(true);
         },
         msg.id
