@@ -38,7 +38,7 @@ module.exports = new class AddLaw extends Command {
           example: '24h',
           key: 'length',
           name: 'max mute length',
-          type: 'time',
+          type: 'time_span',
           defaultValue: 86400000
         }),
         new Argument({

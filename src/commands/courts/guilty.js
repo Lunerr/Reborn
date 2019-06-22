@@ -40,7 +40,7 @@ module.exports = new class Guilty extends Command {
           example: '5h',
           key: 'sentence',
           name: 'sentence',
-          type: 'time_span'
+          type: 'time'
         })
       ],
       description: 'Declares a guilty verdict in court.',
