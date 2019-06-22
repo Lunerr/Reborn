@@ -17,6 +17,5 @@ const { Group } = require('patron.js');
 
 module.exports = new Group({
   description: 'LAW AND ORDER!',
-  name: 'courts',
-  preconditions: ['can_jail']
+  name: 'courts'
 });
