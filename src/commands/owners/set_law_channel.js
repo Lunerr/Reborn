@@ -16,6 +16,7 @@
 const { Argument, Command } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
+const system = require('../../utilities/system.js');
 
 module.exports = new class SetLawChannel extends Command {
   constructor() {
@@ -44,5 +45,9 @@ module.exports = new class SetLawChannel extends Command {
       msg.channel,
       `**${discord.tag(msg.author)}**, I have set the law channel to ${args.channel.mention}.`
     );
+
+    const laws = db.fetch_laws(msg.channel.guild.id).filter(x => x.active === 1);
+
+    await system.update_laws(args.channel, laws);
   }
 }();

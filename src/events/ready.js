@@ -16,8 +16,34 @@
 const client = require('../services/client.js');
 const log = require('../utilities/logger.js');
 const { options } = require('../services/data.js');
+const db = require('../services/database.js');
+const system = require('../utilities/system.js');
 
-client.on('ready', () => {
+async function update_laws() {
+  const keys = [...client.guilds.keys()];
+
+  for (let i = 0; i < keys.length; i++) {
+    const guild = client.guilds.get(keys[i]);
+
+    if (!guild) {
+      continue;
+    }
+
+    const { law_channel } = db.fetch('guilds', { guild_id: guild.id });
+    const channel = guild.channels.get(law_channel);
+
+    if (!law_channel || !channel) {
+      continue;
+    }
+
+    const laws = db.fetch_laws(guild.id).filter(x => x.active === 1);
+
+    await system.update_laws(channel, laws);
+  }
+}
+
+client.on('ready', async () => {
   client.editStatus(options.status);
   log.info('Ready!');
+  await update_laws();
 });

@@ -13,44 +13,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 'use strict';
-const { Argument, Command, CommandResult } = require('patron.js');
+const { Precondition, PreconditionResult } = require('patron.js');
 const db = require('../../services/database.js');
-const discord = require('../../utilities/discord.js');
-const system = require('../../utilities/system.js');
 
-module.exports = new class RemoveLaw extends Command {
+module.exports = new class LawChannel extends Precondition {
   constructor() {
-    super({
-      preconditions: ['law_channel'],
-      args: [
-        new Argument({
-          example: 'Rule 1',
-          key: 'law',
-          name: 'law',
-          type: 'law',
-          remainder: true
-        })
-      ],
-      description: 'Removes a law.',
-      groupName: 'owners',
-      names: ['remove_law', 'delete_law']
-    });
+    super({ name: 'law_channel' });
   }
 
-  async run(msg, args) {
-    if (args.law.active === 0) {
-      return CommandResult.fromError('This law was already removed.');
-    }
-
-    db.close_law(args.law.id);
-    await discord.create_msg(
-      msg.channel, `**${discord.tag(msg.author)}**, I have removed the law ${args.law.name}.`
-    );
-
-    const laws = db.fetch_laws(msg.channel.guild.id).filter(x => x.active === 1);
+  async run(cmd, msg) {
     const { law_channel } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const channel = msg.channel.guild.channels.get(law_channel);
 
-    return system.update_laws(channel, laws);
+    if (!law_channel) {
+      return PreconditionResult.fromError(cmd, 'The Law channel must be set.');
+    } else if (!channel) {
+      return PreconditionResult.fromError(
+        cmd, 'The Law channel was deleted and must be set again.'
+      );
+    }
+
+    return PreconditionResult.fromSuccess();
   }
 }();

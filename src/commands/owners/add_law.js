@@ -16,11 +16,12 @@
 const { Argument, Command, CommandResult } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
+const system = require('../../utilities/system.js');
 
 module.exports = new class AddLaw extends Command {
   constructor() {
     super({
-      preconditions: ['guild_db_exists'],
+      preconditions: ['guild_db_exists', 'law_channel'],
       args: [
         new Argument({
           example: '"Rule 1"',
@@ -49,23 +50,30 @@ module.exports = new class AddLaw extends Command {
   }
 
   async run(msg, args) {
-    const existingLaw = db
-      .fetch_laws(msg.channel.guild.id)
-      .some(x => x.name.toLowerCase() === args.name.toLowerCase() && x.active === 1);
+    const name = args.name.toLowerCase();
+    const laws = db.fetch_laws(msg.channel.guild.id);
+    const existingLaw = laws.some(x => x.name.toLowerCase() === name && x.active === 1);
 
     if (existingLaw) {
       return CommandResult.fromError('An active law by this name already exists.');
     }
 
-    db.insert('laws', {
+    const law = {
       guild_id: msg.channel.guild.id,
       name: args.name,
       content: args.content,
       mandatory_felony: args.mandatory ? 1 : 0
-    });
+    };
+
+    db.insert('laws', law);
     await discord.create_msg(
       msg.channel,
       `**${discord.tag(msg.author)}**, I have created the law ${args.name}.`
     );
+
+    const { law_channel } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+    const channel = msg.channel.guild.channels.get(law_channel);
+
+    return system.add_law(channel, law);
   }
 }();
