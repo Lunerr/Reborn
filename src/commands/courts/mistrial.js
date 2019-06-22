@@ -72,7 +72,7 @@ module.exports = new class Guilty extends Command {
       member_id: plaintiff_id, guild_id: msg.channel.guild.id
     });
     await Promise.all(msg.channel.permissionOverwrites.map(
-      x => msg.channel.editPermission(x.id, 0, this.bitfield, 'member', 'Case is over')
+      x => msg.channel.editPermission(x.id, 0, this.bitfield, x.type, 'Case is over')
     ));
     await discord.create_msg(
       msg.channel,

@@ -114,7 +114,7 @@ ${hours} hours in prison${repeated ? ` for repeatedly breaking the law \`${law.n
 charged with committing a misdemeanor'}.`;
 
     await Promise.all(msg.channel.permissionOverwrites.map(
-      x => msg.channel.editPermission(x.id, 0, this.bitfield, 'member', 'Case is over')
+      x => msg.channel.editPermission(x.id, 0, this.bitfield, x.type, 'Case is over')
     ));
     await discord.create_msg(
       msg.channel, `${prefix}${defendant.mention} has been found guilty and was ${ending}`
