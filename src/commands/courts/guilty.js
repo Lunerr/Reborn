@@ -61,8 +61,6 @@ module.exports = new class Guilty extends Command {
       return CommandResult.fromError('The defendant is no longer in the server.');
     }
 
-    const law = db.get_law(law_id);
-    const max = number.msToTime(law.max_mute_len);
     const timeElapsed = Date.now() - created_at;
     const currrent_verdict = db.get_verdict(case_id);
     const finished = currrent_verdict && currrent_verdict.verdict !== verdict.pending;
@@ -76,8 +74,6 @@ module.exports = new class Guilty extends Command {
     } else if (timeElapsed < half_hour) {
       return CommandResult.fromError('A verdict can only be delivered 30 minutes \
 after the case has started.');
-    } else if (args.sentence > 0 && args.sentence > law.max_mute_len) {
-      return CommandResult.fromError(`The max mute length for this law is ${max.hours} hours.`);
     }
 
     const prefix = `**${discord.tag(msg.author)}**, `;
@@ -90,6 +86,8 @@ result in an impeachment. Type \`I'm sure\` if this is your final verdict.`
     if (!verified) {
       return CommandResult.fromError('The command has been cancelled.');
     }
+
+    const law = db.get_law(law_id);
 
     await this.end(msg, {
       law, sentence: args.sentence, opinion: args.opinion, defendant, case_id, prefix

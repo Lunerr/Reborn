@@ -35,13 +35,6 @@ module.exports = new class AddLaw extends Command {
           type: 'string'
         }),
         new Argument({
-          example: '24h',
-          key: 'length',
-          name: 'max mute length',
-          type: 'time_span',
-          defaultValue: 86400000
-        }),
-        new Argument({
           example: 'yes',
           key: 'mandatory',
           name: 'mandatory felony',
@@ -68,7 +61,6 @@ module.exports = new class AddLaw extends Command {
       guild_id: msg.channel.guild.id,
       name: args.name,
       content: args.content,
-      max_mute_len: args.length,
       mandatory_felony: args.mandatory ? 1 : 0
     });
     await discord.create_msg(
