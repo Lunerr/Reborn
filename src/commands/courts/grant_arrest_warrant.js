@@ -16,6 +16,16 @@
 const { Argument, Command, CommandResult } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
+const content = `Granting unlawful request warrants will result in \
+impeachment and **national disgrace**.
+
+If you have **ANY DOUBTS WHATSOEVER ABOUT THE VALIDITY OF THIS REQUEST WARRANT**, \
+do not proceed with this grant.
+
+__IGNORANCE IS NOT A DEFENSE.__
+
+If you are sure you wish to proceed with granting this request warrant given the aforementioned \
+terms, please type \`I'm sure\`.`;
 
 module.exports = new class GrantArrestWarrant extends Command {
   constructor() {
@@ -36,10 +46,7 @@ module.exports = new class GrantArrestWarrant extends Command {
   }
 
   async run(msg, args) {
-    const verified = await discord.verify_msg(
-      msg, `**${discord.tag(msg.author)}**, **Warning:** Granting false request warrants will \
-result in impeachment. Type \`I'm sure\` if you are sure you want to grant this warrant.`
-    );
+    const verified = await discord.verify_msg(msg, `**${discord.tag(msg.author)}**, ${content}`);
 
     if (!verified) {
       return CommandResult.fromError('The command has been cancelled.');

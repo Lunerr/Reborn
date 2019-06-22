@@ -24,6 +24,16 @@ const addRole = catch_discord(client.addGuildMemberRole.bind(client));
 const removeRole = catch_discord(client.removeGuildMemberRole.bind(client));
 const half_hour = 18e5;
 const repeat_felon_count = 3;
+const content = `Declaring unlawful verdicts will result in \
+impeachment and **national disgrace**.
+
+If you have **ANY DOUBTS WHATSOEVER ABOUT THE VALIDITY OF THIS VERDICT**, \
+do not proceed with this verdict.
+
+__IGNORANCE IS NOT A DEFENSE.__
+
+If you are sure you wish to proceed with verdict given the aforementioned \
+terms, please type \`I'm sure\`.`;
 
 module.exports = new class Guilty extends Command {
   constructor() {
@@ -77,11 +87,7 @@ after the case has started.');
     }
 
     const prefix = `**${discord.tag(msg.author)}**, `;
-    const verified = await discord.verify_msg(
-      msg,
-      `${prefix}**Warning:** Are you sure you want to deliver this verdict? Unjust verdicts will \
-result in an impeachment. Type \`I'm sure\` if this is your final verdict.`
-    );
+    const verified = await discord.verify_msg(msg, `${prefix}**Warning:** ${content}`);
 
     if (!verified) {
       return CommandResult.fromError('The command has been cancelled.');
