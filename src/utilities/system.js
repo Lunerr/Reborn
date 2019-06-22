@@ -7,7 +7,7 @@ module.exports = {
     let messages = await channel.getMessages(this.max_msgs);
 
     while (messages.length) {
-      await channel.deleteMessages([...new Set(messages.map(x => x.id))]);
+      await channel.deleteMessages([...new Set(messages.map(x => x.id))]).catch(() => null);
       messages = await channel.getMessages(this.max_msgs);
     }
   },
