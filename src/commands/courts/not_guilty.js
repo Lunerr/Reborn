@@ -78,7 +78,7 @@ module.exports = new class NotGuilty extends Command {
     const prefix = `**${discord.tag(msg.author)}**, `;
 
     await Promise.all(msg.channel.permissionOverwrites.map(
-      x => msg.channel.editPermission(x.id, 0, this.bitfield, 'member', 'Case is over')
+      x => msg.channel.editPermission(x.id, 0, this.bitfield, x.type, 'Case is over')
     ));
     await discord.create_msg(
       msg.channel, `${prefix} The court has found ${defendant.mention} not guilty.`
