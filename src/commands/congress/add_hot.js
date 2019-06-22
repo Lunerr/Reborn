@@ -58,6 +58,8 @@ module.exports = new class AddHot extends Command {
       return CommandResult.fromError('A custom command must at least have a response or image.');
     } else if (!args.name.trim()) {
       return CommandResult.fromError('The name cannot be empty.');
+    } else if (args.name.length < min_len) {
+      return CommandResult.fromError(`The minimum length of the response is ${min_len}`);
     }
 
     const update = {
@@ -71,19 +73,13 @@ module.exports = new class AddHot extends Command {
         return CommandResult.fromError(
           `The maximum length of the response can't be greater than ${max_len} characters.`
         );
-      } else if (args.response.length < min_len) {
-        return CommandResult.fromError(
-          `The minimum length of the response is ${min_len}`
-        );
       }
 
       const response = msg.mentions
         .map(x => x.id)
         .concat(msg.roleMentions)
-        .reduce(
-          (a, b) => a.replace(b, `\u200b${b}`),
-          args.response.replace(/@(everyone|here)/g, '@\u200b$1')
-        );
+        .reduce((a, b) => a.replace(b, `\u200b${b}`),
+          args.response.replace(/@(everyone|here)/g, '@\u200b$1'));
 
       update.response = response;
     }
