@@ -22,6 +22,9 @@ auto_close_warrant: 1728e5
 # Time cases last for in ms.
 max_case_time: 864e5
 
+# Interval for when the bot auto unmutes
+auto_unmute: 3e5
+
 # Time until verification is denied in ms.
 verify_timeout: 3e5
 
