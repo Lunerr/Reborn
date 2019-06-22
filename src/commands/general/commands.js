@@ -30,7 +30,7 @@ module.exports = new class Commands extends Command {
   async run(msg) {
     const { groups } = registry;
     const embed = {
-      title: 'The current commands',
+      title: 'Commands',
       fields: []
     };
 
