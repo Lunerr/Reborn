@@ -33,7 +33,7 @@ module.exports = new class Judges extends Precondition {
     }
 
     return PreconditionResult.fromError(
-      cmd, 'This command may only be used by a judge presiding over a court case.'
+      cmd, 'This command may only be used by a judge.'
     );
   }
 }();
