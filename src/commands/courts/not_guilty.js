@@ -19,7 +19,7 @@ const client = require('../../services/client.js');
 const verdict = require('../../enums/verdict.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
-const removeRole = catch_discord(client.removeGuildMemberRole.bind(client));
+const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 
 module.exports = new class NotGuilty extends Command {
   constructor() {
@@ -88,6 +88,6 @@ module.exports = new class NotGuilty extends Command {
   async free(guild, defendant) {
     const { trial_role } = db.fetch('guilds', { guild_id: guild.id });
 
-    await removeRole(guild.id, defendant.id, trial_role);
+    await remove_role(guild.id, defendant.id, trial_role);
   }
 }();

@@ -20,8 +20,8 @@ const verdict = require('../../enums/verdict.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
-const addRole = catch_discord(client.addGuildMemberRole.bind(client));
-const removeRole = catch_discord(client.removeGuildMemberRole.bind(client));
+const add_role = catch_discord(client.addGuildMemberRole.bind(client));
+const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const half_hour = 18e5;
 const repeat_felon_count = 3;
 const content = `Declaring unlawful verdicts will result in \
@@ -154,11 +154,11 @@ charged with committing a misdemeanor'}.`;
     const addSentence = law.mandatory_felony || (!law.mandatory_felony && mute);
     const { trial_role, imprisoned_role } = db.fetch('guilds', { guild_id: ids.guild });
 
-    await removeRole(ids.guild, ids.defendant, trial_role);
+    await remove_role(ids.guild, ids.defendant, trial_role);
 
     if (addSentence) {
       update.sentence = sentence;
-      await addRole(ids.guild, ids.defendant, imprisoned_role);
+      await add_role(ids.guild, ids.defendant, imprisoned_role);
     }
 
     db.insert('verdicts', update);

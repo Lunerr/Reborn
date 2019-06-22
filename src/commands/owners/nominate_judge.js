@@ -17,6 +17,9 @@ const { Argument, Command, CommandResult } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
+const catch_discord = require('../../utilities/catch_discord.js');
+const client = require('../../services/client.js');
+const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const to_hours = 24;
 
 module.exports = new class NominateJudge extends Command {
@@ -67,7 +70,7 @@ ${args.member.mention} can be nominated again ${hours_left ? `in ${hours_left} h
       }
     }
 
-    await args.member.addRole(judge_role);
+    await add_role(msg.channel.guild.id, args.member.id, judge_role);
     await discord.create_msg(
       msg.channel,
       `**${discord.tag(msg.author)}**, You have nominated ${args.member.mention} to the Judge role.`

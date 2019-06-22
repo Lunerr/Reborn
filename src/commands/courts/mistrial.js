@@ -19,7 +19,7 @@ const client = require('../../services/client.js');
 const verdict = require('../../enums/verdict.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
-const removeRole = catch_discord(client.removeGuildMemberRole.bind(client));
+const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const to_week = 6048e5;
 
 module.exports = new class Guilty extends Command {
@@ -65,8 +65,8 @@ module.exports = new class Guilty extends Command {
     const weeks = impeachment_time / to_week;
     const prefix = `**${discord.tag(msg.author)}**, `;
 
-    await removeRole(msg.channel.guild.id, plaintiff_id, officer_role);
-    await removeRole(msg.channel.guild.id, defendant_id, trial_role);
+    await remove_role(msg.channel.guild.id, plaintiff_id, officer_role);
+    await remove_role(msg.channel.guild.id, defendant_id, trial_role);
     db.insert('impeachments', {
       member_id: plaintiff_id, guild_id: msg.channel.guild.id
     });

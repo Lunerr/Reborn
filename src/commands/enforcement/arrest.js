@@ -19,7 +19,7 @@ const client = require('../../services/client.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const create_channel = catch_discord(client.createChannel.bind(client));
-const addRole = catch_discord(client.addGuildMemberRole.bind(client));
+const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const arrest_message = `Executing unlawful warrants will result in \
 impeachment and **national disgrace**.
 
@@ -153,7 +153,7 @@ the prosecutor and defendant have the right to request a qualified and earnest a
       judge_id: judge.id,
       plaintiff_id: officer.id
     });
-    await addRole(guild.id, defendant.id, jailed);
+    await add_role(guild.id, defendant.id, jailed);
     db.close_warrant(warrant.id);
   }
 
