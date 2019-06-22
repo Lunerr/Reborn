@@ -133,7 +133,8 @@ charged with committing a misdemeanor'}.`;
     let mute = false;
 
     if (!law.mandatory_felony) {
-      const verdicts = db.fetch_member_verdicts(ids.guild, ids.defendant)
+      const verdicts = db
+        .fetch_member_verdicts(ids.guild, ids.defendant)
         .filter(x => x.verdict === verdict.guilty);
       let count = 1;
 
