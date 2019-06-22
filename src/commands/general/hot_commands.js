@@ -21,7 +21,7 @@ module.exports = new class HotCommands extends Command {
   constructor() {
     super({
       description: 'View the server\'s custom commands.',
-      groupName: 'congress',
+      groupName: 'general',
       names: ['hot_commands', 'hot_cmds', 'hots']
     });
   }
