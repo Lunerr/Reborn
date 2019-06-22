@@ -21,7 +21,7 @@ const Timer = require('../utilities/timer.js');
 const verdict = require('../enums/verdict.js');
 const delete_channel = catch_discord(client.deleteChannel.bind(client));
 const expiration = 864e5;
-const tickTime = 10;
+const tick_time = 10;
 
 Timer(() => {
   const guilds = [...client.guilds.keys()];
@@ -54,4 +54,4 @@ Timer(() => {
       }
     }
   }
-}, config.max_case_time / tickTime);
+}, config.max_case_time / tick_time);

@@ -17,7 +17,7 @@ const client = require('../services/client.js');
 const { config } = require('../services/data.js');
 const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
-const tickTime = 10;
+const tick_time = 10;
 
 Timer(() => {
   const keys = [...client.guilds.keys()];
@@ -35,4 +35,4 @@ Timer(() => {
       }
     }
   }
-}, config.auto_close_warrant_interval / tickTime);
+}, config.auto_close_warrant_interval / tick_time);
