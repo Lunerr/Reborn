@@ -28,9 +28,14 @@ Timer(() => {
 
     for (let j = 0; j < warrants.length; j++) {
       const warrant = warrants[j];
-      const expired = Date.now() - (warrant.created_at + config.auto_close_warrant) <= 0;
 
-      if (expired) {
+      if (warrant.executed === 1) {
+        continue;
+      }
+
+      const time_left = Date.now() - (warrant.created_at + config.auto_close_warrant);
+
+      if (time_left >= 0) {
         db.close_warrant(warrant.id);
       }
     }
