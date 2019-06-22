@@ -15,7 +15,7 @@
 'use strict';
 /*
  * TODO:
- * - Invalid warrants after they expire
+ * - Chief of police and Chief justice
  */
 // Set up the process.
 process.env.TZ = 'UTC';
