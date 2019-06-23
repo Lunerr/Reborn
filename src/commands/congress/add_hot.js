@@ -18,7 +18,7 @@ const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const empty_argument = Symbol('Empty Argument');
 const max_len = 500;
-const min_len = 5;
+const min_len = 4;
 
 module.exports = new class AddHot extends Command {
   constructor() {
@@ -43,7 +43,7 @@ module.exports = new class AddHot extends Command {
       ],
       description: 'Adds a custom command.',
       groupName: 'congress',
-      names: ['add_hot', 'create_command', 'add_cmd']
+      names: ['add_hot', 'create_hot', 'add_hot']
     });
   }
 
@@ -59,7 +59,7 @@ module.exports = new class AddHot extends Command {
     } else if (!args.name.trim()) {
       return CommandResult.fromError('The name cannot be empty.');
     } else if (args.name.length < min_len) {
-      return CommandResult.fromError(`The minimum length of the name is ${min_len}`);
+      return CommandResult.fromError(`The minimum length of the name is ${min_len} characters.`);
     }
 
     const update = {
