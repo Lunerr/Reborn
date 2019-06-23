@@ -20,7 +20,7 @@ const discord = require('../../utilities/discord.js');
 module.exports = new class KickFromCourt extends Command {
   constructor() {
     super({
-      preconditions: ['judges'],
+      preconditions: ['court_only', 'judge_creator'],
       args: [
         new Argument({
           example: 'Joeychin01',
