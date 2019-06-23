@@ -25,8 +25,9 @@ const to_hours = 24;
 async function impeached(guild, member, jobs, impeachment_time) {
   const { roles: n_roles } = member;
   const was_impeached = db.get_impeachment(guild.id, member.id);
+  const values = Object.values(jobs);
 
-  if (was_impeached && (n_roles.includes(jobs.officer) || n_roles.includes(jobs.judge))) {
+  if (was_impeached && values.some(x => n_roles.includes(x))) {
     const time_left = was_impeached.created_at + impeachment_time - Date.now();
 
     if (time_left > 0) {
@@ -35,7 +36,6 @@ async function impeached(guild, member, jobs, impeachment_time) {
       const reason = `This user cannot be an official because they were impeached. \
 ${discord.tag(member.user)} can be an official again \
 ${hours_left ? `in ${hours_left} hours` : 'soon'}.`;
-      const values = Object.values(jobs);
       const has = n_roles.filter(x => values.includes(x));
 
       for (let i = 0; i < has.length; i++) {

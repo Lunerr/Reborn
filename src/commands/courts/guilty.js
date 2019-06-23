@@ -14,7 +14,6 @@
  */
 'use strict';
 const { Argument, Command, CommandResult } = require('patron.js');
-const { config } = require('../../services/data.js');
 const catch_discord = require('../../utilities/catch_discord.js');
 const client = require('../../services/client.js');
 const verdict = require('../../enums/verdict.js');
@@ -23,6 +22,8 @@ const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
 const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
+const system = require('../../utilities/system.js');
+const empty_argument = Symbol('Empty Argument');
 const half_hour = 18e5;
 const content = `Declaring unlawful verdicts will result in \
 impeachment and **national disgrace**.
@@ -50,7 +51,8 @@ module.exports = new class Guilty extends Command {
           example: '5h',
           key: 'sentence',
           name: 'sentence',
-          type: 'time'
+          type: 'time',
+          defaultValue: empty_argument
         })
       ],
       description: 'Declares a guilty verdict in court.',
@@ -61,20 +63,27 @@ module.exports = new class Guilty extends Command {
   }
 
   async run(msg, args) {
+    const c_case = db.get_channel_case(msg.channel.id);
+
+    if (!c_case) {
+      return CommandResult.fromError('This channel has no ongoing court case.');
+    }
+
     const {
-      channel_id, created_at, defendant_id, law_id, id: case_id
-    } = db.get_channel_case(msg.channel.id);
+      created_at, defendant_id, law_id, id: case_id
+    } = c_case;
     const defendant = msg.channel.guild.members.get(defendant_id);
 
-    if (!channel_id) {
-      return CommandResult.fromError('This channel has no ongoing court case.');
-    } else if (!defendant) {
+    if (!defendant) {
       return CommandResult.fromError('The defendant is no longer in the server.');
     }
 
     const timeElapsed = Date.now() - created_at;
     const currrent_verdict = db.get_verdict(case_id);
     const finished = currrent_verdict && currrent_verdict.verdict !== verdict.pending;
+    const law = db.get_law(law_id);
+    const mute = law.mandatory_felony
+      || (!law.mandatory_felony && system.mute_felon(msg.channel.guild.id, defendant_id, law));
 
     if (finished) {
       if (currrent_verdict.verdict === verdict.mistrial) {
@@ -85,6 +94,11 @@ module.exports = new class Guilty extends Command {
     } else if (timeElapsed < half_hour) {
       return CommandResult.fromError('A verdict can only be delivered 30 minutes \
 after the case has started.');
+    } else if (args.sentence === empty_argument && mute) {
+      return CommandResult.fromError('A sentence must be given.');
+    } else if (args.sentence !== empty_argument && !mute) {
+      return CommandResult.fromError('The accused must be convicted of at least three \
+misdemeanors of this crime before a prison sentence is permissible.');
     }
 
     const prefix = `**${discord.tag(msg.author)}**, `;
@@ -94,15 +108,13 @@ after the case has started.');
       return CommandResult.fromError('The command has been cancelled.');
     }
 
-    const law = db.get_law(law_id);
-
     await this.end(msg, {
       law, sentence: args.sentence, opinion: args.opinion, defendant, case_id, prefix
     });
   }
 
   async end(msg, { law, sentence, defendant, opinion, case_id, prefix }) {
-    const { hours } = number.msToTime(sentence);
+    const { hours } = sentence === empty_argument ? 0 : number.msToTime(sentence);
     const repeated = await this.shouldMute({
       ids: {
         guild: msg.channel.guild.id, case: case_id, defendant: defendant.id
@@ -133,24 +145,7 @@ charged with committing a misdemeanor'}.`;
     let mute = false;
 
     if (!law.mandatory_felony) {
-      const verdicts = db
-        .fetch_member_verdicts(ids.guild, ids.defendant)
-        .filter(x => x.verdict === verdict.guilty);
-      let count = 1;
-
-      for (let i = 0; i < verdicts.length; i++) {
-        const user_case = db.get_case(verdicts[i].case_id);
-        const { name } = db.get_law(user_case.law_id);
-
-        if (name === law.name) {
-          count++;
-        }
-
-        if (count >= config.repeat_felon_count) {
-          mute = true;
-          break;
-        }
-      }
+      mute = system.mute_felon(ids.guild, ids.defendant, law);
     }
 
     const addSentence = law.mandatory_felony || (!law.mandatory_felony && mute);
@@ -158,7 +153,7 @@ charged with committing a misdemeanor'}.`;
 
     await remove_role(ids.guild, ids.defendant, trial_role);
 
-    if (addSentence) {
+    if (sentence !== empty_argument && addSentence) {
       update.sentence = sentence;
       await add_role(ids.guild, ids.defendant, imprisoned_role);
     }

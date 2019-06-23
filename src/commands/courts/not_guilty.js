@@ -41,14 +41,16 @@ module.exports = new class NotGuilty extends Command {
   }
 
   async run(msg, args) {
-    const {
-      channel_id, defendant_id, id: case_id
-    } = db.get_channel_case(msg.channel.id);
+    const c_case = db.get_channel_case(msg.channel.id);
+
+    if (!c_case) {
+      return CommandResult.fromError('This channel is not a court case.');
+    }
+
+    const { defendant_id, id: case_id } = c_case;
     const defendant = msg.channel.guild.members.get(defendant_id);
 
-    if (!channel_id) {
-      return CommandResult.fromError('This channel is not a court case.');
-    } else if (!defendant) {
+    if (!defendant) {
       return CommandResult.fromError('The defendant has left the server.');
     }
 

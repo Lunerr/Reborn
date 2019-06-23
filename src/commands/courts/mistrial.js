@@ -20,7 +20,6 @@ const verdict = require('../../enums/verdict.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
-const to_week = 6048e5;
 
 module.exports = new class Guilty extends Command {
   constructor() {
@@ -34,9 +33,13 @@ module.exports = new class Guilty extends Command {
   }
 
   async run(msg) {
-    const {
-      channel_id, id: case_id, plaintiff_id, defendant_id
-    } = db.get_channel_case(msg.channel.id);
+    const c_case = db.get_channel_case(msg.channel.id);
+
+    if (!c_case) {
+      return CommandResult.fromError('This channel has no ongoing court case.');
+    }
+
+    const { id: case_id, plaintiff_id, defendant_id } = c_case;
     const cop = msg.channel.guild.members.get(plaintiff_id);
     const currrent_verdict = db.get_verdict(case_id);
     const finished = currrent_verdict && currrent_verdict.verdict !== verdict.pending;
@@ -47,8 +50,6 @@ module.exports = new class Guilty extends Command {
       }
 
       return CommandResult.fromError('This case has already reached a verdict.');
-    } else if (!channel_id) {
-      return CommandResult.fromError('This channel has no ongoing court case.');
     } else if (!cop) {
       return CommandResult.fromError('The prosecutor is no longer in the server.');
     }
@@ -61,9 +62,8 @@ module.exports = new class Guilty extends Command {
     });
 
     const {
-      officer_role, impeachment_time, trial_role
+      officer_role, trial_role
     } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
-    const weeks = impeachment_time / to_week;
     const prefix = `**${discord.tag(msg.author)}**, `;
 
     await remove_role(msg.channel.guild.id, plaintiff_id, officer_role);
@@ -71,13 +71,10 @@ module.exports = new class Guilty extends Command {
     db.insert('impeachments', {
       member_id: plaintiff_id, guild_id: msg.channel.guild.id
     });
-    await discord.create_msg(
-      msg.channel,
-      `${prefix}This court case has been declared as a mistrial.\n${cop.mention} has been \
-impeached and will not be able to recieve any government official role for ${weeks} weeks.
+    await discord.create_msg(msg.channel, `${prefix}This court case has been declared as a \
+mistrial.\n\n${cop.mention} has been impeached.
 
-No verdict has been delivered and the accused may be prosecuted again.`
-    );
+No verdict has been delivered and the accused may be prosecuted again.`);
     await msg.pin();
     await Promise.all(msg.channel.permissionOverwrites.map(
       x => msg.channel.editPermission(x.id, 0, this.bitfield, x.type, 'Case is over')

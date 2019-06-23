@@ -46,6 +46,10 @@ module.exports = new class GrantArrestWarrant extends Command {
   }
 
   async run(msg, args) {
+    if (args.warrant.approved === 1) {
+      return CommandResult.fromError('This warrant has already been granted.');
+    }
+
     const verified = await discord.verify_msg(
       msg, `**${discord.tag(msg.author)}**, ${content}`, null, 'yes'
     );
@@ -57,7 +61,7 @@ module.exports = new class GrantArrestWarrant extends Command {
     db.approve_warrant(args.warrant.id, msg.author.id);
     await discord.create_msg(
       msg.channel,
-      `**${discord.tag(msg.author)}**, You've granted warrant ${args.warrant.id}.`
+      `**${discord.tag(msg.author)}**, You've granted this warrant.`
     );
   }
 }();

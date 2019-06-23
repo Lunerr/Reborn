@@ -1,7 +1,34 @@
 const discord = require('./discord.js');
+const db = require('../services/database.js');
+const { config } = require('../services/data.js');
+const verdict = require('../enums/verdict.js');
 
 module.exports = {
   max_msgs: 100,
+
+  mute_felon(guild_id, defendant_id, law) {
+    let mute = false;
+    const verdicts = db
+      .fetch_member_verdicts(guild_id, defendant_id)
+      .filter(x => x.verdict === verdict.guilty);
+    let count = 0;
+
+    for (let i = 0; i < verdicts.length; i++) {
+      const user_case = db.get_case(verdicts[i].case_id);
+      const { name } = db.get_law(user_case.law_id);
+
+      if (name === law.name) {
+        count++;
+      }
+
+      if (count >= config.repeat_felon_count) {
+        mute = true;
+        break;
+      }
+    }
+
+    return mute;
+  },
 
   async prune(channel) {
     let messages = await channel.getMessages(this.max_msgs);
