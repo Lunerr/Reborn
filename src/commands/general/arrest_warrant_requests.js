@@ -36,7 +36,7 @@ module.exports = new class ArrestWarrantRequests extends Command {
       ],
       description: 'View the current request warrants.',
       groupName: 'general',
-      names: ['arrest_warrant_requests', 'requests']
+      names: ['arrest_warrant_requests', 'requests', 'warrants']
     });
   }
 
