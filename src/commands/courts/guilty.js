@@ -24,6 +24,7 @@ const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const system = require('../../utilities/system.js');
 const empty_argument = Symbol('Empty Argument');
+const hours_per_day = 24;
 const content = `Declaring unlawful verdicts will result in \
 impeachment and **national disgrace**.
 
@@ -107,7 +108,10 @@ misdemeanors of this crime before a prison sentence is permissible.');
   }
 
   async end(msg, { law, sentence, defendant, opinion, case_id, prefix }) {
-    const { hours } = sentence === empty_argument ? 0 : number.msToTime(sentence);
+    const { days, hours } = sentence === empty_argument ? {
+      days: 0, hours: 0
+    } : number.msToTime(sentence);
+    const time = (days * hours_per_day) + hours;
     const repeated = await this.shouldMute({
       ids: {
         guild: msg.channel.guild.id, case: case_id, defendant: defendant.id
@@ -115,7 +119,7 @@ misdemeanors of this crime before a prison sentence is permissible.');
       opinion, sentence, law
     });
     const ending = `${law.mandatory_felony || (!law.mandatory_felony && repeated) ? `sentenced to \
-${hours} hours in prison${repeated ? ` for repeatedly breaking the law \`${law.name}\`` : ''}` : '\
+${time} hours in prison${repeated ? ` for repeatedly breaking the law \`${law.name}\`` : ''}` : '\
 charged with committing a misdemeanor'}.`;
 
     await discord.create_msg(
