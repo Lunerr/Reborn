@@ -18,7 +18,7 @@ const catch_discord = require('../utilities/catch_discord.js');
 const send_msg = catch_discord(client.createMessage.bind(client));
 const msg = `**BY THE PEOPLE, FOR THE PEOPLE**
 
-Reborn is the only truely free server in Discord.
+Reborn is the only truly free server in Discord.
 
 You can __**RUN FOR ELECTION**__ and get a high ranking position if you win.
 
