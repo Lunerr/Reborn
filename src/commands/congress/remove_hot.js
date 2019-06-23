@@ -42,7 +42,9 @@ module.exports = new class RemoveHot extends Command {
       .fetch_commands(msg.channel.guild.id)
       .find(x => x.name.toLowerCase() === args.name.toLowerCase() && x.active === 1);
 
-    if (cmd.active === 0) {
+    if (!cmd) {
+      return CommandResult.fromError('This command does not exist.');
+    } else if (cmd.active === 0) {
       return CommandResult.fromError('This command was already removed.');
     }
 
