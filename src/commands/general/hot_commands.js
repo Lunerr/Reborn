@@ -32,7 +32,7 @@ module.exports = new class HotCommands extends Command {
       .filter(x => x.active === 1);
 
     if (!cmds.length) {
-      return CommandResult.fromError('There are no custom commands.');
+      return CommandResult.fromError('There are no hot commands.');
     }
 
     const names = cmds.map(x => x.name).join(', ');
