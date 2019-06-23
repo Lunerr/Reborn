@@ -59,7 +59,7 @@ module.exports = new class AddHot extends Command {
     } else if (!args.name.trim()) {
       return CommandResult.fromError('The name cannot be empty.');
     } else if (args.name.length < min_len) {
-      return CommandResult.fromError(`The minimum length of the response is ${min_len}`);
+      return CommandResult.fromError(`The minimum length of the name is ${min_len}`);
     }
 
     const update = {
