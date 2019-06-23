@@ -41,7 +41,7 @@ module.exports = new class RemoveAllHot extends Command {
 
     await discord.create_msg(
       msg.channel,
-      `**${discord.tag(msg.author)}**, I've removed all of your custom commands`
+      `**${discord.tag(msg.author)}**, I've removed all of your custom commands.`
     );
   }
 }();
