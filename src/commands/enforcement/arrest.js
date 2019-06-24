@@ -74,7 +74,7 @@ arrest a citizen.');
 
       const { court_category, judge_role, trial_role } = res;
       const prefix = `**${discord.tag(msg.author)}**, `;
-      const judge = this.getJudge(msg.channel.guild, args.warrant, judge_role);
+      const judge = this.get_judge(msg.channel.guild, args.warrant, judge_role);
       const officer = msg.author;
       const defendant = (msg.channel.guild.members.get(args.warrant.defendant_id) || {}).user;
 
@@ -82,9 +82,9 @@ arrest a citizen.');
         return CommandResult.fromError('The defendant is no longer in the server.');
       }
 
-      await this.setUp({
-        guild: msg.channel.guild, defendant, judge, officer,
-        warrant: args.warrant, jailed: trial_role, category: court_category
+      await this.set_up({
+        guild: msg.channel.guild, defendant, judge, officer, trial_role,
+        warrant: args.warrant, category: court_category
       });
       await discord.create_msg(msg.channel, `${prefix}I have arrested ${defendant.mention}.`);
     });
@@ -116,7 +116,7 @@ arrest a citizen.');
     };
   }
 
-  async setUp({ guild, defendant, judge, officer, warrant, jailed, category }) {
+  async set_up({ guild, defendant, judge, officer, warrant, trial_role, category }) {
     const channel = await create_channel(
       guild.id,
       `${discord.formatUsername(officer.username)}-VS-\
@@ -154,12 +154,12 @@ the prosecutor and defendant have the right to request a qualified and earnest a
       judge_id: judge.id,
       plaintiff_id: officer.id
     });
-    await add_role(guild.id, defendant.id, jailed);
+    await add_role(guild.id, defendant.id, trial_role);
     db.close_warrant(warrant.id);
   }
 
-  getJudge(guild, warrant, judgeRole) {
-    let judge = guild.members.filter(mbr => mbr.roles.includes(judgeRole));
+  get_judge(guild, warrant, judge_role) {
+    let judge = guild.members.filter(mbr => mbr.roles.includes(judge_role));
 
     if (judge.length > 1) {
       judge.splice(judge.findIndex(mbr => mbr.id === warrant.judge_id), 1);
