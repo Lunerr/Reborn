@@ -37,9 +37,9 @@ module.exports = new class KickFromCourt extends Command {
   }
 
   async run(msg, args) {
-    const court = db.get_channel_case(msg.channel.id);
+    const c_case = db.get_channel_case(msg.channel.id);
 
-    if (!court) {
+    if (!c_case) {
       return CommandResult.fromError('This channel is not a court case.');
     }
 

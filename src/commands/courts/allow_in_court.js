@@ -13,7 +13,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 'use strict';
-const { Argument, Command } = require('patron.js');
+const { Argument, Command, CommandResult } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 
@@ -38,10 +38,10 @@ module.exports = new class AllowInCourt extends Command {
   }
 
   async run(msg, args) {
-    const court = db.get_channel_case(msg.channel.id);
+    const c_case = db.get_channel_case(msg.channel.id);
 
-    if (!court) {
-      return;
+    if (!c_case) {
+      return CommandResult.fromError('This channel has no ongoing court case.');
     }
 
     await msg.channel.editPermission(args.member.id, this.bitfield, 0, 'member');
