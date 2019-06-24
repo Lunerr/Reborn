@@ -16,4 +16,4 @@
 const client = require('../services/client.js');
 const log = require('../utilities/logger.js');
 
-client.on('shardDisconnect', (err, id) => log.error(`Shard #${id}`, err));
+client.on('shardDisconnect', (err, id) => log.error(`Shard#${id}`, err));
