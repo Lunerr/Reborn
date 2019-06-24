@@ -16,4 +16,4 @@
 const client = require('../services/client.js');
 const log = require('../utilities/logger.js');
 
-client.on('warn', (msg, id) => log.warn(`Shard #${id}`, msg));
+client.on('warn', (msg, id) => log.warn(`Shard#${id}`, msg));
