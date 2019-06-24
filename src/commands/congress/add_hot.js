@@ -48,6 +48,12 @@ module.exports = new class AddHot extends Command {
   }
 
   async run(msg, args) {
+    if (!args.name.trim()) {
+      return CommandResult.fromError('The name cannot be empty.');
+    } else if (args.name.length < min_len) {
+      return CommandResult.fromError(`The minimum length of the name is ${min_len} characters.`);
+    }
+
     const cmds = db.fetch_commands(msg.channel.guild.id);
     const lower = args.name.toLowerCase();
     const { attachments } = msg;
@@ -56,10 +62,6 @@ module.exports = new class AddHot extends Command {
       return CommandResult.fromError('A custom command by this name already exists.');
     } else if (!attachments.length && args.response === empty_argument) {
       return CommandResult.fromError('A custom command must at least have a response or image.');
-    } else if (!args.name.trim()) {
-      return CommandResult.fromError('The name cannot be empty.');
-    } else if (args.name.length < min_len) {
-      return CommandResult.fromError(`The minimum length of the name is ${min_len} characters.`);
     }
 
     const update = {
