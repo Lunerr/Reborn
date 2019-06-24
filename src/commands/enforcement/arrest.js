@@ -79,7 +79,7 @@ arrest a citizen.');
       const defendant = (msg.channel.guild.members.get(args.warrant.defendant_id) || {}).user;
 
       if (!defendant) {
-        return CommandResult.fromError('The defendant has left the server.');
+        return CommandResult.fromError('The defendant is no longer in the server.');
       }
 
       await this.setUp({
