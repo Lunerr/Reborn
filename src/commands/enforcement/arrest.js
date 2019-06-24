@@ -76,10 +76,10 @@ arrest a citizen.');
       const prefix = `**${discord.tag(msg.author)}**, `;
       const judge = this.getJudge(msg.channel.guild, args.warrant, judge_role);
       const officer = msg.author;
-      let defendant = (msg.channel.guild.members.get(args.warrant.defendant_id) || {}).user;
+      const defendant = (msg.channel.guild.members.get(args.warrant.defendant_id) || {}).user;
 
       if (!defendant) {
-        defendant = await msg._client.getRESTUser(args.warrant.defendant_id);
+        return CommandResult.fromError('The defendant has left the server.');
       }
 
       await this.setUp({
