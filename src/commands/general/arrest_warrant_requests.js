@@ -116,7 +116,7 @@ ${discord.tag(officer)}** for violating the law: ${law.name} (${approved === 1 ?
     const { days, hours } = number.msToTime(expires);
 
     if (expires <= 0 || !hours) {
-      return 'expiring Soon';
+      return 'expiring soon';
     }
 
     return `expires in ${(day_hours * days) + hours} hours`;
