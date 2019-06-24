@@ -46,7 +46,7 @@ module.exports = {
 
     const keys = Object.keys(columns);
 
-    this.db.prepare(str.format(
+    return this.db.prepare(str.format(
       queries.insert,
       table,
       keys.join(', '),

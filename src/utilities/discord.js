@@ -52,20 +52,30 @@ module.exports = {
     return create_message(channel.id, result, file);
   },
 
-  verify_msg(msg, content, file, verify = 'I\'m sure') {
+  async verify_msg(msg, content, file, verify = 'I\'m sure') {
+    const lower = verify.toLowerCase();
+    const fn = m => m.author.id === msg.author.id && m.content.toLowerCase() === lower;
+    const res = await this.verify_channel_msg(msg, msg.channel, content, file, fn);
+
+    return res.success;
+  },
+
+  verify_channel_msg(msg, channel, content, file, fn) {
     return new Promise(async res => {
-      await this.create_msg(msg.channel, content, null, file);
+      await this.create_msg(channel, content, null, file);
 
       const timeout = setTimeout(() => {
         msg_collector.remove(msg.id);
-        res(false);
+        res({ success: false });
       }, config.verify_timeout);
 
       msg_collector.add(
-        m => m.author.id === msg.author.id && m.content.toLowerCase() === verify.toLowerCase(),
-        () => {
+        m => fn(m),
+        reply => {
           clearTimeout(timeout);
-          res(true);
+          res({
+            success: true, reply
+          });
         },
         msg.id
       );
