@@ -91,7 +91,7 @@ Type \`cancel\` to cancel the command.`, '', args.member).catch(console.error);
       return this.detain(msg, to_detain, law);
     }
 
-    const remaining = `You have ${max_tries - attempts - 1} more attempts remaining before \
+    const remaining = ` You have ${max_tries - attempts - 1} more attempts remaining before \
 the command automatically cancels.`;
 
     return this.verify(msg, member, content, remaining, to_detain, attempts + 1);
