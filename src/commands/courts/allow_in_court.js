@@ -46,7 +46,8 @@ module.exports = new class AllowInCourt extends Command {
 
     await msg.channel.editPermission(args.member.id, this.bitfield, 0, 'member');
     await discord.create_msg(
-      msg.channel, `**${discord.tag(msg.author)}**, Added ${discord.tag(args.member)}.`
+      msg.channel,
+      `**${discord.tag(msg.author)}**, ${args.member.mention} has been added to the court.`
     );
   }
 }();
