@@ -106,6 +106,33 @@ function remove_punc(string) {
   return remove_punc(string.slice(0, -1));
 }
 
+async function custom_cmd(msg) {
+  const custom_cmds = db.fetch_commands(msg.channel.guild.id);
+  const names = msg.content
+    .slice(msg.content.startsWith(prefix) ? prefix.length : 0)
+    .toLowerCase()
+    .split(' ')
+    .filter(x => x)
+    .map(remove_punc);
+  const custom = custom_cmds.find(x => x.active === 1 && names.includes(x.name.toLowerCase()));
+
+  if (custom) {
+    const options = {};
+
+    if (custom.image) {
+      options.file = {
+        file: await discord.resolve_image_link(custom.image), name: custom.image
+      };
+    }
+
+    if (custom.response) {
+      options.content = custom.response;
+    }
+
+    return msg.channel.createMessage(options.content, options.file);
+  }
+}
+
 client.on('messageCreate', catch_discord(async msg => {
   msg_collector.check(msg);
 
@@ -116,29 +143,10 @@ client.on('messageCreate', catch_discord(async msg => {
   const isCommand = await handler.parseCommand(msg, prefix.length);
 
   if (!isCommand.success && msg.channel.guild) {
-    const custom_cmds = db.fetch_commands(msg.channel.guild.id);
-    const names = msg.content
-      .slice(msg.content.startsWith(prefix) ? prefix.length : 0)
-      .toLowerCase()
-      .split(' ')
-      .filter(x => x)
-      .map(remove_punc);
-    const custom = custom_cmds.find(x => x.active === 1 && names.includes(x.name.toLowerCase()));
+    const { court_category } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
 
-    if (custom) {
-      const options = {};
-
-      if (custom.image) {
-        options.file = {
-          file: await discord.resolve_image_link(custom.image), name: custom.image
-        };
-      }
-
-      if (custom.response) {
-        options.content = custom.response;
-      }
-
-      return msg.channel.createMessage(options.content, options.file);
+    if (!court_category || (msg.channel.parentID && msg.channel.parentID !== court_category)) {
+      return custom_cmd(msg);
     }
   }
 
