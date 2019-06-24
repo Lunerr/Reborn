@@ -57,7 +57,7 @@ module.exports = new class Clear extends Command {
 Trial role, Jailed role, or Imprisoned role.');
     }
 
-    const pruned = await msg.channel.prune(args.amount, x => x.author.id === args.member.id);
+    const pruned = await msg.channel.purge(args.amount, x => x.author.id === args.member.id);
 
     await discord.create_msg(
       msg.channel, `${pruned} messages sent by ${args.member.mention} have been deleted.`
