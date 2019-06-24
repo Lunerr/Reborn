@@ -51,7 +51,7 @@ module.exports = new class NotGuilty extends Command {
     const defendant = msg.channel.guild.members.get(defendant_id);
 
     if (!defendant) {
-      return CommandResult.fromError('The defendant has left the server.');
+      return CommandResult.fromError('The defendant is no longer in the server.');
     }
 
     const currrent_verdict = db.get_verdict(case_id);
