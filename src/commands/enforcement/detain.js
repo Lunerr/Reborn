@@ -156,6 +156,7 @@ The defense is accused of violating the following law: ${law.name}
 ${warrant.evidence ? `Evidence: The last messages sent by ${defendant.mention}
 \`\`\`${warrant.evidence}\`\`\`` : ''}
 
+
 The judge must request a plea from the accused, and must proceed assuming an innocent plea after \
 12 hours without a plea. The defendant has the right to remain silent and both \
 the prosecutor and defendant have the right to request a qualified and earnest attorney.`;
