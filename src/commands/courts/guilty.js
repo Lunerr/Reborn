@@ -13,16 +13,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 'use strict';
-const { Argument, Command, CommandResult } = require('patron.js');
+const { Argument, Command, CommandResult, MultiMutex } = require('patron.js');
 const catch_discord = require('../../utilities/catch_discord.js');
 const client = require('../../services/client.js');
 const verdict = require('../../enums/verdict.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
+const system = require('../../utilities/system.js');
 const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
-const system = require('../../utilities/system.js');
 const empty_argument = Symbol('Empty Argument');
 const hours_per_day = 24;
 const content = `Declaring unlawful verdicts will result in \
@@ -60,50 +60,53 @@ module.exports = new class Guilty extends Command {
       names: ['guilty']
     });
     this.bitfield = 2048;
+    this.mutex = new MultiMutex();
   }
 
   async run(msg, args) {
-    const c_case = db.get_channel_case(msg.channel.id);
+    return this.mutex.sync(msg.channel.id, async () => {
+      const c_case = db.get_channel_case(msg.channel.id);
 
-    if (!c_case) {
-      return CommandResult.fromError('This channel has no ongoing court case.');
-    }
-
-    const { defendant_id, law_id, id: case_id } = c_case;
-    const defendant = msg.channel.guild.members.get(defendant_id);
-
-    if (!defendant) {
-      return CommandResult.fromError('The defendant is no longer in the server.');
-    }
-
-    const currrent_verdict = db.get_verdict(case_id);
-    const finished = currrent_verdict && currrent_verdict.verdict !== verdict.pending;
-    const law = db.get_law(law_id);
-    const mute = law.mandatory_felony
-      || (!law.mandatory_felony && system.mute_felon(msg.channel.guild.id, defendant_id, law));
-
-    if (finished) {
-      if (currrent_verdict.verdict === verdict.mistrial) {
-        return CommandResult.fromError('This case has already been declared as a mistrial.');
+      if (!c_case) {
+        return CommandResult.fromError('This channel has no ongoing court case.');
       }
 
-      return CommandResult.fromError('This case has already reached a verdict.');
-    } else if (args.sentence === empty_argument && mute) {
-      return CommandResult.fromError('A sentence must be given.');
-    } else if (args.sentence !== empty_argument && !mute) {
-      return CommandResult.fromError('The accused must be convicted of at least three \
-misdemeanors of this crime before a prison sentence is permissible.');
-    }
+      const { defendant_id, law_id, id: case_id } = c_case;
+      const defendant = msg.channel.guild.members.get(defendant_id);
 
-    const prefix = `**${discord.tag(msg.author)}**, `;
-    const verified = await discord.verify_msg(msg, `${prefix}${content}`, null, 'yes');
+      if (!defendant) {
+        return CommandResult.fromError('The defendant is no longer in the server.');
+      }
 
-    if (!verified) {
-      return CommandResult.fromError('The command has been cancelled.');
-    }
+      const currrent_verdict = db.get_verdict(case_id);
+      const finished = currrent_verdict && currrent_verdict.verdict !== verdict.pending;
+      const law = db.get_law(law_id);
+      const mute = law.mandatory_felony
+        || (!law.mandatory_felony && system.mute_felon(msg.channel.guild.id, defendant_id, law));
 
-    await this.end(msg, {
-      law, sentence: args.sentence, opinion: args.opinion, defendant, case_id, prefix
+      if (finished) {
+        if (currrent_verdict.verdict === verdict.mistrial) {
+          return CommandResult.fromError('This case has already been declared as a mistrial.');
+        }
+
+        return CommandResult.fromError('This case has already reached a verdict.');
+      } else if (args.sentence === empty_argument && mute) {
+        return CommandResult.fromError('A sentence must be given.');
+      } else if (args.sentence !== empty_argument && !mute) {
+        return CommandResult.fromError('The accused must be convicted of at least three \
+  misdemeanors of this crime before a prison sentence is permissible.');
+      }
+
+      const prefix = `**${discord.tag(msg.author)}**, `;
+      const verified = await discord.verify_msg(msg, `${prefix}${content}`, null, 'yes');
+
+      if (!verified) {
+        return CommandResult.fromError('The command has been cancelled.');
+      }
+
+      await this.end(msg, {
+        law, sentence: args.sentence, opinion: args.opinion, defendant, case_id, prefix
+      });
     });
   }
 
