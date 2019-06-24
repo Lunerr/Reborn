@@ -20,7 +20,6 @@ const client = require('../../services/client.js');
 const discord = require('../../utilities/discord.js');
 const create_channel = catch_discord(client.createChannel.bind(client));
 const add_role = catch_discord(client.addGuildMemberRole.bind(client));
-const max_tries = 5;
 const max_evidence = 10;
 
 module.exports = new class Detain extends Command {
@@ -53,21 +52,15 @@ module.exports = new class Detain extends Command {
       }
 
       return this.verify(msg, msg.member, `What law did ${args.member.mention} break?\n
-Type \`cancel\` to cancel the command.`, '', args.member).catch(console.error);
+Type \`cancel\` to cancel the command.`, args.member).catch(console.error);
     });
   }
 
-  async verify(msg, member, content, additional_content, to_detain, attempts = 0) {
-    if (attempts >= max_tries) {
-      return CommandResult.fromError(
-        'You have entered an incorrect law too many times so the command has been cancelled.'
-      );
-    }
-
+  async verify(msg, member, content, to_detain) {
     const res = await discord.verify_channel_msg(
       msg,
       msg.channel,
-      `${content}${additional_content}`,
+      content,
       null,
       x => x.author.id === member.id
     );
@@ -91,10 +84,10 @@ Type \`cancel\` to cancel the command.`, '', args.member).catch(console.error);
       return this.detain(msg, to_detain, law);
     }
 
-    const remaining = ` You have ${max_tries - attempts - 1} more attempts remaining before \
-the command automatically cancels.`;
+    const new_content = `This law does not exist, please try again.\n
+Type \`cancel\` to cancel the command.`;
 
-    return this.verify(msg, member, content, remaining, to_detain, attempts + 1);
+    return this.verify(msg, member, new_content, to_detain);
   }
 
   async detain(msg, member, law) {
