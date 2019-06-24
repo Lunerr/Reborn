@@ -27,10 +27,11 @@ module.exports = new class NotGuilty extends Command {
       preconditions: ['court_only', 'can_trial', 'judge_creator'],
       args: [
         new Argument({
-          example: '"Set this man free!"',
+          example: 'Set this man free!',
           key: 'opinion',
           name: 'opinion',
-          type: 'string'
+          type: 'string',
+          remainder: true
         })
       ],
       description: 'Declares an innocent verdict in court.',
