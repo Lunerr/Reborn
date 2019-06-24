@@ -45,9 +45,9 @@ module.exports = new class ArrestWarrantRequests extends Command {
       .fetch_warrants(msg.channel.guild.id)
       .filter(x => x.request === 1)
       .sort((a, b) => a.id - b.id);
-    const activeWarrants = warrants.filter(x => x.executed === 0);
+    const active_warrants = warrants.filter(x => x.executed === 0);
 
-    if (!activeWarrants.length) {
+    if (!active_warrants.length) {
       return CommandResult.fromError('There are no active request warrants.');
     }
 
@@ -63,7 +63,7 @@ module.exports = new class ArrestWarrantRequests extends Command {
       warrants = [warrants];
     }
 
-    await this.send_warrants(msg, activeWarrants);
+    await this.send_warrants(msg, active_warrants);
   }
 
   async send_warrants(msg, warrants) {
