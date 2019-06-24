@@ -102,7 +102,7 @@ the command automatically cancels.`;
     const filtered = msgs.filter(x => x.author.id === member.id).slice(0, max_evidence);
     const evidence = filtered
       .map((x, i) => {
-        let message = `${filtered.length - i}: ${x.content}`;
+        let message = `${filtered.length - i}. ${x.content}`;
 
         if (x.attachments.length) {
           message += `\n${x.attachments.map(c => c.proxy_url)}`;
