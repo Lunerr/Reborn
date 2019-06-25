@@ -137,7 +137,7 @@ ${judge.mention} will be presiding over this court proceeding.
 
 The defense is accused of violating the following law: ${law.name}
 
-${warrant.evidence ? `Evidence: ${warrant.evidence}.` : ''}
+${warrant.evidence ? `Evidence: ${warrant.evidence}` : ''}
 
 The judge must request a plea from the accused, and must proceed assuming an innocent plea after \
 12 hours without a plea. The defendant has the right to remain silent and both \

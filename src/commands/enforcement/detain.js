@@ -93,7 +93,7 @@ Type \`cancel\` to cancel the command.`;
         let message = `${filtered.length - i}. ${x.content}`;
 
         if (x.attachments.length) {
-          message += `\n${x.attachments.map(c => c.proxy_url)}`;
+          message += x.attachments.map(c => c.proxy_url).join(', ');
         }
 
         return message;
@@ -107,7 +107,7 @@ Type \`cancel\` to cancel the command.`;
       defendant_id: member.id,
       officer_id: msg.author.id,
       judge_id: client.user.id,
-      evidence: `${evidence}\n`,
+      evidence: `\n${evidence}\n`,
       request: 1
     };
 
