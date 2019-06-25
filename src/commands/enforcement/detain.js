@@ -93,7 +93,7 @@ Type \`cancel\` to cancel the command.`;
         let message = `${filtered.length - i}. ${x.content}`;
 
         if (x.attachments.length) {
-          message += x.attachments.map(c => c.proxy_url).join(', ');
+          message += ` ${x.attachments.map(c => c.proxy_url).join(', ')}`;
         }
 
         return message;
