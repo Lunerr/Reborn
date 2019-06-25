@@ -53,4 +53,4 @@ Timer(() => {
       }
     }
   }
-}, config.max_case_time);
+}, config.auto_verdict_time);
