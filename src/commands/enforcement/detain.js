@@ -18,9 +18,9 @@ const db = require('../../services/database.js');
 const catch_discord = require('../../utilities/catch_discord.js');
 const client = require('../../services/client.js');
 const discord = require('../../utilities/discord.js');
-const create_channel = catch_discord(client.createChannel.bind(client));
 const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const max_evidence = 10;
+const fetch_limit = 100;
 
 module.exports = new class Detain extends Command {
   constructor() {
@@ -76,11 +76,6 @@ Type \`cancel\` to cancel the command.`, args.member).catch(console.error);
     const law = laws.find(x => x.name.toLowerCase() === reply);
 
     if (law) {
-      await discord.create_msg(
-        msg.channel,
-        `You have successfully detained ${to_detain.mention} under the law ${law.name}.`
-      );
-
       return this.detain(msg, to_detain, law);
     }
 
@@ -91,7 +86,7 @@ Type \`cancel\` to cancel the command.`;
   }
 
   async detain(msg, member, law) {
-    const msgs = await msg.channel.getMessages();
+    const msgs = await msg.channel.getMessages(fetch_limit);
     const filtered = msgs.filter(x => x.author.id === member.id).slice(0, max_evidence);
     const evidence = filtered
       .map((x, i) => {
@@ -112,86 +107,14 @@ Type \`cancel\` to cancel the command.`;
       defendant_id: member.id,
       officer_id: msg.author.id,
       judge_id: client.user.id,
-      evidence,
-      request: 1,
-      approved: 1,
-      executed: 1
+      evidence: `${evidence}\n`,
+      request: 1
     };
-    const { lastInsertRowid: row_id } = db.insert('warrants', warrant);
 
-    warrant.id = row_id;
-
-    return this.arrest(msg, msg.author, member, warrant, law);
-  }
-
-  async arrest(msg, officer, defendant, warrant, law) {
-    const { court_category, judge_role } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
-    const judge = this.get_judge(msg.channel.guild, warrant, judge_role);
-    const channel = await create_channel(
-      msg.channel.guild.id,
-      `${discord.formatUsername(officer.username)}-VS-\
-${discord.formatUsername(defendant.username)}`,
-      0,
-      null,
-      court_category
+    db.insert('warrants', warrant);
+    await discord.create_msg(
+      msg.channel, `You have successfully detained ${member.mention} and a warrant has been \
+created under the law ${law.name}.`
     );
-    const edits = [judge.id, officer.id, defendant.id, client.user.id];
-
-    await Promise.all(edits.map(x => channel.editPermission(x, this.bitfield, 0, 'member')));
-    await channel.edit({ nsfw: true });
-
-    const content = `${officer.mention} VS ${defendant.mention}
-
-${judge.mention} will be presiding over this court proceeding.
-
-The defense is accused of violating the following law: ${law.name}
-
-${warrant.evidence ? `Evidence: The last messages sent by ${defendant.mention}
-\`\`\`${warrant.evidence}\`\`\`` : ''}
-
-
-The judge must request a plea from the accused, and must proceed assuming an innocent plea after \
-12 hours without a plea. The defendant has the right to remain silent and both \
-the prosecutor and defendant have the right to request a qualified and earnest attorney.`;
-    const opening = await channel.createMessage(content);
-
-    await opening.pin();
-    db.insert('cases', {
-      guild_id: msg.channel.guild.id,
-      channel_id: channel.id,
-      warrant_id: warrant.id,
-      law_id: warrant.law_id,
-      defendant_id: defendant.id,
-      judge_id: judge.id,
-      plaintiff_id: officer.id
-    });
-  }
-
-  get_judge(guild, warrant, judge_role) {
-    let judge = guild.members.filter(mbr => mbr.roles.includes(judge_role));
-
-    if (judge.length > 1) {
-      const warrant_judge = judge.findIndex(mbr => mbr.id === warrant.judge_id);
-
-      if (warrant_judge !== -1) {
-        judge.splice(warrant_judge, 1);
-      }
-
-      const defendant = judge.findIndex(x => x.id === warrant.defendant_id);
-
-      if (defendant !== -1) {
-        judge.splice(defendant, 1);
-      }
-
-      const active = judge.filter(x => x.status === 'online' || x.status === 'dnd');
-
-      if (active.length > 1) {
-        judge = active;
-      }
-    }
-
-    judge = judge[Math.floor(Math.random() * judge.length)];
-
-    return judge;
   }
 }();
