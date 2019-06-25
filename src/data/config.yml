@@ -22,8 +22,8 @@ auto_close_warrant_interval: 3e5
 # When the warrant closes after its been issued
 auto_close_warrant: 1728e5
 
-# Time cases last for in ms.
-max_case_time: 864e5
+# Interval for checking for finished verdicts.
+auto_verdict_time: 3e5
 
 # Interval for when the bot auto unmutes
 auto_unmute: 3e5
