@@ -192,16 +192,8 @@ ${evidence || 'N/A'}\n**Served:** ${served ? 'Yes' : 'No'}\n**Expiration:** ${fo
     });
   },
 
-  async add_warrant(channel, warrant, prune = true) {
+  async add_warrant(channel, warrant) {
     return this.mutex.sync(`${channel.guild.id}-${warrant.id}`, async () => {
-      if (prune) {
-        const msgs = await channel.getMessages(this.max_msgs);
-
-        if (msgs.length >= this.max_warrants) {
-          await msgs[msgs.length - 1].delete();
-        }
-      }
-
       const defendant = (channel.guild.members.get(warrant.defendant_id) || {})
         .user || await channel.guild.shard.client.getRESTUser(warrant.defendant_id);
       const law = db.get_law(warrant.law_id);
@@ -226,7 +218,7 @@ ${evidence || 'N/A'}\n**Served:** ${served ? 'Yes' : 'No'}\n**Expiration:** ${fo
         await this.prune(channel);
 
         for (let i = 0; i < warrants.length; i++) {
-          await this.add_warrant(channel, warrants[i], false);
+          await this.add_warrant(channel, warrants[i]);
         }
       }
 
