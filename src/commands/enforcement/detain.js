@@ -53,7 +53,7 @@ module.exports = new class Detain extends Command {
       }
 
       return this.verify(msg, msg.member, `What law did ${args.member.mention} break?\n
-Type \`cancel\` to cancel the command.`, args.member).catch(console.error);
+Type \`cancel\` to cancel the command.`, args.member);
     });
   }
 

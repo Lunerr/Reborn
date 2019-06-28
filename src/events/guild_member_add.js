@@ -32,5 +32,5 @@ ABSOLUTE LIBERTY FOR ALL.
 client.on('guildMemberAdd', async (guild, member) => {
   const dm_channel = await member.user.getDMChannel();
 
-  await send_msg(dm_channel.id, msg);
+  await send_msg(dm_channel.id, msg).catch(() => null);
 });

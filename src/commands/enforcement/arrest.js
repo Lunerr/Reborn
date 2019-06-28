@@ -109,7 +109,7 @@ arrest a citizen.');
     const verified = await discord.verify_msg(msg, `${arrest_message}`, null, 'yes');
 
     if (!verified) {
-      await discord.create_msg(msg, `${prefix}The command has been cancelled.`);
+      await discord.create_msg(msg.channel, `${prefix}The command has been cancelled.`);
 
       return false;
     }
