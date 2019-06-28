@@ -172,7 +172,7 @@ module.exports = {
     return `**ID:** ${id}${judge ? `\n**Granted by:** ${judge.mention}` : ''}\
 ${add_defendant ? `\n**Defendant:** ${defendant.mention}` : ''}\
 ${add_law ? `\n**In violation of the law:** ${law.name}` : ''}\n**Evidence:** \
-${evidence || 'N/A'}\n**Served:** ${served ? 'Yes' : 'No'}\n**Expiration:** ${format}.`;
+${evidence || 'N/A'}\n**Served:** ${served ? 'Yes' : 'No'}${served ? '' : `\n**Expiration:** ${format}`}.`;
   },
 
   async edit_warrant(channel, warrant) {
