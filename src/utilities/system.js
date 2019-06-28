@@ -146,12 +146,9 @@ module.exports = {
   async format_warrant(guild, warrant, id, served, add_law = true, add_defendant = true) {
     const { defendant_id, judge_id, evidence, approved, created_at, law_id } = warrant;
     const law = db.get_law(law_id);
-    let defendant = guild.members.get(defendant_id).user;
+    let defendant = (guild.members.get(defendant_id) || {})
+      .user || await msg._client.getRESTUser(defendant_id);
     let judge = guild.members.get(judge_id);
-
-    if (!defendant) {
-      defendant = await guild.shard.client.getRESTUser(defendant_id);
-    }
 
     if (approved && !judge) {
       judge = await guild.shard.client.getRESTUser(judge_id);
