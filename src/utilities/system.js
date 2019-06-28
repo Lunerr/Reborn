@@ -162,7 +162,7 @@ module.exports = {
       format = 'Expired';
     } else if (days || hours || minutes) {
       const total_time = day_hours * days;
-      const time = hours ? `${total_time + hours} hours` : `${total_time + minutes} minutes`;
+      const time = total_time + hours ? `${total_time + hours} hours` : `${minutes} minutes`;
 
       format = `Expires in ${time}`;
     } else {
