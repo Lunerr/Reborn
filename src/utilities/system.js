@@ -146,8 +146,8 @@ module.exports = {
   async format_warrant(guild, warrant, id, served, add_law = true, add_defendant = true) {
     const { defendant_id, judge_id, evidence, approved, created_at, law_id } = warrant;
     const law = db.get_law(law_id);
-    let defendant = (guild.members.get(defendant_id) || {})
-      .user || await msg._client.getRESTUser(defendant_id);
+    const defendant = (guild.members.get(defendant_id) || {})
+      .user || await guild.shard.client.getRESTUser(defendant_id);
     let judge = guild.members.get(judge_id);
 
     if (approved && !judge) {
@@ -200,10 +200,14 @@ ${evidence || 'N/A'}\n**Served:** ${served ? 'Yes' : 'No'}\n**Expiration:** ${fo
         await msgs[msgs.length - 1].delete();
       }
 
-      const obj = discord.embed({ title: warrant.id });
+      const defendant = (channel.guild.members.get(warrant.defendant_id) || {})
+        .user || await channel.guild.shard.client.getRESTUser(warrant.defendant_id);
+      const law = db.get_law(warrant.law_id);
+      const title = `Warrant for ${discord.tag(defendant)} (${law.name})`;
+      const obj = discord.embed({ title });
 
       obj.embed.description = await this.format_warrant(
-        channel.guild, warrant, warrant.id, warrant.executed
+        channel.guild, warrant, warrant.id, warrant.executed, false, false
       );
 
       return channel.createMessage(obj);
