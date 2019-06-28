@@ -17,6 +17,7 @@ const client = require('../services/client.js');
 const { config } = require('../services/data.js');
 const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
+const system = require('../utilities/system.js');
 
 Timer(() => {
   const keys = [...client.guilds.keys()];
@@ -34,8 +35,19 @@ Timer(() => {
 
       const time_left = Date.now() - (warrant.created_at + config.auto_close_warrant);
 
-      if (time_left >= 0) {
-        db.close_warrant(warrant.id);
+      if (time_left < 0) {
+        continue;
+      }
+
+      db.close_warrant(warrant.id);
+
+      const { warrant_channel } = db.fetch('guilds', { guild_id: guild.id });
+      const w_channel = guild.channels.get(warrant_channel);
+
+      if (w_channel) {
+        const new_warrant = Object.assign(warrant, { executed: 1 });
+
+        return system.edit_warrant(w_channel, new_warrant);
       }
     }
   }

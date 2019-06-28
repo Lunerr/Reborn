@@ -19,6 +19,9 @@ repeat_felon_count: 3
 # Auto close warrant interval in ms.
 auto_close_warrant_interval: 3e5
 
+# Auto set case to inactive interval.
+auto_set_inactive_case_interval: 3e5
+
 # When the warrant closes after its been issued
 auto_close_warrant: 1728e5
 

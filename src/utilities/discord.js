@@ -52,6 +52,15 @@ module.exports = {
     return create_message(channel.id, result, file);
   },
 
+  sanitize_mentions(msg, content) {
+    return msg.mentions
+      .map(x => x.id)
+      .concat(msg.roleMentions)
+      .reduce(
+        (a, b) => a.replace(b, `\u200b${b}`), content.replace(/@(everyone|here)/g, '@\u200b$1')
+      );
+  },
+
   async verify_msg(msg, content, file, verify = 'I\'m sure') {
     const lower = verify.toLowerCase();
     const fn = m => m.author.id === msg.author.id && m.content.toLowerCase() === lower;

@@ -1,5 +1,6 @@
 const { MultiMutex } = require('patron.js');
 const { config } = require('../services/data.js');
+const client = require('../services/client.js');
 const discord = require('./discord.js');
 const db = require('../services/database.js');
 const verdict = require('../enums/verdict.js');
@@ -120,7 +121,7 @@ module.exports = {
   },
 
   add_law(channel, law) {
-    return this.mutex.sync(`${channel.guild.id}-${law.id}`, async () => channel
+    return this.mutex.sync(`${channel.guild.id}-laws`, async () => channel
       .createMessage({ embed: this.format_laws([law])[0] }));
   },
 
@@ -143,18 +144,7 @@ module.exports = {
     });
   },
 
-  async format_warrant(guild, warrant, id, served, add_law = true, add_defendant = true) {
-    const { defendant_id, judge_id, evidence, approved, created_at, law_id } = warrant;
-    const law = db.get_law(law_id);
-    const defendant = (guild.members.get(defendant_id) || {})
-      .user || await guild.shard.client.getRESTUser(defendant_id);
-    let judge = guild.members.get(judge_id);
-
-    if (approved && !judge) {
-      judge = await guild.shard.client.getRESTUser(judge_id);
-    }
-
-    const time_left = created_at + config.auto_close_warrant - Date.now();
+  format_warrant_time(time_left) {
     const { days, hours, minutes } = number.msToTime(time_left);
     let format = '';
 
@@ -169,40 +159,53 @@ module.exports = {
       format = 'Expiring soon';
     }
 
-    return `**ID:** ${id}${judge ? `\n**Granted by:** ${judge.mention}` : ''}\
-${add_defendant ? `\n**Defendant:** ${defendant.mention}` : ''}\
-${add_law ? `\n**In violation of the law:** ${law.name}` : ''}\n**Evidence:** \
-${evidence || 'N/A'}\n**Served:** ${served ? 'Yes' : 'No'}${served ? '' : `\n**Expiration:** ${format}`}.`;
+    return format;
+  },
+
+  async format_warrant(guild, warrant, id, served, type = 'Warrant') {
+    const { defendant_id, judge_id, evidence, approved, created_at, law_id } = warrant;
+    const law = db.get_law(law_id);
+    const defendant = client.users.get(defendant_id) || await client.getRESTUser(defendant_id);
+    let judge;
+
+    if (approved) {
+      judge = guild.members.get(judge_id) || await client.getRESTUser(judge_id);
+    }
+
+    const format = this.format_warrant_time(created_at + config.auto_close_warrant - Date.now());
+
+    return {
+      title: `${type} for ${discord.tag(defendant)} (${law.name})`,
+      description: `**ID:** ${id}${judge ? `\n**Granted by:** ${judge.mention}` : ''}
+**Evidence:** ${evidence || 'N/A'}\n**Served:** \
+${served ? 'Yes' : 'No'}${served ? '' : `\n**Expiration:** ${format}`}.`
+    };
   },
 
   async edit_warrant(channel, warrant) {
-    return this.mutex.sync(`${channel.guild.id}-${warrant.id}`, async () => {
+    return this.mutex.sync(`${channel.guild.id}-warrants`, async () => {
       const msgs = await channel.getMessages(this.max_msgs);
-      const found = msgs.find(x => Number(x.embeds[0].title) === warrant.id);
+      const { id, executed } = warrant;
+      const found = msgs.find(x => {
+        const [old_id] = x.embeds[0].description.split('**ID:** ')[1].split('\n');
+
+        return Number(old_id) === id;
+      });
 
       if (found) {
-        const obj = discord.embed({ title: warrant.id });
-
-        obj.embed.description = await this.format_warrant(
-          channel.guild, warrant, warrant.id, warrant.executed
-        );
+        const obj = discord.embed(await this.format_warrant(channel.guild, warrant, id, executed));
 
         return found.edit(obj);
       }
+
+      return warrant;
     });
   },
 
   async add_warrant(channel, warrant) {
-    return this.mutex.sync(`${channel.guild.id}-${warrant.id}`, async () => {
-      const defendant = (channel.guild.members.get(warrant.defendant_id) || {})
-        .user || await channel.guild.shard.client.getRESTUser(warrant.defendant_id);
-      const law = db.get_law(warrant.law_id);
-      const title = `Warrant for ${discord.tag(defendant)} (${law.name})`;
-      const obj = discord.embed({ title });
-
-      obj.embed.description = await this.format_warrant(
-        channel.guild, warrant, warrant.id, warrant.executed, false, false
-      );
+    return this.mutex.sync(`${channel.guild.id}-warrants`, async () => {
+      const { id, executed } = warrant;
+      const obj = discord.embed(await this.format_warrant(channel.guild, warrant, id, executed));
 
       return channel.createMessage(obj);
     });
@@ -210,15 +213,19 @@ ${evidence || 'N/A'}\n**Served:** ${served ? 'Yes' : 'No'}${served ? '' : `\n**E
 
   async update_warrants(channel, warrants) {
     return this.mutex.sync(`${channel.guild.id}-warrants`, async () => {
-      const fn = async (x, item) => x.embeds[0].description === await this
-        .format_warrant(channel.guild, item, item.id, item.executed);
+      const fn = async (x, item) => x.embeds[0].description === (await this
+        .format_warrant(channel.guild, item, item.id, item.executed)).description;
       const to_prune = await this.should_prune(channel, warrants, fn);
 
       if (to_prune) {
         await this.prune(channel);
 
         for (let i = 0; i < warrants.length; i++) {
-          await this.add_warrant(channel, warrants[i]);
+          const obj = discord.embed(await this.format_warrant(
+            channel.guild, warrants[i], warrants[i].id, warrants[i].executed
+          ));
+
+          await channel.createMessage(obj);
         }
       }
 
@@ -227,8 +234,7 @@ ${evidence || 'N/A'}\n**Served:** ${served ? 'Yes' : 'No'}${served ? '' : `\n**E
   },
 
   async format_case(guild, c_case) {
-    const judge = guild.members.get(c_case.judge_id) || await guild
-      .shard.client.getRESTUser(c_case.judge_id);
+    const judge = guild.members.get(c_case.judge_id) || await client.getRESTUser(c_case.judge_id);
     const case_verdict = db.get_verdict(c_case.id);
     let verdict_string;
     let append = `\n**Presiding judge:** ${judge.mention}`;
@@ -244,33 +250,35 @@ ${evidence || 'N/A'}\n**Served:** ${served ? 'Yes' : 'No'}${served ? '' : `\n**E
     }
 
     const warrant = db.get_warrant(c_case.warrant_id);
-    const case_format = `${await this.format_warrant(
-      guild, warrant, c_case.id, case_verdict
-    )}${append}`;
+    const format = await this.format_warrant(guild, warrant, c_case.id, case_verdict, 'Case');
 
-    return case_format;
+    format.description += append;
+
+    return format;
   },
 
   async edit_case(channel, c_case) {
-    return this.mutex.sync(`${channel.guild.id}-${c_case.id}`, async () => {
+    return this.mutex.sync(`${channel.guild.id}-cases`, async () => {
       const msgs = await channel.getMessages(this.max_msgs);
-      const found = msgs.find(x => Number(x.embeds[0].title) === c_case.id);
+      const found = msgs.find(x => {
+        const [old_id] = x.embeds[0].description.split('**ID:** ')[1].split('\n');
+
+        return Number(old_id) === c_case.id;
+      });
 
       if (found) {
-        const obj = discord.embed({ title: c_case.id });
-
-        obj.embed.description = await this.format_case(channel.guild, c_case);
+        const obj = discord.embed(await this.format_case(channel.guild, c_case));
 
         return found.edit(obj);
       }
+
+      return c_case;
     });
   },
 
   async add_case(channel, c_case) {
-    return this.mutex.sync(`${channel.guild.id}-${c_case.id}`, async () => {
-      const obj = discord.embed({ title: c_case.id });
-
-      obj.embed.description = await this.format_case(channel.guild, c_case);
+    return this.mutex.sync(`${channel.guild.id}-cases`, async () => {
+      const obj = discord.embed(await this.format_case(channel.guild, c_case));
 
       return channel.createMessage(obj);
     });
@@ -278,15 +286,17 @@ ${evidence || 'N/A'}\n**Served:** ${served ? 'Yes' : 'No'}${served ? '' : `\n**E
 
   async update_cases(channel, cases) {
     return this.mutex.sync(`${channel.guild.id}-cases`, async () => {
-      const fn = async (x, item) => x.embeds[0].description === await this
-        .format_case(channel.guild, item);
+      const fn = async (x, item) => x.embeds[0].description === (await this
+        .format_case(channel.guild, item)).description;
       const to_prune = await this.should_prune(channel, cases, fn);
 
       if (to_prune) {
         await this.prune(channel);
 
         for (let i = 0; i < cases.length; i++) {
-          await this.add_case(channel, cases[i]);
+          const obj = discord.embed(await this.format_case(channel.guild, cases[i]));
+
+          await channel.createMessage(obj);
         }
       }
 

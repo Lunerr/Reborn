@@ -77,13 +77,7 @@ module.exports = new class AddHot extends Command {
         );
       }
 
-      const response = msg.mentions
-        .map(x => x.id)
-        .concat(msg.roleMentions)
-        .reduce((a, b) => a.replace(b, `\u200b${b}`),
-          args.response.replace(/@(everyone|here)/g, '@\u200b$1'));
-
-      update.response = response;
+      update.response = discord.sanitize_mentions(msg, args.response);
     }
 
     if (attachments.length) {

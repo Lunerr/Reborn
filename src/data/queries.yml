@@ -37,7 +37,8 @@ cases_table: |-
     channel_id TEXT NOT NULL,
     defendant_id TEXT NOT NULL,
     judge_id TEXT NOT NULL,
-    plaintiff_id TEXT NOT NULL
+    plaintiff_id TEXT NOT NULL,
+    inactive_count TINYINT NOT NULL DEFAULT 0
   )
 
 verdicts_table: |-
@@ -119,6 +120,8 @@ approve_warrant: UPDATE warrants SET approved = 1, judge_id = ? WHERE id = ?
 close_law: UPDATE laws SET active = 0 WHERE id = ?
 
 close_cmd: UPDATE commands SET active = 0 WHERE id = ?
+
+set_case_inactive_count: UPDATE cases SET inactive_count = ? WHERE id = ?
 
 select_channel_case: SELECT * FROM cases WHERE channel_id = ?
 

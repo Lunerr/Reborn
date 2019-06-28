@@ -60,6 +60,8 @@ module.exports = new class Arrest extends Command {
     return this.mutex.sync(`${msg.channel.guild.id}-${args.warrant.id}`, async () => {
       if (args.warrant.executed === 1) {
         return CommandResult.fromError('This warrant was already served.');
+      } else if (args.warrant.defendant_id === msg.author.id) {
+        return CommandResult.fromError('You cannot arrest yourself.');
       } else if (args.warrant.request === 1 && args.warrant.approved === 0) {
         return CommandResult.fromError('This request warrant has not been approved by a judge.');
       } else if (args.warrant.request === 1 && args.warrant.officer_id === msg.author.id) {
@@ -85,7 +87,7 @@ arrest a citizen.');
       await this.set_up({
         guild: msg.channel.guild, defendant, judge, officer: msg.author, trial_role,
         warrant: args.warrant, category: court_category
-      });
+      }, msg);
 
       const prefix = `**${discord.tag(msg.author)}**, `;
 
@@ -119,7 +121,7 @@ arrest a citizen.');
     };
   }
 
-  async set_up({ guild, defendant, judge, officer, warrant, trial_role, category }) {
+  async set_up({ guild, defendant, judge, officer, warrant, trial_role, category }, msg) {
     const channel = await create_channel(
       guild.id,
       `${discord.formatUsername(officer.username)}-VS-\
@@ -140,14 +142,15 @@ ${judge.mention} will be presiding over this court proceeding.
 
 The defense is accused of violating the following law: ${law.name}
 
-${warrant.evidence ? `Evidence: ${warrant.evidence}` : ''}
+${warrant.evidence ? `${warrant.request === 1 ? 'Messages' : 'Evidence'}: ${discord
+    .sanitize_mentions(msg, warrant.evidence)}` : ''}
 
 The judge must request a plea from the accused, and must proceed assuming an innocent plea after \
 12 hours without a plea. The defendant has the right to remain silent and both \
 the prosecutor and defendant have the right to request a qualified and earnest attorney.`;
-    const msg = await channel.createMessage(content);
+    const sent = await channel.createMessage(content);
 
-    await msg.pin();
+    await sent.pin();
     await this.close(channel, warrant, defendant.id, judge.id, officer.id, trial_role);
   }
 

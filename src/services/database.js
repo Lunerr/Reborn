@@ -121,6 +121,10 @@ module.exports = {
     return queries.close_cmd.run(id);
   },
 
+  set_case_inactive_count(id, count) {
+    return queries.set_case_inactive_count.run(count, id);
+  },
+
   approve_warrant(id, judge_id) {
     return queries.approve_warrant.run(judge_id, id);
   },
