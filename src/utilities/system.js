@@ -192,12 +192,14 @@ ${evidence || 'N/A'}\n**Served:** ${served ? 'Yes' : 'No'}\n**Expiration:** ${fo
     });
   },
 
-  async add_warrant(channel, warrant) {
+  async add_warrant(channel, warrant, prune = true) {
     return this.mutex.sync(`${channel.guild.id}-${warrant.id}`, async () => {
-      const msgs = await channel.getMessages(this.max_msgs);
+      if (prune) {
+        const msgs = await channel.getMessages(this.max_msgs);
 
-      if (msgs.length >= this.max_warrants) {
-        await msgs[msgs.length - 1].delete();
+        if (msgs.length >= this.max_warrants) {
+          await msgs[msgs.length - 1].delete();
+        }
       }
 
       const defendant = (channel.guild.members.get(warrant.defendant_id) || {})
@@ -224,7 +226,7 @@ ${evidence || 'N/A'}\n**Served:** ${served ? 'Yes' : 'No'}\n**Expiration:** ${fo
         await this.prune(channel);
 
         for (let i = 0; i < warrants.length; i++) {
-          await this.add_warrant(channel, warrants[i]);
+          await this.add_warrant(channel, warrants[i], false);
         }
       }
 
