@@ -48,27 +48,31 @@ module.exports = new class Warrants extends Command {
       title: 'Warrants', fields: []
     });
     let total_count = 0;
-    const zws = '\u200b';
 
     for (let i = 0; i < top.length; i++) {
       const message = await system.format_warrant(
-        msg.channel.guild, top[i], top[i].id, top[i].executed
+        msg.channel.guild, top[i], top[i].id, top[i].executed, false, false
       );
+      const defendant = (msg.channel.guild.members.get(top[i].defendant_id) || {})
+        .user || await msg._client.getRESTUser(top[i].defendant_id);
+      const law = db.get_law(top[i].law_id);
+      const title = `Warrant for ${discord.tag(defendant)} (${law.name})`;
 
-      if (total_count + message.length + zws.length >= max_embed_char) {
+      if (total_count + message.length + title.length >= max_embed_char) {
         await msg.channel.createMessage(obj);
+        total_count = 0;
         obj = discord.embed({
           title: 'Warrants', fields: [
             {
-              name: zws, value: message, inline: false
+              name: title, value: message, inline: true
             }
           ]
         });
       } else {
         obj.embed.fields.push({
-          name: zws, value: message, inline: false
+          name: title, value: message, inline: true
         });
-        total_count += message.length + zws.length;
+        total_count += message.length + title.length;
       }
     }
 

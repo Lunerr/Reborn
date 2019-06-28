@@ -143,7 +143,7 @@ module.exports = {
     });
   },
 
-  async format_warrant(guild, warrant, id, served) {
+  async format_warrant(guild, warrant, id, served, add_law = true, add_defendant = true) {
     const { defendant_id, judge_id, evidence, approved, created_at, law_id } = warrant;
     const law = db.get_law(law_id);
     let defendant = guild.members.get(defendant_id).user;
@@ -172,8 +172,9 @@ module.exports = {
       format = 'Expiring soon';
     }
 
-    return `**ID:** ${id}${judge ? `\n**Granted by:** ${judge.mention}` : ''}
-**Defendant:** ${defendant.mention}\n**In violation of the law:** ${law.name}\n**Evidence:** \
+    return `**ID:** ${id}${judge ? `\n**Granted by:** ${judge.mention}` : ''}\
+${add_defendant ? `\n**Defendant:** ${defendant.mention}` : ''}\
+${add_law ? `\n**In violation of the law:** ${law.name}` : ''}\n**Evidence:** \
 ${evidence || 'N/A'}\n**Served:** ${served ? 'Yes' : 'No'}\n**Expiration:** ${format}.`;
   },
 
