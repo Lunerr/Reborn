@@ -16,6 +16,7 @@
 const { Argument, Command } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
+const system = require('../../utilities/system.js');
 
 module.exports = new class SetCasesChannel extends Command {
   constructor() {
@@ -44,5 +45,9 @@ module.exports = new class SetCasesChannel extends Command {
       msg.channel,
       `**${discord.tag(msg.author)}**, I have set the Cases channel to ${args.channel.mention}.`
     );
+
+    const cases = db.fetch_cases(msg.channel.guild.id);
+
+    await system.update_cases(args.channel, cases);
   }
 }();

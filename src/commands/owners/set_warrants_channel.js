@@ -16,6 +16,7 @@
 const { Argument, Command } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
+const system = require('../../utilities/system.js');
 
 module.exports = new class SetWarrantsChannel extends Command {
   constructor() {
@@ -44,5 +45,9 @@ module.exports = new class SetWarrantsChannel extends Command {
       msg.channel,
       `**${discord.tag(msg.author)}**, I have set the Warrant channel to ${args.channel.mention}.`
     );
+
+    const warrants = db.fetch_warrants(msg.channel.guild.id);
+
+    await system.update_warrants(args.channel, warrants);
   }
 }();
