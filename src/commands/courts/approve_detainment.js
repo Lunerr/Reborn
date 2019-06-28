@@ -16,18 +16,19 @@
 const { Argument, Command, CommandResult } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
-const content = `Granting unlawful request warrants will result in \
+const system = require('../../utilities/system.js');
+const content = `Granting unlawful detainments will result in \
 impeachment and **national disgrace**.
 
-If you have **ANY DOUBTS WHATSOEVER ABOUT THE VALIDITY OF THIS REQUEST WARRANT**, \
+If you have **ANY DOUBTS WHATSOEVER ABOUT THE VALIDITY OF THIS DETAINMENT**, \
 do not proceed with this grant.
 
 __IGNORANCE IS NOT A DEFENSE.__
 
-If you are sure you wish to proceed with granting this request warrant given the aforementioned \
+If you are sure you wish to proceed with granting this detainment given the aforementioned \
 terms, please type \`yes\`.`;
 
-module.exports = new class GrantArrestWarrant extends Command {
+module.exports = new class ApproveDetainment extends Command {
   constructor() {
     super({
       preconditions: ['judges'],
@@ -39,15 +40,15 @@ module.exports = new class GrantArrestWarrant extends Command {
           type: 'warrant'
         })
       ],
-      description: 'Grants an arrest warrant request.',
+      description: 'Approves a detainment.',
       groupName: 'courts',
-      names: ['grant_arrest_warrant', 'grant']
+      names: ['approve_detainment']
     });
   }
 
   async run(msg, args) {
     if (args.warrant.approved === 1) {
-      return CommandResult.fromError('This warrant has already been granted.');
+      return CommandResult.fromError('This detainment has already been approved.');
     }
 
     const verified = await discord.verify_msg(
@@ -61,7 +62,16 @@ module.exports = new class GrantArrestWarrant extends Command {
     db.approve_warrant(args.warrant.id, msg.author.id);
     await discord.create_msg(
       msg.channel,
-      `**${discord.tag(msg.author)}**, You've granted this warrant.`
+      `**${discord.tag(msg.author)}**, You've approved this detainment.`
     );
+
+    const { warrant_channel } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+    const w_channel = msg.channel.guild.channels.get(warrant_channel);
+
+    if (w_channel) {
+      const new_warrant = Object.assign(args.warrant, { judge_id: msg.author.id });
+
+      await system.edit_warrant(w_channel, new_warrant);
+    }
   }
 }();

@@ -19,6 +19,7 @@ const client = require('../../services/client.js');
 const verdict = require('../../enums/verdict.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
+const system = require('../../utilities/system.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 
 module.exports = new class NotGuilty extends Command {
@@ -42,7 +43,7 @@ module.exports = new class NotGuilty extends Command {
   }
 
   async run(msg, args) {
-    const c_case = db.get_channel_case(msg.channel.id);
+    let c_case = db.get_channel_case(msg.channel.id);
 
     if (!c_case) {
       return CommandResult.fromError('This channel is not a court case.');
@@ -50,20 +51,12 @@ module.exports = new class NotGuilty extends Command {
 
     const { defendant_id, id: case_id } = c_case;
     const defendant = msg.channel.guild.members.get(defendant_id);
+    const res = system.case_finished(case_id);
 
     if (!defendant) {
       return CommandResult.fromError('The defendant is no longer in the server.');
-    }
-
-    const currrent_verdict = db.get_verdict(case_id);
-    const finished = currrent_verdict && currrent_verdict.verdict !== verdict.pending;
-
-    if (finished) {
-      if (currrent_verdict.verdict === verdict.mistrial) {
-        return CommandResult.fromError('This case has already been declared as a mistrial.');
-      }
-
-      return CommandResult.fromError('This case has already reached a verdict.');
+    } else if (res.finished) {
+      return CommandResult.fromError(res.reason);
     }
 
     await this.free(msg.channel.guild, defendant);
@@ -75,8 +68,16 @@ module.exports = new class NotGuilty extends Command {
       verdict: verdict.innocent,
       opinion: args.opinion
     };
+    const { lastInsertRowid: id } = db.insert('verdicts', update);
 
-    db.insert('verdicts', update);
+    c_case = db.get_case(id);
+
+    const { case_channel } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+    const c_channel = msg.channel.guild.channels.get(case_channel);
+
+    if (c_channel) {
+      await system.edit_case(c_channel, c_case);
+    }
 
     const prefix = `**${discord.tag(msg.author)}**, `;
 

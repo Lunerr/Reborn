@@ -18,6 +18,7 @@ const db = require('../../services/database.js');
 const catch_discord = require('../../utilities/catch_discord.js');
 const client = require('../../services/client.js');
 const discord = require('../../utilities/discord.js');
+const system = require('../../utilities/system.js');
 const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const max_evidence = 10;
 const fetch_limit = 100;
@@ -106,15 +107,22 @@ Type \`cancel\` to cancel the command.`;
       law_id: law.id,
       defendant_id: member.id,
       officer_id: msg.author.id,
-      judge_id: client.user.id,
-      evidence: `\n${evidence}\n`,
+      evidence: `\n${evidence}`,
       request: 1
     };
+    const { lastInsertRowid: id } = db.insert('warrants', warrant);
 
-    db.insert('warrants', warrant);
+    warrant.id = id;
     await discord.create_msg(
       msg.channel, `You have successfully detained ${member.mention} and a warrant has been \
 created under the law ${law.name}.`
     );
+
+    const { warrant_channel } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+    const w_channel = msg.channel.guild.channels.get(warrant_channel);
+
+    if (w_channel) {
+      await system.add_warrant(w_channel, warrant);
+    }
   }
 }();

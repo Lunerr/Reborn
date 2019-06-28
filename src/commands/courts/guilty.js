@@ -78,18 +78,13 @@ module.exports = new class Guilty extends Command {
         return CommandResult.fromError('The defendant is no longer in the server.');
       }
 
-      const currrent_verdict = db.get_verdict(case_id);
-      const finished = currrent_verdict && currrent_verdict.verdict !== verdict.pending;
+      const res = system.case_finished(case_id);
       const law = db.get_law(law_id);
       const mute = law.mandatory_felony
         || (!law.mandatory_felony && system.mute_felon(msg.channel.guild.id, defendant_id, law));
 
-      if (finished) {
-        if (currrent_verdict.verdict === verdict.mistrial) {
-          return CommandResult.fromError('This case has already been declared as a mistrial.');
-        }
-
-        return CommandResult.fromError('This case has already reached a verdict.');
+      if (res.finished) {
+        return CommandResult.fromError(res.reason);
       } else if (args.sentence === empty_argument && mute) {
         return CommandResult.fromError('A sentence must be given.');
       } else if (args.sentence !== empty_argument && !mute) {
@@ -158,7 +153,14 @@ charged with committing a misdemeanor'}.`;
       await add_role(ids.guild, ids.defendant, imprisoned_role);
     }
 
-    db.insert('verdicts', update);
+    const { lastInsertRowid: id } = db.insert('verdicts', update);
+    const c_case = db.get_case(id);
+    const { case_channel } = db.fetch('guilds', { guild_id: ids.guild });
+    const c_channel = client.guilds.get(ids.guild).channels.get(case_channel);
+
+    if (c_channel) {
+      await system.edit_case(c_channel, c_case);
+    }
 
     return mute;
   }

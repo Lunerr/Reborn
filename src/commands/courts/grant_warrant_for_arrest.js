@@ -16,19 +16,20 @@
 const { Argument, Command, CommandResult } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
-const content = `Requesting unlawful warrants will result in \
+const system = require('../../utilities/system.js');
+const content = `Granting unlawful warrants will result in \
 impeachment and **national disgrace**.
 
-If you have **ANY DOUBTS WHATSOEVER ABOUT THE VALIDITY OF THIS REQUEST WARRANT**, \
-do not proceed with this request warrant.
+If you have **ANY DOUBTS WHATSOEVER ABOUT THE VALIDITY OF THIS WARRANT**, \
+do not proceed with this warrant.
 
 __IGNORANCE IS NOT A DEFENSE.__
 
-If you are sure you wish to proceed with the request warrant given the aforementioned terms, \
+If you are sure you wish to proceed with the warrant given the aforementioned terms, \
 please type \`yes\`.`;
 const empty_argument = Symbol('Empty Argument');
 
-module.exports = new class RequestWarrant extends Command {
+module.exports = new class GrantWarrantForArrest extends Command {
   constructor() {
     super({
       args: [
@@ -54,9 +55,9 @@ module.exports = new class RequestWarrant extends Command {
           remainder: true
         })
       ],
-      description: 'Request a warrant.',
-      groupName: 'enforcement',
-      names: ['request_warrant', 'request']
+      description: 'Creates a warrant.',
+      groupName: 'courts',
+      names: ['grant_warrant_for_arrest', 'grant_warrant', 'grant']
     });
   }
 
@@ -76,24 +77,33 @@ module.exports = new class RequestWarrant extends Command {
     let evidence;
 
     if (args.evidence !== empty_argument && msg.attachments.length) {
-      evidence = `${args.evidence}\n\n${msg.attachments.map(x => x.proxy_url).join('\n')}`;
+      evidence = `${args.evidence}\n\n${msg.attachments.map(x => x.proxy_url).join(', ')}`;
     } else if (msg.attachments.length) {
-      evidence = msg.attachments.map(x => x.proxy_url).join('\n');
+      evidence = msg.attachments.map(x => x.proxy_url).join(', ');
     } else {
       ({ evidence } = args);
     }
 
-    db.insert('warrants', {
+    const obj = {
       guild_id: msg.channel.guild.id,
       law_id: args.law.id,
       defendant_id: args.member.id,
-      officer_id: msg.author.id,
-      evidence,
-      request: 1
-    });
+      judge_id: msg.author.id,
+      evidence
+    };
+    const { lastInsertRowid: id } = db.insert('warrants', obj);
+
+    obj.id = id;
     await discord.create_msg(
       msg.channel,
-      `**${discord.tag(msg.author)}**, A warrant has been requested against ${args.member.mention}.`
+      `**${discord.tag(msg.author)}**, A warrant has been granted against ${args.member.mention}.`
     );
+
+    const { warrant_channel } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+    const w_channel = msg.channel.guild.channels.get(warrant_channel);
+
+    if (w_channel) {
+      await system.add_warrant(w_channel, obj);
+    }
   }
 }();

@@ -18,6 +18,7 @@ const catch_discord = require('../../utilities/catch_discord.js');
 const client = require('../../services/client.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
+const system = require('../../utilities/system.js');
 const create_channel = catch_discord(client.createChannel.bind(client));
 const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const arrest_message = `Executing unlawful warrants will result in \
@@ -72,20 +73,22 @@ arrest a citizen.');
         return;
       }
 
-      const { court_category, judge_role, trial_role } = res;
-      const prefix = `**${discord.tag(msg.author)}**, `;
-      const judge = this.get_judge(msg.channel.guild, args.warrant, judge_role);
-      const officer = msg.author;
       const defendant = (msg.channel.guild.members.get(args.warrant.defendant_id) || {}).user;
 
       if (!defendant) {
         return CommandResult.fromError('The defendant is no longer in the server.');
       }
 
+      const { court_category, judge_role, trial_role } = res;
+      const judge = this.get_judge(msg.channel.guild, args.warrant, judge_role);
+
       await this.set_up({
-        guild: msg.channel.guild, defendant, judge, officer, trial_role,
+        guild: msg.channel.guild, defendant, judge, officer: msg.author, trial_role,
         warrant: args.warrant, category: court_category
       });
+
+      const prefix = `**${discord.tag(msg.author)}**, `;
+
       await discord.create_msg(msg.channel, `${prefix}I have arrested ${defendant.mention}.`);
     });
   }
@@ -145,17 +148,39 @@ the prosecutor and defendant have the right to request a qualified and earnest a
     const msg = await channel.createMessage(content);
 
     await msg.pin();
-    db.insert('cases', {
-      guild_id: guild.id,
+    await this.close(channel, warrant, defendant.id, judge.id, officer.id, trial_role);
+  }
+
+  async close(channel, warrant, defendant_id, judge_id, plaintiff_id, role) {
+    const c_case = {
+      guild_id: channel.guild.id,
       channel_id: channel.id,
       warrant_id: warrant.id,
       law_id: warrant.law_id,
-      defendant_id: defendant.id,
-      judge_id: judge.id,
-      plaintiff_id: officer.id
-    });
-    await add_role(guild.id, defendant.id, trial_role);
+      defendant_id,
+      judge_id,
+      plaintiff_id
+    };
+    const { lastInsertRowid: id } = db.insert('cases', c_case);
+
+    c_case.id = id;
+    await add_role(channel.guild.id, defendant_id, role);
     db.close_warrant(warrant.id);
+
+    const { warrant_channel, case_channel } = db.fetch('guilds', { guild_id: channel.guild.id });
+    const c_channel = channel.guild.channels.get(case_channel);
+
+    if (c_channel) {
+      await system.add_case(c_channel, c_case);
+    }
+
+    const w_channel = channel.guild.channels.get(warrant_channel);
+
+    if (w_channel) {
+      const new_warrant = Object.assign(warrant, { executed: 1 });
+
+      return system.edit_warrant(w_channel, new_warrant);
+    }
   }
 
   get_judge(guild, warrant, judge_role) {

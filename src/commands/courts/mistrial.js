@@ -19,6 +19,7 @@ const client = require('../../services/client.js');
 const verdict = require('../../enums/verdict.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
+const system = require('../../utilities/system.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 
 module.exports = new class Guilty extends Command {
@@ -33,41 +34,38 @@ module.exports = new class Guilty extends Command {
   }
 
   async run(msg) {
-    const c_case = db.get_channel_case(msg.channel.id);
+    let c_case = db.get_channel_case(msg.channel.id);
+    const res = await this.prerequisites(c_case, msg.channel.guild);
 
-    if (!c_case) {
-      return CommandResult.fromError('This channel has no ongoing court case.');
+    if (res instanceof CommandResult) {
+      return res;
     }
 
-    const { id: case_id, plaintiff_id, defendant_id } = c_case;
-    const cop = msg.channel.guild.members.get(plaintiff_id);
-    const currrent_verdict = db.get_verdict(case_id);
-    const finished = currrent_verdict && currrent_verdict.verdict !== verdict.pending;
-
-    if (finished) {
-      if (currrent_verdict.verdict === verdict.mistrial) {
-        return CommandResult.fromError('This case has already been declared as a mistrial.');
-      }
-
-      return CommandResult.fromError('This case has already reached a verdict.');
-    } else if (!cop) {
-      return CommandResult.fromError('The prosecutor is no longer in the server.');
-    }
-
-    db.insert('verdicts', {
+    const { case_id, plaintiff_id, defendant_id, cop } = res;
+    const update = {
       guild_id: msg.channel.guild.id,
       case_id,
       defendant_id,
       verdict: verdict.mistrial
-    });
+    };
+    const { lastInsertRowid: id } = db.insert('verdicts', update);
+
+    c_case = db.get_case(id);
 
     const {
-      officer_role, trial_role
+      officer_role, trial_role, jailed_role, case_channel
     } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+    const c_channel = msg.channel.guild.channels.get(case_channel);
+
+    if (c_channel) {
+      await system.edit_case(c_channel, c_case);
+    }
+
     const prefix = `**${discord.tag(msg.author)}**, `;
 
     await remove_role(msg.channel.guild.id, plaintiff_id, officer_role);
     await remove_role(msg.channel.guild.id, defendant_id, trial_role);
+    await remove_role(msg.channel.guild.id, defendant_id, jailed_role);
     db.insert('impeachments', {
       member_id: plaintiff_id, guild_id: msg.channel.guild.id
     });
@@ -79,5 +77,25 @@ No verdict has been delivered and the accused may be prosecuted again.`);
     await Promise.all(msg.channel.permissionOverwrites.map(
       x => msg.channel.editPermission(x.id, 0, this.bitfield, x.type, 'Case is over')
     ));
+  }
+
+  async prerequisites(c_case, guild) {
+    if (!c_case) {
+      return CommandResult.fromError('This channel has no ongoing court case.');
+    }
+
+    const { id: case_id, plaintiff_id, defendant_id } = c_case;
+    const cop = guild.members.get(plaintiff_id);
+    const res = system.case_finished(case_id);
+
+    if (res.finished) {
+      return CommandResult.fromError(res.reason);
+    } else if (!cop) {
+      return CommandResult.fromError('The prosecutor is no longer in the server.');
+    }
+
+    return {
+      case_id, plaintiff_id, defendant_id, cop
+    };
   }
 }();
