@@ -32,7 +32,7 @@ module.exports = new class SetLawChannel extends Command {
       ],
       description: 'Sets the law channel.',
       groupName: 'owners',
-      names: ['set_law_channel']
+      names: ['set_law_channel', 'set_laws_channel']
     });
   }
 
