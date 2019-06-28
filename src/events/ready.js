@@ -18,7 +18,6 @@ const log = require('../utilities/logger.js');
 const { options } = require('../services/data.js');
 const db = require('../services/database.js');
 const system = require('../utilities/system.js');
-const max_warrants = 25;
 
 async function update_channels() {
   const keys = [...client.guilds.keys()];
@@ -48,9 +47,7 @@ async function update_channels() {
     }
 
     if (w_channel) {
-      const warrants = db.fetch_warrants(guild.id)
-        .sort((a, b) => a.created_at - b.created_at)
-        .slice(0, max_warrants);
+      const warrants = db.fetch_warrants(guild.id).sort((a, b) => a.created_at - b.created_at);
 
       system.update_warrants(w_channel, warrants);
     }
