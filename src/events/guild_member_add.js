@@ -15,7 +15,10 @@
 'use strict';
 const client = require('../services/client.js');
 const catch_discord = require('../utilities/catch_discord.js');
+const verdict = require('../enums/verdict.js');
+const db = require('../services/database.js');
 const send_msg = catch_discord(client.createMessage.bind(client));
+const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const msg = `**BY THE PEOPLE, FOR THE PEOPLE**
 
 Reborn is the only truly free server in Discord.
@@ -33,4 +36,26 @@ client.on('guildMemberAdd', async (guild, member) => {
   const dm_channel = await member.user.getDMChannel();
 
   await send_msg(dm_channel.id, msg).catch(() => null);
+
+  const { imprisoned_role } = db.fetch('guild', { guild_id: guild.id });
+  const g_role = guild.roles.get(imprisoned_role);
+
+  if (!imprisoned_role || !g_role) {
+    return;
+  }
+
+  const verdicts = db.fetch_member_verdicts(guild.id, member.id);
+
+  for (let i = 0; i < verdicts.length; i++) {
+    if (verdicts[i].verdict !== verdict.guilty || verdicts[i].sentence === null) {
+      continue;
+    }
+
+    const mute = verdicts[i].last_modified_at + verdicts[i].sentence - Date.now();
+
+    if (mute > 0) {
+      await add_role(guild.id, member.id, imprisoned_role, 'Mute persistence');
+      break;
+    }
+  }
 });
