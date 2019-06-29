@@ -24,8 +24,8 @@ const max_inactive = 3;
 const bitfield = 2048;
 
 async function close(c_case, guild, channel) {
-  const { inactive_count } = c_case;
-  const judge = guild.members.get(c_case.judge_id) || await client.getRESTUser(c_case.judge_id);
+  const { inactive_count, judge_id, defendant_id, plaintiff_id } = c_case;
+  const judge = guild.members.get(judge_id) || await client.getRESTUser(judge_id);
 
   if (inactive_count >= max_inactive) {
     const { lastInsertRowid: id } = db.insert('verdicts', {
@@ -35,8 +35,8 @@ async function close(c_case, guild, channel) {
       verdict: verdict.inactive
     });
 
-    (await channel.createMessage(`${judge.mention}\nThis court case has been marked as inactive due \
-to no recent activity.`)).pin();
+    (await channel.createMessage(`${judge.mention}\nThis court case has been marked as \
+inactive due to no recent activity.`)).pin();
     await Promise.all(channel.permissionOverwrites.map(
       x => channel.editPermission(x.id, 0, bitfield, x.type, 'Case is over')
     ));
@@ -49,13 +49,15 @@ to no recent activity.`)).pin();
       await system.edit_case(c_channel, new_case);
     }
   } else {
-    const defendant = guild.members.get(c_case.defendant_id);
+    const defendant = guild.members.get(defendant_id) || await client.getRESTUser(defendant_id);
+    const cop = guild.members.get(plaintiff_id) || await client.getRESTUser(plaintiff_id);
+    const pings = `${judge.mention} ${defendant.mention} ${cop.mention}`;
 
-    await channel.createMessage(
-      `${defendant ? `${judge.mention}\n` : ''}This case has not yet reached a verdict \
-and there has been no recent activity. This case will be marked as inactive after \
-${max_inactive - inactive_count} more reminder messages if no recent message is sent.`
-    );
+    await channel.createMessage(`${pings}\nThis case has not yet reached a verdict and there has \
+been no recent activity.\n\n${judge.mention}, As a judge it is your duty to proceed with the case \
+and come to a verdict. Failing to do so will result in impeachment and national disgrace. This \
+case will be marked as inactive after ${max_inactive - inactive_count} more reminder messages \
+if no recent message is sent.`);
     db.set_case_inactive_count(c_case.id, inactive_count + 1);
   }
 }
