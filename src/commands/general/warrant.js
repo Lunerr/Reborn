@@ -43,11 +43,11 @@ module.exports = new class Warrant extends Command {
       return CommandResult.fromError('This warrant does not exist.');
     }
 
-    const info = await system.format_warrant(
+    const { title, description } = await system.format_warrant(
       msg.channel.guild, warrant, warrant.id, warrant.executed
     );
     const embed = discord.embed({
-      title: `Warrant ${warrant.id}`, description: info
+      title, description
     });
 
     return msg.channel.createMessage(embed);
