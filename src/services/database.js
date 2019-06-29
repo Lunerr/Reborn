@@ -121,12 +121,24 @@ module.exports = {
     return queries.close_cmd.run(id);
   },
 
+  set_jailed(status, guild_id, member_id) {
+    return queries.set_jailed.run(status, member_id, guild_id);
+  },
+
+  set_trial(status, guild_id, member_id) {
+    return queries.set_trial.run(status, member_id, guild_id);
+  },
+
   set_case_inactive_count(id, count) {
     return queries.set_case_inactive_count.run(count, id);
   },
 
   approve_warrant(id, judge_id) {
     return queries.approve_warrant.run(judge_id, id);
+  },
+
+  get_member(member_id, guild_id) {
+    return queries.get_member.get(member_id, guild_id);
   },
 
   get_channel_case(channel_id) {

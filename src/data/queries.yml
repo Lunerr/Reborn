@@ -91,7 +91,9 @@ members_table: |-
     guild_id TEXT NOT NULL REFERENCES guilds(guild_id),
     member_id TEXT NOT NULL,
     created_at INTEGER NOT NULL,
-    last_modified_at INTEGER NOT NULL
+    last_modified_at INTEGER NOT NULL,
+    jailed TINYINT NOT NULL DEFAULT 0,
+    on_trial TINYINT NOT NULL DEFAULT 0
   )
 
 impeachments_table: |-
@@ -110,6 +112,12 @@ select: SELECT * FROM {0} WHERE guild_id = ?
 insert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT DO NOTHING
 
 upsert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT(guild_id) DO UPDATE SET {3}
+
+set_jailed: UPDATE members SET jailed = ? WHERE member_id = ? AND guild_id = ?
+
+set_trial: UPDATE members set on_trial = ? WHERE member_id = ? AND guild_id = ?
+
+get_member: SELECT * FROM members WHERE member_id = ? AND guild_id = ?
 
 close_case: UPDATE verdicts SET verdict = 0 WHERE id = ?
 
