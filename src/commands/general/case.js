@@ -43,9 +43,9 @@ module.exports = new class Case extends Command {
       return CommandResult.fromError('This court case does not exist.');
     }
 
-    const info = await system.format_case(msg.channel.guild, c_case);
+    const { title, description } = await system.format_case(msg.channel.guild, c_case);
     const embed = discord.embed({
-      title: `Case ${c_case.id}`, description: info
+      title, description
     });
 
     return msg.channel.createMessage(embed);
