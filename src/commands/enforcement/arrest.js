@@ -87,7 +87,7 @@ arrest a citizen.');
       await this.set_up({
         guild: msg.channel.guild, defendant, judge, officer: msg.author, trial_role,
         warrant: args.warrant, category: court_category
-      }, msg);
+      });
 
       const prefix = `**${discord.tag(msg.author)}**, `;
 
@@ -121,7 +121,7 @@ arrest a citizen.');
     };
   }
 
-  async set_up({ guild, defendant, judge, officer, warrant, trial_role, category }, msg) {
+  async set_up({ guild, defendant, judge, officer, warrant, trial_role, category }) {
     const channel = await create_channel(
       guild.id,
       `${discord.formatUsername(officer.username)}-VS-\
@@ -142,8 +142,7 @@ ${judge.mention} will be presiding over this court proceeding.
 
 The defense is accused of violating the following law: ${law.name}
 
-${warrant.evidence ? `${warrant.request === 1 ? 'Messages' : 'Evidence'}: ${discord
-    .sanitize_mentions(msg, warrant.evidence)}` : ''}
+${warrant.evidence ? `${warrant.request === 1 ? 'Messages' : 'Evidence'}: ${warrant.evidence}` : ''}
 
 The judge must request a plea from the accused, and must proceed assuming an innocent plea after \
 12 hours without a plea. The defendant has the right to remain silent and both \

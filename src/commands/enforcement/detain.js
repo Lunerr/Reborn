@@ -107,7 +107,7 @@ Type \`cancel\` to cancel the command.`;
       law_id: law.id,
       defendant_id: member.id,
       officer_id: msg.author.id,
-      evidence: `\n${evidence}`,
+      evidence: `\n${discord.sanitize_mentions(msg, evidence)}`,
       request: 1
     };
     const { lastInsertRowid: id } = db.insert('warrants', warrant);
