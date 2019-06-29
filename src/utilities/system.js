@@ -177,7 +177,7 @@ module.exports = {
     return {
       title: `${type} for ${discord.tag(defendant)} (${law.name})`,
       description: `**ID:** ${id}${judge ? `\n**Granted by:** ${judge.mention}` : ''}
-**Evidence:** ${evidence || 'N/A'}\n**Status:** ${served ? 'Served' : format}`
+**Evidence:** ${evidence ? evidence.trim() : 'N/A'}\n**Status:** ${served ? 'Served' : format}`
     };
   },
 
