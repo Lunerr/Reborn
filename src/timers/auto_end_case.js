@@ -35,8 +35,8 @@ async function close(c_case, guild, channel) {
       verdict: verdict.inactive
     });
 
-    (await channel.createMessage(`${judge.mention}\nThis court case has been marked as inactive.`))
-      .pin();
+    (await channel.createMessage(`${judge.mention}\nThis court case has been marked as inactive due \
+to no recent activity.`)).pin();
     await Promise.all(channel.permissionOverwrites.map(
       x => channel.editPermission(x.id, 0, bitfield, x.type, 'Case is over')
     ));
@@ -52,7 +52,8 @@ async function close(c_case, guild, channel) {
     const defendant = guild.members.get(c_case.defendant_id);
 
     await channel.createMessage(
-      `${defendant ? `${judge.mention}\n` : ''}This case will be marked as inactive after \
+      `${defendant ? `${judge.mention}\n` : ''}This case has not yet reached a verdict \
+and there has been no recent activity. This case will be marked as inactive after \
 ${max_inactive - inactive_count} more reminder messages if no recent message is sent.`
     );
     db.set_case_inactive_count(c_case.id, inactive_count + 1);
