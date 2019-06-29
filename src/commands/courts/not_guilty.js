@@ -53,9 +53,7 @@ module.exports = new class NotGuilty extends Command {
     const defendant = msg.channel.guild.members.get(defendant_id);
     const res = system.case_finished(case_id);
 
-    if (!defendant) {
-      return CommandResult.fromError('The defendant is no longer in the server.');
-    } else if (res.finished) {
+    if (res.finished) {
       return CommandResult.fromError(res.reason);
     }
 
@@ -82,7 +80,8 @@ module.exports = new class NotGuilty extends Command {
     const prefix = `**${discord.tag(msg.author)}**, `;
 
     await discord.create_msg(
-      msg.channel, `${prefix} The court has found ${defendant.mention} not guilty.`
+      msg.channel, `${prefix}The court has found \
+${(defendant || await client.getRESTUser(defendant_id)).mention} not guilty.`
     );
     await msg.pin();
     await Promise.all(msg.channel.permissionOverwrites.map(
@@ -91,8 +90,10 @@ module.exports = new class NotGuilty extends Command {
   }
 
   async free(guild, defendant) {
-    const { trial_role } = db.fetch('guilds', { guild_id: guild.id });
+    if (defendant) {
+      const { trial_role } = db.fetch('guilds', { guild_id: guild.id });
 
-    await remove_role(guild.id, defendant.id, trial_role);
+      await remove_role(guild.id, defendant.id, trial_role);
+    }
   }
 }();

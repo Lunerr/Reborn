@@ -32,6 +32,7 @@ const empty_argument = Symbol('Empty Argument');
 module.exports = new class GrantWarrantForArrest extends Command {
   constructor() {
     super({
+      preconditions: ['judges'],
       args: [
         new Argument({
           example: 'Nͥatͣeͫ763#0554',

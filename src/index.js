@@ -59,6 +59,5 @@ function requireAll(dir) {
     .registerGroups(await requireAll('./groups/'))
     .registerCommands(await requireAll('./commands/'));
   await requireAll('./events/');
-  await requireAll('./timers/');
   await client.connect();
 }()).catch(console.error);

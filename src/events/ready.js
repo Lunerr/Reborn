@@ -13,11 +13,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 'use strict';
+const { RequireAll } = require('patron.js');
 const client = require('../services/client.js');
 const log = require('../utilities/logger.js');
 const { options } = require('../services/data.js');
 const db = require('../services/database.js');
 const system = require('../utilities/system.js');
+const path = require('path');
 
 async function update_channels() {
   const keys = [...client.guilds.keys()];
@@ -64,4 +66,5 @@ client.on('ready', async () => {
   client.editStatus(options.status);
   log.info('Ready!');
   await update_channels();
+  await RequireAll(path.join(__dirname, '..', '/timers/'));
 });

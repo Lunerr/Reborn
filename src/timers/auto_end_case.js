@@ -32,7 +32,8 @@ async function close(c_case, guild, channel) {
       guild_id: guild.id,
       case_id: c_case.id,
       defendant_id: c_case.defendant_id,
-      verdict: verdict.inactive
+      verdict: verdict.inactive,
+      opinion: 'Auto closed due to inactivity'
     });
 
     (await channel.createMessage(`${judge.mention}\nThis court case has been marked as \
@@ -52,12 +53,14 @@ inactive due to no recent activity.`)).pin();
     const defendant = guild.members.get(defendant_id) || await client.getRESTUser(defendant_id);
     const cop = guild.members.get(plaintiff_id) || await client.getRESTUser(plaintiff_id);
     const pings = `${judge.mention} ${defendant.mention} ${cop.mention}`;
+    const left = max_inactive - inactive_count;
 
     await channel.createMessage(`${pings}\nThis case has not yet reached a verdict and there has \
-been no recent activity.\n\n${judge.mention}, As a judge it is your duty to proceed with the case \
-and come to a verdict. Failing to do so will result in impeachment and national disgrace. This \
-case will be marked as inactive after ${max_inactive - inactive_count} more reminder messages \
-if no recent message is sent.`);
+been no recent activity. This case will be marked as inactive \
+${left === 1 ? 'on the next message' : `after ${max_inactive - inactive_count} more reminder \
+messages if no recent message is sent`}.\n\n${judge.mention}, As a judge it is your duty to \
+proceed with the case and come to a verdict. Failing to do so will result in impeachment \
+and national disgrace. `);
     db.set_case_inactive_count(c_case.id, inactive_count + 1);
   }
 }

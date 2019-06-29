@@ -72,12 +72,6 @@ module.exports = new class Guilty extends Command {
       }
 
       const { defendant_id, law_id, id: case_id } = c_case;
-      const defendant = msg.channel.guild.members.get(defendant_id);
-
-      if (!defendant) {
-        return CommandResult.fromError('The defendant is no longer in the server.');
-      }
-
       const res = system.case_finished(case_id);
       const law = db.get_law(law_id);
       const mute = law.mandatory_felony
@@ -100,28 +94,30 @@ module.exports = new class Guilty extends Command {
       }
 
       await this.end(msg, {
-        law, sentence: args.sentence, opinion: args.opinion, defendant, case_id, prefix
+        law, sentence: args.sentence, opinion: args.opinion, defendant_id, case_id, prefix
       });
     });
   }
 
-  async end(msg, { law, sentence, defendant, opinion, case_id, prefix }) {
+  async end(msg, { law, sentence, defendant_id, opinion, case_id, prefix }) {
     const { days, hours } = sentence === empty_argument ? {
       days: 0, hours: 0
     } : number.msToTime(sentence);
     const time = (days * hours_per_day) + hours;
+    const def = msg.channel.guild.members.get(defendant_id)
+      || await client.getRESTUser(defendant_id);
     const repeated = await this.shouldMute({
       ids: {
-        guild: msg.channel.guild.id, case: case_id, defendant: defendant.id
+        guild: msg.channel.guild.id, case: case_id, defendant: defendant_id
       },
-      opinion, sentence, law
+      opinion, sentence, law, guild: msg.channel.guild
     });
     const ending = `${law.mandatory_felony || (!law.mandatory_felony && repeated) ? `sentenced to \
 ${time} hours in prison${repeated ? ` for repeatedly breaking the law \`${law.name}\`` : ''}` : '\
 charged with committing a misdemeanor'}.`;
 
     await discord.create_msg(
-      msg.channel, `${prefix}${defendant.mention} has been found guilty and was ${ending}`
+      msg.channel, `${prefix}${def.mention} has been found guilty and was ${ending}`
     );
     await msg.pin();
     await Promise.all(msg.channel.permissionOverwrites.map(
@@ -129,7 +125,7 @@ charged with committing a misdemeanor'}.`;
     ));
   }
 
-  async shouldMute({ ids, opinion, sentence, law }) {
+  async shouldMute({ ids, opinion, sentence, law, guild }) {
     const update = {
       guild_id: ids.guild,
       case_id: ids.case,
@@ -145,12 +141,18 @@ charged with committing a misdemeanor'}.`;
 
     const addSentence = law.mandatory_felony || (!law.mandatory_felony && mute);
     const { trial_role, imprisoned_role } = db.fetch('guilds', { guild_id: ids.guild });
+    const in_server = guild.members.has(ids.defendant);
 
-    await remove_role(ids.guild, ids.defendant, trial_role);
+    if (in_server) {
+      await remove_role(ids.guild, ids.defendant, trial_role);
+    }
 
     if (sentence !== empty_argument && addSentence) {
       update.sentence = sentence;
-      await add_role(ids.guild, ids.defendant, imprisoned_role);
+
+      if (in_server) {
+        await add_role(ids.guild, ids.defendant, imprisoned_role);
+      }
     }
 
     const { lastInsertRowid: id } = db.insert('verdicts', update);
