@@ -49,8 +49,12 @@ async function close(c_case, guild, channel) {
       await system.edit_case(c_channel, new_case);
     }
   } else {
-    await channel.createMessage(`${judge.mention}\nThis case will be marked as inactive after \
-${max_inactive - inactive_count} more reminder messages if no recent message is sent.`);
+    const defendant = guild.members.get(c_case.defendant_id);
+
+    await channel.createMessage(
+      `${defendant ? `${judge.mention}\n` : ''}This case will be marked as inactive after \
+${max_inactive - inactive_count} more reminder messages if no recent message is sent.`
+    );
     db.set_case_inactive_count(c_case.id, inactive_count + 1);
   }
 }
