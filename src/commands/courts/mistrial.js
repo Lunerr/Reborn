@@ -61,7 +61,7 @@ module.exports = new class Guilty extends Command {
       await system.edit_case(c_channel, c_case);
     }
 
-    const prefix = `**${discord.tag(msg.author)}**, `;
+    const prefix = `${discord.tag(msg.author).boldified}, `;
 
     if (cop) {
       await remove_role(msg.channel.guild.id, plaintiff_id, officer_role);

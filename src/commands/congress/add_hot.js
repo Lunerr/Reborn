@@ -86,8 +86,8 @@ module.exports = new class AddHot extends Command {
 
     db.insert('commands', update);
     await discord.create_msg(
-      msg.channel,
-      `**${discord.tag(msg.author)}**, I've created a custom command with the name ${args.name}.`
+      msg.channel, `${discord.tag(msg.author).boldified}, \
+I've created a custom command with the name ${args.name}.`
     );
   }
 }();

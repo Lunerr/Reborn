@@ -42,8 +42,8 @@ module.exports = new class SetWarrantsChannel extends Command {
       warrant_channel: args.channel.id
     });
     await discord.create_msg(
-      msg.channel,
-      `**${discord.tag(msg.author)}**, I have set the Warrant channel to ${args.channel.mention}.`
+      msg.channel, `${discord.tag(msg.author).boldified}, I have set the Warrant channel \
+to ${args.channel.mention}.`
     );
 
     const warrants = db.fetch_warrants(msg.channel.guild.id);

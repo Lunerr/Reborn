@@ -52,7 +52,7 @@ module.exports = new class ApproveDetainment extends Command {
     }
 
     const verified = await discord.verify_msg(
-      msg, `**${discord.tag(msg.author)}**, ${content}`, null, 'yes'
+      msg, `${discord.tag(msg.author).boldified}, ${content}`, null, 'yes'
     );
 
     if (!verified) {
@@ -61,8 +61,7 @@ module.exports = new class ApproveDetainment extends Command {
 
     db.approve_warrant(args.warrant.id, msg.author.id);
     await discord.create_msg(
-      msg.channel,
-      `**${discord.tag(msg.author)}**, You've approved this detainment.`
+      msg.channel, `${discord.tag(msg.author).boldified}, You've approved this detainment.`
     );
 
     const { warrant_channel } = db.fetch('guilds', { guild_id: msg.channel.guild.id });

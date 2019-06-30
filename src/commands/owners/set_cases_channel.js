@@ -42,8 +42,8 @@ module.exports = new class SetCasesChannel extends Command {
       case_channel: args.channel.id
     });
     await discord.create_msg(
-      msg.channel,
-      `**${discord.tag(msg.author)}**, I have set the Cases channel to ${args.channel.mention}.`
+      msg.channel, `${discord.tag(msg.author).boldified}, I have set the Cases channel to \
+${args.channel.mention}.`
     );
 
     const cases = db.fetch_cases(msg.channel.guild.id);

@@ -89,7 +89,7 @@ arrest a citizen.');
         warrant: args.warrant, category: court_category
       });
 
-      const prefix = `**${discord.tag(msg.author)}**, `;
+      const prefix = `${discord.tag(msg.author).boldified}, `;
 
       await discord.create_msg(msg.channel, `${prefix}I have arrested ${defendant.mention}.`);
     });
@@ -100,7 +100,7 @@ arrest a citizen.');
       court_category, judge_role, trial_role
     } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const n_warrant = db.get_warrant(warrant.id);
-    const prefix = `**${discord.tag(msg.author)}**, `;
+    const prefix = `${discord.tag(msg.author).boldified}, `;
 
     if (n_warrant.executed === 1) {
       await discord.create_msg(msg, `${prefix}This warrant has already been executed.`);

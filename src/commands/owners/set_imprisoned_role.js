@@ -42,8 +42,8 @@ module.exports = new class SetImprisonedRole extends Command {
       imprisoned_role: args.role.id
     });
     await discord.create_msg(
-      msg.channel,
-      `**${discord.tag(msg.author)}**, I have set the Imprisoned role to ${args.role.mention}.`
+      msg.channel, `${discord.tag(msg.author).boldified}, I have set the Imprisoned role to \
+${args.role.mention}.`
     );
   }
 }();

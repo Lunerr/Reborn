@@ -43,7 +43,7 @@ module.exports = new class SetCourtCategory extends Command {
     });
     await discord.create_msg(
       msg.channel,
-      `**${discord.tag(msg.author)}**, I have set the Court category to ${args.channel.name}.`
+      `${discord.tag(msg.author).boldified}, I have set the Court category to ${args.channel.name}.`
     );
   }
 }();

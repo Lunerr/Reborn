@@ -50,8 +50,8 @@ module.exports = new class RemoveHot extends Command {
 
     db.close_command(cmd.id);
     await discord.create_msg(
-      msg.channel,
-      `**${discord.tag(msg.author)}**, I've removed the custom command with the name ${args.name}.`
+      msg.channel, `${discord.tag(msg.author).boldified}, I've removed the custom command \
+with the name ${args.name}.`
     );
   }
 }();

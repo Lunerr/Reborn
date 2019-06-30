@@ -43,7 +43,7 @@ module.exports = new class SetTrialRole extends Command {
     });
     await discord.create_msg(
       msg.channel,
-      `**${discord.tag(msg.author)}**, I have set the Trial role to ${args.role.mention}.`
+      `${discord.tag(msg.author).boldified}, I have set the Trial role to ${args.role.mention}.`
     );
   }
 }();

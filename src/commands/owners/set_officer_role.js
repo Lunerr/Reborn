@@ -43,7 +43,7 @@ module.exports = new class SetOfficerRole extends Command {
     });
     await discord.create_msg(
       msg.channel,
-      `**${discord.tag(msg.author)}**, I have set the Officer role to ${args.role.mention}.`
+      `${discord.tag(msg.author).boldified}, I have set the Officer role to ${args.role.mention}.`
     );
   }
 }();

@@ -44,6 +44,7 @@ function requireAll(dir) {
   await data.load();
   log = require('./utilities/logger.js');
   await log.load();
+  await requireAll('./extensions/');
 
   const client = require('./services/client.js');
   const db = require('./services/database.js');

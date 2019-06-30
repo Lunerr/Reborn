@@ -50,7 +50,7 @@ function handle_err(result) {
 }
 
 async function handle_result(msg, result) {
-  let reply = `**${discord.tag(msg.author)}**, `;
+  let reply = `${discord.tag(msg.author).boldified}, `;
 
   switch (result.commandError) {
   case CommandError.Exception:

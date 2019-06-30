@@ -46,7 +46,7 @@ module.exports = new class SetImpeachmentWeeks extends Command {
     });
     await discord.create_msg(
       msg.channel,
-      `**${discord.tag(msg.author)}**, I've set the impeachment weeks to ${args.weeks}.`
+      `${discord.tag(msg.author).boldified}, I've set the impeachment weeks to ${args.weeks}.`
     );
   }
 }();

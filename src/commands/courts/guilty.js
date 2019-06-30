@@ -86,7 +86,7 @@ module.exports = new class Guilty extends Command {
   misdemeanors of this crime before a prison sentence is permissible.');
       }
 
-      const prefix = `**${discord.tag(msg.author)}**, `;
+      const prefix = `${discord.tag(msg.author).boldified}, `;
       const verified = await discord.verify_msg(msg, `${prefix}${content}`, null, 'yes');
 
       if (!verified) {

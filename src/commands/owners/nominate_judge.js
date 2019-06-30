@@ -72,8 +72,8 @@ ${args.member.mention} can be nominated again ${hours_left ? `in ${hours_left} h
 
     await add_role(msg.channel.guild.id, args.member.id, judge_role);
     await discord.create_msg(
-      msg.channel,
-      `**${discord.tag(msg.author)}**, You have nominated ${args.member.mention} to the Judge role.`
+      msg.channel, `${discord.tag(msg.author).boldified}, You've nominated ${args.member.mention} \
+to the Judge role.`
     );
   }
 }();

@@ -77,7 +77,7 @@ module.exports = new class NotGuilty extends Command {
       await system.edit_case(c_channel, c_case);
     }
 
-    const prefix = `**${discord.tag(msg.author)}**, `;
+    const prefix = `${discord.tag(msg.author).boldified}, `;
 
     await discord.create_msg(
       msg.channel, `${prefix}The court has found \

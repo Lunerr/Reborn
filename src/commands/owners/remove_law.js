@@ -44,7 +44,7 @@ module.exports = new class RemoveLaw extends Command {
 
     db.close_law(args.law.id);
     await discord.create_msg(
-      msg.channel, `**${discord.tag(msg.author)}**, I have removed the law ${args.law.name}.`
+      msg.channel, `${discord.tag(msg.author).boldified}, I have removed the law ${args.law.name}.`
     );
 
     const laws = db.fetch_laws(msg.channel.guild.id).filter(x => x.active === 1);

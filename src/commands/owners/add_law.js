@@ -67,8 +67,7 @@ module.exports = new class AddLaw extends Command {
 
     db.insert('laws', law);
     await discord.create_msg(
-      msg.channel,
-      `**${discord.tag(msg.author)}**, I have created the law ${args.name}.`
+      msg.channel, `${discord.tag(msg.author).boldified}, I have created the law ${args.name}.`
     );
 
     const { law_channel } = db.fetch('guilds', { guild_id: msg.channel.guild.id });

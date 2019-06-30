@@ -46,7 +46,7 @@ module.exports = new class KickFromCourt extends Command {
     await msg.channel.deletePermission(args.member.id);
     await discord.create_msg(
       msg.channel,
-      `**${discord.tag(msg.author)}**, ${args.member.mention} has been kicked from court.`
+      `${discord.tag(msg.author).boldified}, ${args.member.mention} has been kicked from court.`
     );
   }
 }();

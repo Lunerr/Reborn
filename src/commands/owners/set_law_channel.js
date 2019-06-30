@@ -43,7 +43,7 @@ module.exports = new class SetLawChannel extends Command {
     });
     await discord.create_msg(
       msg.channel,
-      `**${discord.tag(msg.author)}**, I have set the law channel to ${args.channel.mention}.`
+      `${discord.tag(msg.author).boldified}, I have set the law channel to ${args.channel.mention}.`
     );
 
     const laws = db.fetch_laws(msg.channel.guild.id).filter(x => x.active === 1);

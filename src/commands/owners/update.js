@@ -30,8 +30,10 @@ module.exports = new class Update extends Command {
   }
 
   async run(msg) {
+    const prefix = `${discord.tag(msg.author).boldified}, `;
+
     await discord.create_msg(
-      msg.channel, `**${discord.tag(msg.author)}**, The bot will be restarting shortly.`
+      msg.channel, `${prefix}The bot will be restarting shortly.`
     );
 
     try {
@@ -39,7 +41,7 @@ module.exports = new class Update extends Command {
     } catch (e) {
       logger.error(e);
       await discord.create_msg(
-        msg.channel, `**${discord.tag(msg.author)}**, An error has occurred while updating.`
+        msg.channel, `${prefix}An error has occurred while updating.`
       );
     }
   }
