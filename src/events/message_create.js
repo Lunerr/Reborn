@@ -25,6 +25,7 @@ const log = require('../utilities/logger.js');
 const db = require('../services/database.js');
 const msg_collector = require('../services/message_collector.js');
 const punctuation_ending = ['!', '?', '.'];
+const max_len = 2e3;
 
 function handle_err(result) {
   switch (result.error.code) {
@@ -93,7 +94,7 @@ ${result.context === Context.Guild ? 'DMs' : 'a server'}.`;
 
     break;
   }
-  await discord.create_msg(msg.channel, reply, error_color);
+  await discord.create_msg(msg.channel, reply.slice(0, max_len), error_color);
 }
 
 function remove_punc(string) {
