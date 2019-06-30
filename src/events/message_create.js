@@ -24,7 +24,7 @@ const handler = require('../services/handler.js');
 const log = require('../utilities/logger.js');
 const db = require('../services/database.js');
 const msg_collector = require('../services/message_collector.js');
-const punctuation_ending = ['!', '?', '.'];
+const punctuation_ending = ['!', '?', '.', '*'];
 const max_len = 2e3;
 
 function handle_err(result) {
