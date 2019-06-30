@@ -13,7 +13,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 'use strict';
-const { Argument, Command, CommandResult } = require('patron.js');
+const { Command, CommandResult } = require('patron.js');
 const catch_discord = require('../../utilities/catch_discord.js');
 const client = require('../../services/client.js');
 const verdict = require('../../enums/verdict.js');
@@ -25,14 +25,6 @@ const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 module.exports = new class Guilty extends Command {
   constructor() {
     super({
-      args: [
-        new Argument({
-          name: 'opinion',
-          key: 'opinion',
-          type: 'string',
-          example: 'Prosecutor did a bad bad'
-        })
-      ],
       preconditions: ['court_only', 'can_trial', 'can_imprison', 'judge_creator'],
       description: 'Impeaches the prosecutor.',
       groupName: 'courts',
@@ -41,7 +33,7 @@ module.exports = new class Guilty extends Command {
     this.bitfield = 2048;
   }
 
-  async run(msg, args) {
+  async run(msg) {
     let c_case = db.get_channel_case(msg.channel.id);
     const res = await this.prerequisites(c_case, msg.channel.guild);
 
@@ -54,8 +46,7 @@ module.exports = new class Guilty extends Command {
       guild_id: msg.channel.guild.id,
       case_id,
       defendant_id,
-      verdict: verdict.mistrial,
-      opinion: args.opinion
+      verdict: verdict.mistrial
     };
     const { lastInsertRowid: id } = db.insert('verdicts', update);
 
