@@ -33,9 +33,11 @@ ABSOLUTE LIBERTY FOR ALL.
 \`\`\``;
 
 client.on('guildMemberAdd', async (guild, member) => {
-  const dm_channel = await member.user.getDMChannel();
+  const dm_channel = await member.user.getDMChannel().catch(() => null);
 
-  await send_msg(dm_channel.id, msg).catch(() => null);
+  if (dm_channel) {
+    await send_msg(dm_channel.id, msg).catch(() => null);
+  }
 
   const { imprisoned_role, trial_role, jailed_role } = db.fetch('guilds', { guild_id: guild.id });
   const t_role = guild.roles.get(trial_role);
