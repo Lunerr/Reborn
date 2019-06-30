@@ -47,13 +47,16 @@ module.exports = new class Detain extends Command {
   async run(msg, args) {
     return this.mutex.sync(`${msg.channel.guild.id}-${args.member.id}`, async () => {
       const { jailed_role } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+      const res = await this.verify(msg, msg.member, `What law did ${args.member.mention} break?\n
+Type \`cancel\` to cancel the command.`, args.member);
+
+      if (res instanceof CommandResult) {
+        return res;
+      }
 
       if (!args.member.roles.includes(jailed_role)) {
         await add_role(msg.channel.guild.id, args.member.id, jailed_role);
       }
-
-      return this.verify(msg, msg.member, `What law did ${args.member.mention} break?\n
-Type \`cancel\` to cancel the command.`, args.member);
     });
   }
 
