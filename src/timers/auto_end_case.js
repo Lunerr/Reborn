@@ -15,19 +15,38 @@
 'use strict';
 const client = require('../services/client.js');
 const { config } = require('../services/data.js');
+const catch_discord = require('../utilities/catch_discord.js');
 const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
 const system = require('../utilities/system.js');
+const add_role = catch_discord(client.addGuildMemberRole.bind(client));
+const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const verdict = require('../enums/verdict.js');
 const last_message_time = 432e5;
 const max_inactive = 3;
 const bitfield = 2048;
+const inactive_msg = 'This court case has been marked as \
+inactive due to no recent activity and you have been impeached for failing to fulfill his duties \
+as a judge.\n\nNo verdict has been delivered and the prosecuted may be prosecuted again.';
+
+async function edit_case(guild, id) {
+  const new_case = db.get_case(id);
+  const { case_channel } = db.fetch('guilds', { guild_id: guild.id });
+  const c_channel = guild.channels.get(case_channel);
+
+  if (c_channel) {
+    await system.edit_case(c_channel, new_case);
+  }
+}
 
 async function close(c_case, guild, channel) {
   const { inactive_count, judge_id, defendant_id, plaintiff_id } = c_case;
   const judge = guild.members.get(judge_id) || await client.getRESTUser(judge_id);
 
   if (inactive_count >= max_inactive) {
+    const { judge_role, trial_role } = db.fetch('guilds', { guild_id: guild.id });
+    const j_role = guild.roles.get(judge_role);
+    const t_role = guild.roles.get(trial_role);
     const { lastInsertRowid: id } = db.insert('verdicts', {
       guild_id: guild.id,
       case_id: c_case.id,
@@ -36,19 +55,23 @@ async function close(c_case, guild, channel) {
       opinion: 'Auto closed due to inactivity'
     });
 
-    (await channel.createMessage(`${judge.mention}\nThis court case has been marked as \
-inactive due to no recent activity.`)).pin();
+    db.insert('impeachments', {
+      member_id: judge_id, guild_id: guild.id
+    });
+
+    if (j_role) {
+      await add_role(guild.id, judge_id, judge_role, 'Impeached for not reaching a case verdict.');
+    }
+
+    if (t_role) {
+      await remove_role(guild.id, defendant_id, trial_role, 'Inactive case.');
+    }
+
+    (await channel.createMessage(`${judge.mention}\n${inactive_msg}`)).pin();
     await Promise.all(channel.permissionOverwrites.map(
       x => channel.editPermission(x.id, 0, bitfield, x.type, 'Case is over')
     ));
-
-    const new_case = db.get_case(id);
-    const { case_channel } = db.fetch('guilds', { guild_id: guild.id });
-    const c_channel = guild.channels.get(case_channel);
-
-    if (c_channel) {
-      await system.edit_case(c_channel, new_case);
-    }
+    await edit_case(guild, id);
   } else {
     const defendant = guild.members.get(defendant_id) || await client.getRESTUser(defendant_id);
     const cop = guild.members.get(plaintiff_id) || await client.getRESTUser(plaintiff_id);
@@ -56,11 +79,9 @@ inactive due to no recent activity.`)).pin();
     const left = max_inactive - inactive_count;
 
     await channel.createMessage(`${pings}\nThis case has not yet reached a verdict and there has \
-been no recent activity. This case will be marked as inactive \
-${left === 1 ? 'on the next message' : `after ${max_inactive - inactive_count} more reminder \
-messages if no recent message is sent`}.\n\n${judge.mention}, As a judge it is your duty to \
-proceed with the case and come to a verdict. Failing to do so will result in impeachment \
-and national disgrace. `);
+been no recent activity.\nThis case will be marked as inactive ${left === 1 ? 'soon' : ''} if no \
+recent message is sent.\n\n${judge.mention}, it is your duty to proceed with the case and come to \
+a verdict. Failing to do so will result in impeachment and national disgrace. `);
     db.set_case_inactive_count(c_case.id, inactive_count + 1);
   }
 }
