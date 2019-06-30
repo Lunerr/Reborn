@@ -94,12 +94,12 @@ module.exports = new class Guilty extends Command {
       }
 
       await this.end(msg, {
-        law, sentence: args.sentence, opinion: args.opinion, defendant_id, case_id, prefix
+        law, sentence: args.sentence, opinion: args.opinion, defendant_id, case_id
       });
     });
   }
 
-  async end(msg, { law, sentence, defendant_id, opinion, case_id, prefix }) {
+  async end(msg, { law, sentence, defendant_id, opinion, case_id }) {
     const { days, hours } = sentence === empty_argument ? {
       days: 0, hours: 0
     } : number.msToTime(sentence);
@@ -117,7 +117,7 @@ ${time} hours in prison${repeated ? ` for repeatedly breaking the law \`${law.na
 charged with committing a misdemeanor'}.`;
 
     await discord.create_msg(
-      msg.channel, `${prefix}${def.mention} has been found guilty and was ${ending}`
+      msg.channel, `${def.mention} has been found guilty and was ${ending}`
     );
     await msg.pin();
     await Promise.all(msg.channel.permissionOverwrites.map(
