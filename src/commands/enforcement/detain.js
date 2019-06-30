@@ -14,6 +14,7 @@
  */
 'use strict';
 const { Argument, Command, CommandResult, MultiMutex } = require('patron.js');
+const { config } = require('../../services/data.js');
 const db = require('../../services/database.js');
 const catch_discord = require('../../utilities/catch_discord.js');
 const client = require('../../services/client.js');
@@ -131,7 +132,8 @@ Type \`cancel\` to cancel the command.`;
     warrant.id = id;
     await discord.create_msg(
       msg.channel, `You have successfully detained ${member.mention} and a warrant has been \
-created under the law ${law.name}.`
+created under the law ${law.name}.\n\nA judge must approve this this detainment with the \
+\`${config.prefix}approve\` command within 5 minutes or else you will get impeached.`
     );
 
     const { warrant_channel } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
