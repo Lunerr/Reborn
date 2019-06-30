@@ -6,6 +6,7 @@ const db = require('../services/database.js');
 const verdict = require('../enums/verdict.js');
 const number = require('./number.js');
 const day_hours = 24;
+const max_evidence = 17e2;
 
 module.exports = {
   max_msgs: 100,
@@ -177,7 +178,8 @@ module.exports = {
     return {
       title: `${type} for ${discord.tag(defendant)} (${law.name})`,
       description: `**ID:** ${id}${judge ? `\n**Granted by:** ${judge.mention}` : ''}
-**Evidence:** ${evidence ? evidence.trim() : 'N/A'}\n**Status:** ${served ? 'Served' : format}`
+**Evidence:** ${evidence ? evidence.trim().slice(0, max_evidence) : 'N/A'}
+**Status:** ${served ? 'Served' : format}`
     };
   },
 
