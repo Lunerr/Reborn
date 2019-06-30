@@ -19,8 +19,29 @@ const { config, constants } = require('../services/data.js');
 const msg_collector = require('../services/message_collector.js');
 const create_message = catch_discord((...args) => client.createMessage(...args));
 const fetch = require('node-fetch');
+const delay = 2e3;
+const max_fetch = 100;
+const rl = 5;
 
 module.exports = {
+  async fetch_msgs(channel) {
+    const msgs = [];
+    let count = 0;
+    let fetched;
+    let last;
+
+    while ((fetched = await channel.getMessages(max_fetch, last)).length) {
+      msgs.push(...fetched);
+      last = fetched[fetched.length - 1].id;
+      count++;
+
+      if (count % rl === 0) {
+        await new Promise(r => setTimeout(r, delay));
+      }
+    }
+
+    return msgs;
+  },
   embed(options) {
     if (!options.color) {
       options.color = constants

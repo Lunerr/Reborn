@@ -9,7 +9,6 @@ const day_hours = 24;
 const max_evidence = 17e2;
 
 module.exports = {
-  max_msgs: 100,
   max_warrants: 25,
   mutex: new MultiMutex(),
 
@@ -79,7 +78,7 @@ module.exports = {
   },
 
   async should_prune(channel, arr, fn) {
-    const messages = await channel.getMessages(this.max_msgs);
+    const messages = await discord.fetch_msgs(channel);
 
     if (messages.length !== arr.length || messages.some(x => !x.embeds.length)) {
       return true;
@@ -98,12 +97,9 @@ module.exports = {
   },
 
   async prune(channel) {
-    let messages;
+    const messages = await discord.fetch_msgs(channel);
 
-    while ((messages = await channel.getMessages(this.max_msgs)).length) {
-      messages = messages.map(x => x.id);
-      await channel.deleteMessages(messages).catch(() => null);
-    }
+    await channel.deleteMessages(messages.map(x => x.id)).catch(() => null);
   },
 
   format_laws(laws) {
@@ -185,7 +181,7 @@ module.exports = {
 
   async edit_warrant(channel, warrant) {
     return this.mutex.sync(`${channel.guild.id}-warrants`, async () => {
-      const msgs = await channel.getMessages(this.max_msgs);
+      const msgs = await discord.fetch_msgs(channel);
       const { id, executed } = warrant;
       const found = msgs.find(x => {
         const [old_id] = x.embeds[0].description.split('**ID:** ')[1].split('\n');
@@ -260,7 +256,7 @@ module.exports = {
 
   async edit_case(channel, c_case) {
     return this.mutex.sync(`${channel.guild.id}-cases`, async () => {
-      const msgs = await channel.getMessages(this.max_msgs);
+      const msgs = await discord.fetch_msgs(channel);
       const found = msgs.find(x => {
         const [old_id] = x.embeds[0].description.split('**ID:** ')[1].split('\n');
 
