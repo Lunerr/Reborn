@@ -38,7 +38,7 @@ module.exports = new class Clear extends Command {
       ],
       description: 'Clears a user\'s recent messages.',
       groupName: 'enforcement',
-      names: ['clear']
+      names: ['clear', 'purge']
     });
   }
 
