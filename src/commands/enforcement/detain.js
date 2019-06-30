@@ -48,11 +48,11 @@ module.exports = new class Detain extends Command {
   async run(msg, args) {
     const key = `${msg.channel.guild.id}-${msg.author.id}-${args.member.id}`;
 
-    return this.mutex.sync(key, async () => {
-      if (this.running[key]) {
-        return;
-      }
+    if (this.running[key]) {
+      return;
+    }
 
+    return this.mutex.sync(key, async () => {
       this.running[key] = true;
 
       const { jailed_role } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
