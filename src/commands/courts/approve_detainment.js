@@ -42,7 +42,7 @@ module.exports = new class ApproveDetainment extends Command {
       ],
       description: 'Approves a detainment.',
       groupName: 'courts',
-      names: ['approve_detainment']
+      names: ['approve_detainment', 'approve']
     });
   }
 
