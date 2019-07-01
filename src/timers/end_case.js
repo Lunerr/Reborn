@@ -90,7 +90,7 @@ async function close(c_case, guild, channel) {
       await channel.createMessage(`${pings}\nThis case has not yet reached a verdict and there has \
 been no recent activity.\nThis case will be marked as inactive ${left === 1 ? 'soon ' : ''}if no \
 recent message is sent.\n\n${judge.mention}, it is your duty to proceed with the case and come to \
-a verdict. Failing to do so will result in impeachment and national disgrace. `);
+a verdict. Failure to do so will result in impeachment and national disgrace. `);
     }
 
     db.set_case_inactive_count(c_case.id, inactive_count + 1);
