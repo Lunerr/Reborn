@@ -35,6 +35,8 @@ you will be impeached.
 
 If you are sure you wish to proceed with the arrest given the aforementioned terms, please \
 type \`yes\`.`;
+const max_len = 15e2;
+const dots = '...';
 
 module.exports = new class Arrest extends Command {
   constructor() {
@@ -75,12 +77,8 @@ arrest a citizen.');
         return;
       }
 
-      const defendant = (msg.channel.guild.members.get(args.warrant.defendant_id) || {}).user;
-
-      if (!defendant) {
-        return CommandResult.fromError('The defendant is no longer in the server.');
-      }
-
+      const defendant = (msg.channel.guild.members.get(args.warrant.defendant_id) || {}).user
+        || await client.getRESTUser(args.warrant.defendant_id);
       const { court_category, judge_role, trial_role } = res;
       const judge = this.get_judge(msg.channel.guild, args.warrant, judge_role);
 
@@ -136,21 +134,55 @@ ${discord.formatUsername(defendant.username)}`,
     await channel.edit({ nsfw: true });
 
     const law = db.get_law(warrant.law_id);
+    const format = this.format_evidence(warrant.evidence);
+    const evidence = Array.isArray(format) ? format[0] : format;
     const content = `${officer.mention} VS ${defendant.mention}
 
 ${judge.mention} will be presiding over this court proceeding.
 
 The defense is accused of violating the following law: ${law.name}
 
-${warrant.evidence ? `${warrant.request === 1 ? 'Messages' : 'Evidence'}: ${warrant.evidence}` : ''}
+${warrant.evidence ? `${warrant.request === 1 ? 'Messages' : 'Evidence'}: ${evidence}` : ''}
 
 The judge must request a plea from the accused, and must proceed assuming an innocent plea after \
 12 hours without a plea. The defendant has the right to remain silent and both \
 the prosecutor and defendant have the right to request a qualified and earnest attorney.`;
     const sent = await channel.createMessage(content);
 
+    if (Array.isArray(format)) {
+      const pruned = format.slice(1);
+
+      for (let i = 0; i < pruned.length; i++) {
+        await channel.createMessage(`Evidence Continued:\n${pruned[i]}`);
+      }
+    }
+
     await sent.pin();
     await this.close(channel, warrant, defendant.id, judge.id, officer.id, trial_role);
+  }
+
+  format_evidence(evidence) {
+    if (evidence.length <= max_len) {
+      return evidence;
+    }
+
+    let i = -1;
+    let index = -1;
+
+    while ((i = evidence.indexOf('\n', i + 1)) >= 0) {
+      if (i < max_len) {
+        index = i;
+      }
+    }
+
+    if (index !== -1 && index < max_len) {
+      const rest = evidence.slice(index);
+
+      return [evidence.slice(0, index)].concat(this.format_evidence(rest));
+    }
+
+    return [`${evidence.slice(0, max_len - dots.length)}${dots}`]
+      .concat(this.format_evidence(evidence.slice(max_len - dots.length)));
   }
 
   async close(channel, warrant, defendant_id, judge_id, plaintiff_id, role) {

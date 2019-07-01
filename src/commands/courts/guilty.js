@@ -140,11 +140,12 @@ charged with committing a misdemeanor'}.`;
     }
 
     const addSentence = law.mandatory_felony || (!law.mandatory_felony && mute);
-    const { trial_role, imprisoned_role } = db.fetch('guilds', { guild_id: ids.guild });
+    const { trial_role, imprisoned_role, jailed_role } = db.fetch('guilds', { guild_id: ids.guild });
     const in_server = guild.members.has(ids.defendant);
 
     if (in_server) {
       await remove_role(ids.guild, ids.defendant, trial_role);
+      await remove_role(ids.guild, ids.defendant, jailed_role);
     }
 
     if (sentence !== empty_argument && addSentence) {

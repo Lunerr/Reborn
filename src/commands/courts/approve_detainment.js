@@ -16,6 +16,7 @@
 const { Argument, Command, CommandResult } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
+const registry = require('../../services/registry.js');
 const system = require('../../utilities/system.js');
 const content = `Granting unlawful detainments will result in \
 impeachment and **national disgrace**.
@@ -64,13 +65,31 @@ module.exports = new class ApproveDetainment extends Command {
       msg.channel, `${discord.tag(msg.author).boldified}, You've approved this detainment.`
     );
 
-    const { warrant_channel } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+    const {
+      warrant_channel, judge_role, trial_role, court_category
+    } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const w_channel = msg.channel.guild.channels.get(warrant_channel);
+    const new_warrant = Object.assign(args.warrant, { judge_id: msg.author.id });
 
     if (w_channel) {
-      const new_warrant = Object.assign(args.warrant, { judge_id: msg.author.id });
-
       await system.edit_warrant(w_channel, new_warrant);
     }
+
+    await this.setup({
+      guild: msg.channel.guild, warrant: new_warrant, judge_role, trial_role, court_category
+    });
+  }
+
+  async setup({ guild, warrant, judge_role, trial_role, court_category }) {
+    const arrest = registry.commands.find(x => x.names[0] === 'arrest');
+    const judge = arrest.get_judge(guild, warrant, judge_role);
+    const defendant = guild.members.get(warrant.defendant_id) || await guild.shard
+      .client.getRESTUser(warrant.defendant_id);
+    const officer = guild.members.get(warrant.officer_id) || await guild.shard
+      .client.getRESTUser(warrant.officer_id);
+
+    await arrest.set_up({
+      guild, defendant, judge, officer, warrant, trial_role, category: court_category
+    });
   }
 }();

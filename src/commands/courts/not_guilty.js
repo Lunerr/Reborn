@@ -91,9 +91,10 @@ ${(defendant || await client.getRESTUser(defendant_id)).mention} not guilty.`
 
   async free(guild, defendant) {
     if (defendant) {
-      const { trial_role } = db.fetch('guilds', { guild_id: guild.id });
+      const { trial_role, jailed_role } = db.fetch('guilds', { guild_id: guild.id });
 
       await remove_role(guild.id, defendant.id, trial_role);
+      await remove_role(guild.id, defendant.id, jailed_role);
     }
   }
 }();

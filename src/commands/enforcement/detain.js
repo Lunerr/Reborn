@@ -60,17 +60,15 @@ module.exports = new class Detain extends Command {
       const res = await this.verify(msg, msg.member, `What law did ${args.member.mention} break?\n
 Type \`cancel\` to cancel the command.`, args.member);
 
-      if (res instanceof CommandResult) {
-        this.running[key] = null;
+      this.running[key] = null;
 
+      if (res instanceof CommandResult) {
         return res;
       }
 
       if (!args.member.roles.includes(jailed_role)) {
         await add_role(msg.channel.guild.id, args.member.id, jailed_role);
       }
-
-      this.running[key] = null;
     });
   }
 
