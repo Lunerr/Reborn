@@ -58,6 +58,7 @@ module.exports = new class Detain extends Command {
       this.running[key] = true;
 
       const { jailed_role } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+
       await add_role(msg.channel.guild.id, args.member.id, jailed_role);
 
       const res = await this.verify(msg, msg.member, `What law did ${args.member.mention} break?\n
