@@ -28,8 +28,7 @@ const hours_per_day = 24;
 const content = `Unlawfully declaring this verdict as guilty will result in \
 impeachment and **national disgrace**.
 
-If you have **ANY DOUBTS WHATSOEVER ABOUT THIS CASE**, do not proceed with declaring \
-this verdict as guilty.
+If you have **ANY DOUBTS WHATSOEVER ABOUT THIS CASE**, render a not guilty verdict.
 
 __IGNORANCE IS NOT A DEFENSE.__
 
