@@ -106,10 +106,10 @@ Type \`cancel\` to cancel the command.`;
     const filtered = msgs.filter(x => x.author.id === member.id).slice(0, max_evidence);
     const evidence = filtered
       .map((x, i) => {
-        let message = `${filtered.length - i}. ${x.content}`;
+        let message = `${filtered.length - i}. ${x.content} `;
 
         if (x.attachments.length) {
-          message += ` ${x.attachments.map(c => c.proxy_url).join(', ')}`;
+          message += `${x.attachments.map(c => c.proxy_url).join(', ')}`;
         }
 
         return message;

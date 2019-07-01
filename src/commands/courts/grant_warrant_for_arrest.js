@@ -78,7 +78,7 @@ module.exports = new class GrantWarrantForArrest extends Command {
     let evidence;
 
     if (args.evidence !== empty_argument && msg.attachments.length) {
-      evidence = `${args.evidence}\n\n${msg.attachments.map(x => x.proxy_url).join(', ')}`;
+      evidence = `${args.evidence}\n${msg.attachments.map(x => x.proxy_url).join(', ')}`;
     } else if (msg.attachments.length) {
       evidence = msg.attachments.map(x => x.proxy_url).join(', ');
     } else {
