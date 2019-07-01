@@ -120,7 +120,7 @@ Timer(async () => {
       const channel = guild.channels.get(c_case.channel_id);
 
       if (!channel) {
-        return close(c_case, guild, channel);
+        return;
       }
 
       const [last_msg] = await channel.getMessages(1);
