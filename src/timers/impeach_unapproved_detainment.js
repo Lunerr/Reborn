@@ -22,7 +22,7 @@ const system = require('../utilities/system.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const expiration = 3e5;
 
-function send_case(guild, warrant) {
+function edit_case(guild, warrant) {
   const { warrant_channel } = db.fetch('guilds', { guild_id: guild.id });
   const w_channel = guild.channels.get(warrant_channel);
 
@@ -74,7 +74,7 @@ Timer(async () => {
         member_id: warrant.officer_id, guild_id: guild.id
       });
       db.close_warrant(warrant.id);
-      send_case(guild, warrant);
+      edit_case(guild, warrant);
     }
   }
 }, config.detain_approved);

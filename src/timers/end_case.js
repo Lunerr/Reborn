@@ -19,7 +19,6 @@ const catch_discord = require('../utilities/catch_discord.js');
 const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
 const system = require('../utilities/system.js');
-const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const verdict = require('../enums/verdict.js');
 const last_message_time = 432e5;
@@ -48,7 +47,7 @@ async function impeach(guild, judge_id, defendant_id, judge_role, trial_role) {
   });
 
   if (j_role) {
-    await add_role(guild.id, judge_id, judge_role, 'Impeached for not reaching a case verdict.');
+    await remove_role(guild.id, judge_id, judge_role, 'Impeached for not reaching a case verdict.');
   }
 
   if (t_role) {
