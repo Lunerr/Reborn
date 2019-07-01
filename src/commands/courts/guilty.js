@@ -25,15 +25,15 @@ const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const empty_argument = Symbol('Empty Argument');
 const hours_per_day = 24;
-const content = `Declaring unlawful verdicts will result in \
+const content = `Unlawfully declaring this verdict as guilty will result in \
 impeachment and **national disgrace**.
 
-If you have **ANY DOUBTS WHATSOEVER ABOUT THE VALIDITY OF THIS VERDICT**, \
-do not proceed with this verdict.
+If you have **ANY DOUBTS WHATSOEVER ABOUT THIS CASE**, do not proceed with declaring \
+this verdict as guilty.
 
 __IGNORANCE IS NOT A DEFENSE.__
 
-If you are sure you wish to proceed with verdict given the aforementioned \
+If you are sure about declaring the defendant guilty given the aforementioned \
 terms, please type \`yes\`.`;
 
 module.exports = new class Guilty extends Command {
@@ -59,7 +59,6 @@ module.exports = new class Guilty extends Command {
       groupName: 'courts',
       names: ['guilty']
     });
-    this.bitfield = 2048;
     this.mutex = new MultiMutex();
   }
 
@@ -119,10 +118,7 @@ charged with committing a misdemeanor'}.`;
     await discord.create_msg(
       msg.channel, `${def.mention} has been found guilty and was ${ending}`
     );
-    await msg.pin();
-    await Promise.all(msg.channel.permissionOverwrites.map(
-      x => msg.channel.editPermission(x.id, 0, this.bitfield, x.type, 'Case is over')
-    ));
+    await system.close_case(msg, msg.channel);
   }
 
   async shouldMute({ ids, opinion, sentence, law, guild }) {

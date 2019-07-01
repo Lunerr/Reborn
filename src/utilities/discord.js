@@ -24,6 +24,18 @@ const max_fetch = 100;
 const rl = 5;
 
 module.exports = {
+  async dm(user, content) {
+    try {
+      const dm = await user.getDMChannel();
+
+      await dm.createMessage(content);
+
+      return true;
+    } catch (_) {
+      return false;
+    }
+  },
+
   async fetch_msgs(channel) {
     const msgs = [];
     let count = 0;

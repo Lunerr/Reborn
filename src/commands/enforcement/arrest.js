@@ -66,9 +66,6 @@ module.exports = new class Arrest extends Command {
         return CommandResult.fromError('You cannot arrest yourself.');
       } else if (args.warrant.request === 1 && args.warrant.approved === 0) {
         return CommandResult.fromError('This request warrant has not been approved by a judge.');
-      } else if (args.warrant.request === 1 && args.warrant.officer_id === msg.author.id) {
-        return CommandResult.fromError('You may not use your own request warrant to \
-arrest a citizen.');
       }
 
       const res = await this.prerequisites(msg, args.warrant);
@@ -135,7 +132,7 @@ ${discord.formatUsername(defendant.username)}`,
 
     const law = db.get_law(warrant.law_id);
     const format = this.format_evidence(warrant.evidence);
-    const evidence = Array.isArray(format) ? format[0] : format;
+    const evidence = Array.isArray(format) ? format.shift() : format;
     const content = `${officer.mention} VS ${defendant.mention}
 
 ${judge.mention} will be presiding over this court proceeding.
@@ -150,10 +147,8 @@ the prosecutor and defendant have the right to request a qualified and earnest a
     const sent = await channel.createMessage(content);
 
     if (Array.isArray(format)) {
-      const pruned = format.slice(1);
-
-      for (let i = 0; i < pruned.length; i++) {
-        await channel.createMessage(`Evidence Continued:\n${pruned[i]}`);
+      for (let i = 0; i < format.length; i++) {
+        await channel.createMessage(`Evidence Continued:\n${format[i]}`);
       }
     }
 

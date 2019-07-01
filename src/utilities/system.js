@@ -5,11 +5,12 @@ const discord = require('./discord.js');
 const db = require('../services/database.js');
 const verdict = require('../enums/verdict.js');
 const number = require('./number.js');
-const day_hours = 24;
-const max_evidence = 17e2;
 
 module.exports = {
+  day_hours: 24,
+  max_evidence: 17e2,
   max_warrants: 25,
+  bitfield: 2048,
   mutex: new MultiMutex(),
 
   case_finished(case_id) {
@@ -36,6 +37,13 @@ module.exports = {
     return {
       finished: false
     };
+  },
+
+  async close_case(to_pin, channel) {
+    await to_pin.pin();
+    await Promise.all(channel.permissionOverwrites.map(
+      x => channel.editPermission(x.id, 0, this.bitfield, x.type, 'Case is over')
+    ));
   },
 
   mute_felon(guild_id, defendant_id, law) {
@@ -148,7 +156,7 @@ module.exports = {
     if (time_left < 0) {
       format = 'Expired';
     } else if (days || hours || minutes) {
-      const total_time = day_hours * days;
+      const total_time = this.day_hours * days;
       const time = total_time + hours ? `${total_time + hours} hours` : `${minutes} minutes`;
 
       format = `Expires in ${time}`;
@@ -174,7 +182,7 @@ module.exports = {
     return {
       title: `${type} for ${discord.tag(defendant)} (${law.name})`,
       description: `**ID:** ${id}${judge ? `\n**Granted by:** ${judge.mention}` : ''}
-**Evidence:**\n${evidence ? evidence.trim().slice(0, max_evidence) : 'N/A'}
+**Evidence:**\n${evidence ? evidence.trim().slice(0, this.max_evidence) : 'N/A'}
 **Status:** ${served ? 'Served' : format}`
     };
   },

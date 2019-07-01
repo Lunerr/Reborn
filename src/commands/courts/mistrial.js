@@ -30,7 +30,6 @@ module.exports = new class Guilty extends Command {
       groupName: 'courts',
       names: ['mistrial']
     });
-    this.bitfield = 2048;
   }
 
   async run(msg) {
@@ -76,10 +75,7 @@ module.exports = new class Guilty extends Command {
 mistrial.\n\n${(cop || await client.getRESTUser(plaintiff_id)).mention} has been impeached.
 
 No verdict has been delivered and the accused may be prosecuted again.`);
-    await msg.pin();
-    await Promise.all(msg.channel.permissionOverwrites.map(
-      x => msg.channel.editPermission(x.id, 0, this.bitfield, x.type, 'Case is over')
-    ));
+    await system.close_case(msg, msg.channel);
   }
 
   async prerequisites(c_case, guild) {

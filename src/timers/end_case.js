@@ -23,9 +23,8 @@ const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const verdict = require('../enums/verdict.js');
 const last_message_time = 432e5;
 const max_inactive = 3;
-const bitfield = 2048;
 const inactive_msg = 'This court case has been marked as \
-inactive due to no recent activity and you have been impeached for failing to fulfill his duties \
+inactive due to no recent activity and you have been impeached for failing to fulfill your duties \
 as a judge.\n\nNo verdict has been delivered and the prosecuted may be prosecuted again.';
 
 async function edit_case(guild, id) {
@@ -73,10 +72,9 @@ async function close(c_case, guild, channel) {
     });
 
     if (channel) {
-      (await channel.createMessage(`${judge.mention}\n${inactive_msg}`)).pin();
-      await Promise.all(channel.permissionOverwrites.map(
-        x => channel.editPermission(x.id, 0, bitfield, x.type, 'Case is over')
-      ));
+      const msg = await channel.createMessage(`${judge.mention}\n${inactive_msg}`);
+
+      await system.close_case(msg, channel);
     }
 
     await edit_case(guild, id);

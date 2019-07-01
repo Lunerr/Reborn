@@ -32,7 +32,7 @@ module.exports = new class AllowInCourt extends Command {
       ],
       description: 'Allows a citizen to speak at a hearing.',
       groupName: 'courts',
-      names: ['allow_in_court']
+      names: ['allow_in_court', 'add_to_court']
     });
     this.bitfield = 2048;
   }

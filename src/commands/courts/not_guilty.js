@@ -39,7 +39,6 @@ module.exports = new class NotGuilty extends Command {
       groupName: 'courts',
       names: ['not_guilty']
     });
-    this.bitfield = 2048;
   }
 
   async run(msg, args) {
@@ -83,10 +82,7 @@ module.exports = new class NotGuilty extends Command {
       msg.channel, `${prefix}The court has found \
 ${(defendant || await client.getRESTUser(defendant_id)).mention} not guilty.`
     );
-    await msg.pin();
-    await Promise.all(msg.channel.permissionOverwrites.map(
-      x => msg.channel.editPermission(x.id, 0, this.bitfield, x.type, 'Case is over')
-    ));
+    await system.close_case(msg, msg.channel);
   }
 
   async free(guild, defendant) {
