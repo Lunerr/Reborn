@@ -22,6 +22,17 @@ const system = require('../utilities/system.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const expiration = 3e5;
 
+function send_case(guild, warrant) {
+  const { warrant_channel } = db.fetch('guilds', { guild_id: guild.id });
+  const w_channel = guild.channels.get(warrant_channel);
+
+  if (w_channel) {
+    const new_warrant = Object.assign(warrant, { executed: 1 });
+
+    return system.edit_warrant(w_channel, new_warrant);
+  }
+}
+
 Timer(async () => {
   const keys = [...client.guilds.keys()];
 
@@ -48,11 +59,12 @@ Timer(async () => {
       }
 
       const { jailed_role, officer_role } = db.fetch('guilds', { guild_id: guild.id });
-      const o_role = guild.roles.get(officer_role);
 
-      await remove_role(guild.id, warrant.defendant_id, jailed_role, 'Unapproved detain');
+      if (guild.members.get(warrant.defendant_id).roles.includes(jailed_role)) {
+        await remove_role(guild.id, warrant.defendant_id, jailed_role, 'Unapproved detain');
+      }
 
-      if (o_role) {
+      if (guild.members.get(warrant.officer_id).roles.includes(officer_role)) {
         await remove_role(guild.id, warrant.officer_id, officer_role, 'Unapproved detain');
       }
 
@@ -60,15 +72,7 @@ Timer(async () => {
         member_id: warrant.officer_id, guild_id: guild.id
       });
       db.close_warrant(warrant.id);
-
-      const { warrant_channel } = db.fetch('guilds', { guild_id: guild.id });
-      const w_channel = guild.channels.get(warrant_channel);
-
-      if (w_channel) {
-        const new_warrant = Object.assign(warrant, { executed: 1 });
-
-        return system.edit_warrant(w_channel, new_warrant);
-      }
+      send_case(guild, warrant);
     }
   }
 }, config.detain_approved);
