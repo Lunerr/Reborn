@@ -39,14 +39,32 @@ async function edit_case(guild, id) {
   }
 }
 
+async function impeach(guild, judge_id, defendant_id, judge_role, trial_role) {
+  const j_role = guild.roles.get(judge_role);
+  const t_role = guild.roles.get(trial_role);
+
+  db.insert('impeachments', {
+    member_id: judge_id, guild_id: guild.id
+  });
+
+  if (j_role) {
+    await add_role(guild.id, judge_id, judge_role, 'Impeached for not reaching a case verdict.');
+  }
+
+  if (t_role) {
+    await remove_role(guild.id, defendant_id, trial_role, 'Inactive case.');
+  }
+}
+
 async function close(c_case, guild, channel) {
   const { inactive_count, judge_id, defendant_id, plaintiff_id } = c_case;
   const judge = guild.members.get(judge_id) || await client.getRESTUser(judge_id);
 
   if (inactive_count >= max_inactive) {
     const { judge_role, trial_role } = db.fetch('guilds', { guild_id: guild.id });
-    const j_role = guild.roles.get(judge_role);
-    const t_role = guild.roles.get(trial_role);
+
+    await impeach(guild, judge_id, defendant_id, judge_role, trial_role);
+
     const { lastInsertRowid: id } = db.insert('verdicts', {
       guild_id: guild.id,
       case_id: c_case.id,
@@ -55,22 +73,13 @@ async function close(c_case, guild, channel) {
       opinion: 'Auto closed due to inactivity'
     });
 
-    db.insert('impeachments', {
-      member_id: judge_id, guild_id: guild.id
-    });
-
-    if (j_role) {
-      await add_role(guild.id, judge_id, judge_role, 'Impeached for not reaching a case verdict.');
+    if (channel) {
+      (await channel.createMessage(`${judge.mention}\n${inactive_msg}`)).pin();
+      await Promise.all(channel.permissionOverwrites.map(
+        x => channel.editPermission(x.id, 0, bitfield, x.type, 'Case is over')
+      ));
     }
 
-    if (t_role) {
-      await remove_role(guild.id, defendant_id, trial_role, 'Inactive case.');
-    }
-
-    (await channel.createMessage(`${judge.mention}\n${inactive_msg}`)).pin();
-    await Promise.all(channel.permissionOverwrites.map(
-      x => channel.editPermission(x.id, 0, bitfield, x.type, 'Case is over')
-    ));
     await edit_case(guild, id);
   } else {
     const defendant = guild.members.get(defendant_id) || await client.getRESTUser(defendant_id);
@@ -78,10 +87,13 @@ async function close(c_case, guild, channel) {
     const pings = `${judge.mention} ${defendant.mention} ${cop.mention}`;
     const left = max_inactive - inactive_count;
 
-    await channel.createMessage(`${pings}\nThis case has not yet reached a verdict and there has \
+    if (channel) {
+      await channel.createMessage(`${pings}\nThis case has not yet reached a verdict and there has \
 been no recent activity.\nThis case will be marked as inactive ${left === 1 ? 'soon ' : ''}if no \
 recent message is sent.\n\n${judge.mention}, it is your duty to proceed with the case and come to \
 a verdict. Failing to do so will result in impeachment and national disgrace. `);
+    }
+
     db.set_case_inactive_count(c_case.id, inactive_count + 1);
   }
 }
@@ -109,7 +121,7 @@ Timer(async () => {
       const channel = guild.channels.get(c_case.channel_id);
 
       if (!channel) {
-        continue;
+        return close(c_case, guild, channel);
       }
 
       const [last_msg] = await channel.getMessages(1);
