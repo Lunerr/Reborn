@@ -21,6 +21,7 @@ const client = require('../../services/client.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
 const add_role = catch_discord(client.addGuildMemberRole.bind(client));
+const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const max_evidence = 10;
 const fetch_limit = 100;
 
@@ -57,17 +58,17 @@ module.exports = new class Detain extends Command {
       this.running[key] = true;
 
       const { jailed_role } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+      await add_role(msg.channel.guild.id, args.member.id, jailed_role);
+
       const res = await this.verify(msg, msg.member, `What law did ${args.member.mention} break?\n
 Type \`cancel\` to cancel the command.`, args.member);
 
       this.running[key] = null;
 
       if (res instanceof CommandResult) {
-        return res;
-      }
+        await remove_role(msg.channel.guild.id, args.member.id, jailed_role);
 
-      if (!args.member.roles.includes(jailed_role)) {
-        await add_role(msg.channel.guild.id, args.member.id, jailed_role);
+        return res;
       }
     });
   }
