@@ -59,12 +59,14 @@ Timer(async () => {
       }
 
       const { jailed_role, officer_role } = db.fetch('guilds', { guild_id: guild.id });
+      const defendant = guild.members.get(warrant.defendant_id);
+      const officer = guild.members.get(warrant.officer_id);
 
-      if (guild.members.get(warrant.defendant_id).roles.includes(jailed_role)) {
+      if (defendant && defendant.roles.includes(jailed_role)) {
         await remove_role(guild.id, warrant.defendant_id, jailed_role, 'Unapproved detain');
       }
 
-      if (guild.members.get(warrant.officer_id).roles.includes(officer_role)) {
+      if (officer && officer.roles.includes(officer_role)) {
         await remove_role(guild.id, warrant.officer_id, officer_role, 'Unapproved detain');
       }
 
