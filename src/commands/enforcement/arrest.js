@@ -158,18 +158,28 @@ the prosecutor and defendant have the right to request a qualified and earnest a
     await this.close(channel, warrant, defendant.id, judge.id, officer.id, trial_role);
   }
 
+  get_index(string, char) {
+    let i = -1;
+    let index = -1;
+
+    while ((i = string.indexOf(char, i + 1)) >= 0) {
+      if (i < max_len) {
+        index = i;
+      }
+    }
+
+    return index;
+  }
+
   format_evidence(evidence) {
     if (evidence.length <= max_len) {
       return evidence;
     }
 
-    let i = -1;
-    let index = -1;
+    let index = this.get_index(evidence, '\n');
 
-    while ((i = evidence.indexOf('\n', i + 1)) >= 0) {
-      if (i < max_len) {
-        index = i;
-      }
+    if (index === -1) {
+      index = this.get_index(' ');
     }
 
     if (index !== -1 && index < max_len) {
