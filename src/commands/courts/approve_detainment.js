@@ -66,6 +66,7 @@ module.exports = new class ApproveDetainment extends Command {
     await discord.create_msg(
       msg.channel, `${discord.tag(msg.author).boldified}, You've approved this detainment.`
     );
+    await this.dm(msg.channel.guild, args.warrant.officer_id, msg.author, args.warrant);
 
     const {
       warrant_channel, judge_role, trial_role, court_category
@@ -93,5 +94,18 @@ module.exports = new class ApproveDetainment extends Command {
     await arrest.set_up({
       guild, defendant, judge, officer, warrant, trial_role, category: court_category
     });
+  }
+
+  async dm(guild, id, judge, warrant) {
+    const member = guild.members.get(id);
+
+    if (!member) {
+      return false;
+    }
+
+    return discord.dm(
+      member.user,
+      `Your detainment (${warrant.id}) has been approved by ${judge.mention}.`
+    );
   }
 }();
