@@ -30,9 +30,9 @@ module.exports = new class Clear extends Command {
         }),
         new Argument({
           example: 'Lexy',
-          key: 'member',
-          name: 'member',
-          type: 'member',
+          key: 'user',
+          name: 'user',
+          type: 'user',
           remainder: true
         })
       ],
@@ -47,20 +47,24 @@ module.exports = new class Clear extends Command {
       return CommandResult.fromError('The amount to delete must be between 0 and 500.');
     }
 
-    const {
-      trial_role, jailed_role, imprisoned_role
-    } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
-    const { roles } = args.member;
+    const member = msg.channel.guild.members.get(args.user.id);
 
-    if (!roles.some(x => x === trial_role || x === jailed_role || x === imprisoned_role)) {
-      return CommandResult.fromError('You can only clear a user\'s messages if they have the \
-Trial role, Jailed role, or Imprisoned role.');
+    if (member) {
+      const {
+        trial_role, jailed_role, imprisoned_role
+      } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+      const { roles } = member;
+
+      if (!roles.some(x => x === trial_role || x === jailed_role || x === imprisoned_role)) {
+        return CommandResult.fromError('You can only clear a user\'s messages if they have the \
+  Trial role, Jailed role, or Imprisoned role.');
+      }
     }
 
-    const pruned = await msg.channel.purge(args.amount, x => x.author.id === args.member.id);
+    const pruned = await msg.channel.purge(args.amount, x => x.author.id === args.user.id);
 
     await discord.create_msg(
-      msg.channel, `${pruned} messages sent by ${args.member.mention} have been deleted.`
+      msg.channel, `${pruned} messages sent by ${args.user.mention} have been deleted.`
     );
   }
 }();

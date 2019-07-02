@@ -33,9 +33,9 @@ module.exports = new class Detain extends Command {
       args: [
         new Argument({
           example: 'Serena',
-          key: 'member',
-          name: 'member',
-          type: 'member',
+          key: 'user',
+          name: 'user',
+          type: 'user',
           remainder: true
         })
       ],
@@ -49,11 +49,11 @@ module.exports = new class Detain extends Command {
   }
 
   async run(msg, args) {
-    if (args.member.id === msg.author.id) {
+    if (args.user.id === msg.author.id) {
       return CommandResult.fromError('You may not detain yourself.');
     }
 
-    const key = `${msg.channel.guild.id}-${msg.author.id}-${args.member.id}`;
+    const key = `${msg.channel.guild.id}-${msg.author.id}-${args.user.id}`;
 
     if (this.running[key]) {
       return;
@@ -64,15 +64,19 @@ module.exports = new class Detain extends Command {
 
       const { jailed_role } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
 
-      await add_role(msg.channel.guild.id, args.member.id, jailed_role);
+      if (msg.channel.guild.members.has(args.user.id)) {
+        await add_role(msg.channel.guild.id, args.user.id, jailed_role);
+      }
 
-      const res = await this.verify(msg, msg.member, `What law did ${args.member.mention} break?\n
-Type \`cancel\` to cancel the command.`, args.member);
+      const res = await this.verify(msg, msg.member, `What law did ${args.user.mention} break?\n
+Type \`cancel\` to cancel the command.`, args.user);
 
       this.running[key] = null;
 
       if (res instanceof CommandResult) {
-        await remove_role(msg.channel.guild.id, args.member.id, jailed_role);
+        if (msg.channel.guild.members.has(args.user.id)) {
+          await remove_role(msg.channel.guild.id, args.user.id, jailed_role);
+        }
 
         return res;
       }
