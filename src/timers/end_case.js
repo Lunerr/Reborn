@@ -24,8 +24,9 @@ const verdict = require('../enums/verdict.js');
 const last_message_time = 432e5;
 const max_inactive = 3;
 const inactive_msg = 'This court case has been marked as \
-inactive due to no recent activity and you have been impeached for failing to fulfill your duties \
-as a judge.\n\nNo verdict has been delivered and the prosecuted may be prosecuted again.';
+inactive due to the lack of recent activity shown towards the case.\n\
+You have been impeached for failing to fulfill your duties as a judge.\n\n\
+No verdict has been delivered and the prosecuted may be prosecuted again.';
 
 async function edit_case(guild, id) {
   const new_case = db.get_case(id);
@@ -46,7 +47,7 @@ async function impeach(guild, judge_id, defendant_id, judge_role, trial_role) {
   });
 
   if (j_role) {
-    await remove_role(guild.id, judge_id, judge_role, 'Impeached for not reaching a case verdict.');
+    await remove_role(guild.id, judge_id, judge_role, 'Impeached for inactive case.');
   }
 
   if (t_role) {
