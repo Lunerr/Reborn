@@ -189,8 +189,10 @@ the prosecutor and defendant have the right to request a qualified and earnest a
       return [evidence.slice(0, index)].concat(this.format_evidence(rest));
     }
 
-    return [`${evidence.slice(0, max_len - dots.length)}${dots}`]
-      .concat(this.format_evidence(evidence.slice(max_len - dots.length)));
+    const initial = `${evidence.slice(0, max_len - dots.length)}${dots}`;
+    const rest = this.format_evidence(evidence.slice(max_len - dots.length));
+
+    return [initial].concat(rest);
   }
 
   async close(channel, warrant, defendant_id, judge_id, plaintiff_id, role) {
