@@ -18,15 +18,15 @@ const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const registry = require('../../services/registry.js');
 const system = require('../../utilities/system.js');
-const content = `Granting unlawful detainments will result in \
+const content = `Approving unlawful detainments will result in \
 impeachment and **national disgrace**.
 
 If you have **ANY DOUBTS WHATSOEVER ABOUT THE VALIDITY OF THIS DETAINMENT**, \
-do not proceed with this grant.
+do not proceed with this approval.
 
 __IGNORANCE IS NOT A DEFENSE.__
 
-If you are sure you wish to proceed with granting this detainment given the aforementioned \
+If you are sure you wish to proceed with the approval this detainment given the aforementioned \
 terms, please type \`yes\`.`;
 
 module.exports = new class ApproveDetainment extends Command {
