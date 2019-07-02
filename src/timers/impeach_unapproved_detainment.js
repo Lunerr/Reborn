@@ -24,7 +24,7 @@ const Timer = require('../utilities/timer.js');
 const system = require('../utilities/system.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const expiration = 3e5;
-const extended_duration = 216e5;
+const extended_expiration = 432e5;
 const regular_dm = 6e4;
 const extended_dm = 9e5;
 const to_week = 6048e5;
@@ -112,7 +112,7 @@ Timer(async () => {
         continue;
       }
 
-      const time = warrant.extended_time ? extended_duration : expiration;
+      const time = warrant.extended_time ? extended_expiration : expiration;
       const time_left = warrant.created_at + time - Date.now();
       const defendant = guild.members.get(warrant.defendant_id);
       const { judge_role, jailed_role, officer_role } = db.fetch('guilds', { guild_id: guild.id });
