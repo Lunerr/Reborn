@@ -50,7 +50,7 @@ function get_judges(guild, role) {
   return guild.members.filter(x => x.roles.includes(role) && x.status === 'online');
 }
 
-async function dm(warrant, time_left, defendant, judges, guild) {
+async function dm(warrant, time_left, officer, judges, guild) {
   const now = Date.now();
   const last_notified = now - warrant.last_notified;
   const past = warrant.extended_time ? last_notified > extended_dm : last_notified > regular_dm;
@@ -69,11 +69,11 @@ async function dm(warrant, time_left, defendant, judges, guild) {
       format = `${minutes} minutes`;
     }
 
-    if (defendant) {
+    if (officer) {
       const judge_append = judges && judges.length ? `You may DM one of the following judges to \
 request that they grant your warrant: ${string.list(judges.map(x => x.user.mention))}` : '';
 
-      await discord.dm(defendant.user, `You will be automatically impeached if you do not get a \
+      await discord.dm(officer.user, `You will be automatically impeached if you do not get a \
 warrant in the next ${format}.\n\nYour warrant may be approved with the following \
 command: \`!approve ${warrant.id}\`.\n\n${judge_append}`, guild);
       db.set_warrant_last_notified(warrant.id, now);
@@ -124,17 +124,17 @@ Timer(async () => {
 
       const time = warrant.extended_time ? extended_expiration : expiration;
       const time_left = warrant.created_at + time - Date.now();
-      const defendant = guild.members.get(warrant.defendant_id);
       const { judge_role, jailed_role, officer_role } = db.fetch('guilds', { guild_id: guild.id });
+      const officer = guild.members.get(warrant.officer_id);
 
       if (time_left > 0) {
         const judges = get_judges(guild, judge_role);
 
-        await dm(warrant, time_left, defendant, judges, guild);
+        await dm(warrant, time_left, officer, judges, guild);
         continue;
       }
 
-      const officer = guild.members.get(warrant.officer_id);
+      const defendant = guild.members.get(warrant.defendant_id);
 
       await impeach(guild, warrant, defendant, officer, {
         jailed_role, officer_role
