@@ -48,7 +48,9 @@ module.exports = new class ApproveDetainment extends Command {
   }
 
   async run(msg, args) {
-    if (args.warrant.approved === 1) {
+    if (args.warrant.executed) {
+      return CommandResult.fromError('This detainment has already been executed.');
+    } else if (args.warrant.approved === 1) {
       return CommandResult.fromError('This detainment has already been approved.');
     }
 
