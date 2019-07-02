@@ -59,7 +59,7 @@ Timer(async () => {
       const defendant = guild.members.get(verdicts[i].defendant_id);
       const { imprisoned_role } = db.fetch('guilds', { guild_id: verdicts[i].guild_id });
 
-      if (!defendant || !imprisoned_role) {
+      if (!defendant || !imprisoned_role || !defendant.roles.includes(imprisoned_role)) {
         continue;
       }
 
