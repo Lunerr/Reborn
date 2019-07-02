@@ -50,7 +50,7 @@ function get_judges(guild, role) {
   return guild.members.filter(x => x.roles.includes(role) && x.status === 'online');
 }
 
-async function dm(warrant, time_left, defendant, judges) {
+async function dm(warrant, time_left, defendant, judges, guild) {
   const now = Date.now();
   const last_notified = now - warrant.last_notified;
   const past = warrant.extended_time ? last_notified > extended_dm : last_notified > regular_dm;
@@ -65,7 +65,7 @@ request that they grant your warrant: ${string.list(judges.map(x => x.user.menti
 
       await discord.dm(defendant.user, `You are going to get impeached if you do not get a \
 warrant in ${format}.\n\nYour warrant may be approved with the following \
-command: \`!approve ${warrant.id}\`.\n\n${judge_append}`);
+command: \`!approve ${warrant.id}\`.\n\n${judge_append}`, guild);
       db.set_warrant_last_notified(warrant.id, now);
     }
   }
@@ -88,8 +88,8 @@ async function impeach(guild, warrant, defendant, officer, roles) {
     const not_impeached = new Date(Date.now() + to_week);
 
     await discord.dm(officer.user, `You have been impeached for not getting your warrant \
-(${warrant.id}) approved within ${warrant.extended_time ? '6 hours' : '5 minutes'}.\n
-You will be able to recieve a government official role on ${not_impeached.toLocaleString()}.`);
+(${warrant.id}) approved within ${warrant.extended_time ? '6 hours' : '5 minutes'}.\nYou \
+will be able to recieve a government official role on ${not_impeached.toLocaleString()}.`, guild);
   }
 }
 
@@ -120,7 +120,7 @@ Timer(async () => {
       if (time_left > 0) {
         const judges = get_judges(guild, judge_role);
 
-        await dm(warrant, time_left, defendant, judges);
+        await dm(warrant, time_left, defendant, judges, guild);
         continue;
       }
 

@@ -105,7 +105,8 @@ module.exports = new class ApproveDetainment extends Command {
 
     return discord.dm(
       member.user,
-      `Your detainment (${warrant.id}) has been approved by ${judge.mention}.`
+      `Your detainment (${warrant.id}) has been approved by ${judge.mention}.`,
+      guild
     );
   }
 }();

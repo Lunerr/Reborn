@@ -22,10 +22,14 @@ const Timer = require('../utilities/timer.js');
 const verdict = require('../enums/verdict.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 
-async function dm(member) {
+async function dm(member, judge_id) {
+  const judge = member.guild.members.get(judge_id) || await client.getRESTUser(judge_id);
+
   return discord.dm(
     member.user,
-    `Your sentence is up and you have been unmuted in ${member.guild.name} (${member.guild.id}).`
+    `You have served your sentence, delivered by ${judge.mention}, \
+and you have been freed in ${member.guild.name}.`,
+    member.guild
   );
 }
 
