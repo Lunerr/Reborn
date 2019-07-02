@@ -24,11 +24,17 @@ const max_fetch = 100;
 const rl = 5;
 
 module.exports = {
-  async dm(user, content) {
+  async dm(user, content, guild = {}) {
     try {
       const dm = await user.getDMChannel();
 
-      await dm.createMessage(content);
+      await dm.createMessage(this.embed({
+        description: content,
+        footer: {
+          text: guild.name,
+          icon_url: guild.iconURL
+        }
+      }));
 
       return true;
     } catch (_) {
