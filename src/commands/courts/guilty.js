@@ -25,7 +25,7 @@ const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const empty_argument = Symbol('Empty Argument');
 const hours_per_day = 24;
-const content = `Unlawfully declaring this verdict as guilty will result in \
+const content = `Rendering a guilty verdict when there remains a reasonable doubt will result in \
 impeachment and **national disgrace**.
 
 If you have **ANY DOUBTS WHATSOEVER ABOUT THIS CASE**, render a not guilty verdict.
@@ -115,7 +115,7 @@ ${time} hours in prison${repeated ? ` for repeatedly breaking the law \`${law.na
 charged with committing a misdemeanor'}.`;
 
     await discord.create_msg(
-      msg.channel, `${def.mention} has been found guilty and was ${ending}`
+      msg.channel, `${def.mention} has been found guilty and ${ending}`
     );
     await system.close_case(msg, msg.channel);
   }
