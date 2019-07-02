@@ -22,7 +22,7 @@ module.exports = {
 
   list(arr, sep = 'and') {
     if (arr.length < minAmount) {
-      return arr.join(sep);
+      return arr.join(` ${sep} `);
     }
 
     return `${arr.slice(0, arr.length - 1).join(', ')}, ${sep} ${arr[arr.length - 1]}`;

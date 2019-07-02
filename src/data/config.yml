@@ -32,7 +32,7 @@ auto_verdict_time: 3e5
 auto_unmute: 3e5
 
 # Time when the detain needs to be approved
-detain_approved: 3e5
+detain_approved: 45e3
 
 # Time until verification is denied in ms.
 verify_timeout: 3e5

@@ -24,6 +24,7 @@ const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const max_evidence = 10;
 const fetch_limit = 100;
+const min_judges = 2;
 
 module.exports = new class Detain extends Command {
   constructor() {
@@ -119,13 +120,16 @@ Type \`cancel\` to cancel the command.`;
       .reverse()
       .join('\n')
       .trim();
+    const { warrant_channel, judge_role } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+    const online = this.get_judges(msg.channel.guild, judge_role);
     const warrant = {
       guild_id: msg.channel.guild.id,
       law_id: law.id,
       defendant_id: member.id,
       officer_id: msg.author.id,
       evidence: `\n${discord.sanitize_mentions(msg, evidence)}`,
-      request: 1
+      request: 1,
+      extended_time: online < min_judges ? 1 : 0
     };
     const { lastInsertRowid: id } = db.insert('warrants', warrant);
 
@@ -133,14 +137,26 @@ Type \`cancel\` to cancel the command.`;
     await discord.create_msg(
       msg.channel, `You have successfully detained ${member.mention} and a warrant has been \
 created under the law ${law.name}.\n\nA judge must approve this this detainment with the \
-\`${config.prefix}approve\` command within 5 minutes or else you will get impeached.`
+\`${config.prefix}approve\` command within ${online < min_judges ? '6 hours' : '5 minutes'} \
+or else you will get impeached.`
     );
 
-    const { warrant_channel } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const w_channel = msg.channel.guild.channels.get(warrant_channel);
 
     if (w_channel) {
       await system.add_warrant(w_channel, warrant);
     }
+  }
+
+  get_judges(guild, role) {
+    const g_role = guild.roles.get(role);
+
+    if (!g_role) {
+      return 0;
+    }
+
+    const members = guild.members.filter(x => x.roles.includes(role) && x.status === 'online');
+
+    return members.length;
   }
 }();

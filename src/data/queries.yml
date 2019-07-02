@@ -21,6 +21,8 @@ warrants_table: |-
     judge_id TEXT,
     officer_id TEXT,
     evidence TEXT,
+    extended_time TINYINT NOT NULL DEFAULT 0,
+    last_notified INTEGER,
     request TINYINT NOT NULL DEFAULT 0,
     approved TINYINT NOT NULL DEFAULT 0,
     executed TINYINT NOT NULL DEFAULT 0
@@ -115,7 +117,9 @@ upsert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT(guild_id) DO UPDATE SET {3}
 
 set_jailed: UPDATE members SET jailed = ? WHERE member_id = ? AND guild_id = ?
 
-set_trial: UPDATE members set on_trial = ? WHERE member_id = ? AND guild_id = ?
+set_trial: UPDATE members SET on_trial = ? WHERE member_id = ? AND guild_id = ?
+
+set_warrant_last_notified: UPDATE warrants SET last_notified = ? WHERE id = ?
 
 get_member: SELECT * FROM members WHERE member_id = ? AND guild_id = ?
 

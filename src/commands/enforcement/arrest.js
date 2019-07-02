@@ -134,7 +134,7 @@ ${discord.formatUsername(defendant.username)}`,
 
     const law = db.get_law(warrant.law_id);
     const format = this.format_evidence(warrant.evidence);
-    const evidence = Array.isArray(format) ? format.shift() : format;
+    const evidence = Array.isArray(format) ? format[0] : format;
     const content = `${officer.mention} VS ${defendant.mention}
 
 ${judge.mention} will be presiding over this court proceeding.
@@ -149,8 +149,8 @@ the prosecutor and defendant have the right to request a qualified and earnest a
     const sent = await channel.createMessage(content);
 
     if (Array.isArray(format)) {
-      for (let i = 0; i < format.length; i++) {
-        await channel.createMessage(`Evidence Continued:\n${format[i]}`);
+      for (let i = 1; i < format.length; i++) {
+        await channel.createMessage(`Continuation of Evidence #${i + 1}:${format[i]}`);
       }
     }
 
@@ -158,12 +158,12 @@ the prosecutor and defendant have the right to request a qualified and earnest a
     await this.close(channel, warrant, defendant.id, judge.id, officer.id, trial_role);
   }
 
-  get_index(string, char) {
+  get_index(string, char, max) {
     let i = -1;
     let index = -1;
 
     while ((i = string.indexOf(char, i + 1)) >= 0) {
-      if (i < max_len) {
+      if (i < max) {
         index = i;
       }
     }
@@ -176,7 +176,7 @@ the prosecutor and defendant have the right to request a qualified and earnest a
       return evidence;
     }
 
-    let index = this.get_index(evidence, '\n');
+    let index = this.get_index(evidence, '\n', max_len);
 
     if (index === -1) {
       index = this.get_index(' ');
