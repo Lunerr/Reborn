@@ -145,7 +145,7 @@ Type \`cancel\` to cancel the command.`;
     await discord.create_msg(
       msg.channel, `You have successfully detained ${member.mention} and a warrant has been \
 created under the law ${law.name}.\n\nA judge must approve this detainment with the \
-\`${config.prefix}approve\` command within ${online < min_judges ? '6 hours' : '5 minutes'} \
+\`${config.prefix}approve\` command within ${online < min_judges ? '12 hours' : '5 minutes'} \
 or else you will get impeached.`
     );
 
