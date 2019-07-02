@@ -183,7 +183,7 @@ the prosecutor and defendant have the right to request a qualified and earnest a
       index = this.get_index(' ');
     }
 
-    if (index !== -1 && index < max_len) {
+    if (index !== -1) {
       const rest = evidence.slice(index);
 
       return [evidence.slice(0, index)].concat(this.format_evidence(rest));
