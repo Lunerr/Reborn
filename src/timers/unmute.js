@@ -64,7 +64,10 @@ Timer(async () => {
       }
 
       await remove_role(guild.id, defendant.id, imprisoned_role, 'Auto unmute');
-      await dm(defendant);
+
+      const c_case = db.get_case(verdicts[i].case_id);
+
+      await dm(defendant, c_case ? c_case.judge_id : '');
     }
   }
 }, config.auto_unmute);
