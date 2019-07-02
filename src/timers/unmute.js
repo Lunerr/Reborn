@@ -14,12 +14,20 @@
  */
 'use strict';
 const catch_discord = require('../utilities/catch_discord.js');
+const discord = require('../utilities/discord.js');
 const client = require('../services/client.js');
 const { config } = require('../services/data.js');
 const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
 const verdict = require('../enums/verdict.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
+
+async function dm(member) {
+  return discord.dm(
+    member.user,
+    `Your sentence is up and you have been unmuted in ${member.guild.name} (${member.guild.id}).`
+  );
+}
 
 Timer(async () => {
   const guilds = [...client.guilds.keys()];
@@ -52,6 +60,7 @@ Timer(async () => {
       }
 
       await remove_role(guild.id, defendant.id, imprisoned_role, 'Auto unmute');
+      await dm(defendant);
     }
   }
 }, config.auto_unmute);
