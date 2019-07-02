@@ -57,14 +57,24 @@ async function dm(warrant, time_left, defendant, judges, guild) {
 
   if (warrant.last_notified === null || past) {
     const { hours, minutes } = number.msToTime(time_left);
-    const format = hours ? `${hours} hours` : `${minutes} minutes`;
+    let format;
+
+    if (hours) {
+      format = `${hours} hours`;
+
+      if (minutes) {
+        format += ` and ${minutes} minutes`;
+      }
+    } else {
+      format = `${minutes} minutes`;
+    }
 
     if (defendant) {
       const judge_append = judges && judges.length ? `You may DM one of the following judges to \
 request that they grant your warrant: ${string.list(judges.map(x => x.user.mention))}` : '';
 
       await discord.dm(defendant.user, `You will be automatically impeached if you do not get a \
-warrant in ${format}.\n\nYour warrant may be approved with the following \
+warrant in the next ${format}.\n\nYour warrant may be approved with the following \
 command: \`!approve ${warrant.id}\`.\n\n${judge_append}`, guild);
       db.set_warrant_last_notified(warrant.id, now);
     }
