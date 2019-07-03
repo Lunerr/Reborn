@@ -40,7 +40,9 @@ Timer(async () => {
     const verdicts = db.fetch_verdicts(guilds[k]);
 
     for (let i = 0; i < verdicts.length; i++) {
-      if (verdicts[i].verdict === verdict.pending || verdicts[i].sentence === null) {
+      const served = verdicts[i].sentence === null || verdicts[i].served === 1;
+
+      if (verdicts[i].verdict === verdict.pending || served) {
         continue;
       }
 
@@ -49,6 +51,8 @@ Timer(async () => {
       if (time_left > 0) {
         continue;
       }
+
+      db.serve_verdict(verdicts[i].id);
 
       const guild = client.guilds.get(verdicts[i].guild_id);
 

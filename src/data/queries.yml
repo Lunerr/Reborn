@@ -53,7 +53,8 @@ verdicts_table: |-
     defendant_id TEXT NOT NULL,
     verdict TINYINT DEFAULT 0,
     opinion STRING,
-    sentence INTEGER
+    sentence INTEGER,
+    served TINYINT DEFAULT 0
   )
 
 guilds_table: |-
@@ -114,6 +115,8 @@ select: SELECT * FROM {0} WHERE guild_id = ?
 insert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT DO NOTHING
 
 upsert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT(guild_id) DO UPDATE SET {3}
+
+serve_verdict: UPDATE verdicts SET served = 1 WHERE id = ?
 
 set_jailed: UPDATE members SET jailed = ? WHERE member_id = ? AND guild_id = ?
 

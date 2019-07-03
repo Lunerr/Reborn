@@ -121,6 +121,10 @@ module.exports = {
     return queries.close_cmd.run(id);
   },
 
+  serve_verdict(id) {
+    return queries.serve_verdict.run(id);
+  },
+
   set_jailed(status, guild_id, member_id) {
     return queries.set_jailed.run(status, member_id, guild_id);
   },
