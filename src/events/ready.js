@@ -45,19 +45,19 @@ async function update_channels() {
     if (l_channel) {
       const laws = db.fetch_laws(guild.id).filter(x => x.active === 1);
 
-      system.update_laws(l_channel, laws);
+      await system.update_laws(l_channel, laws);
     }
 
     if (w_channel) {
       const warrants = db.fetch_warrants(guild.id).sort((a, b) => a.created_at - b.created_at);
 
-      system.update_warrants(w_channel, warrants);
+      await system.update_warrants(w_channel, warrants);
     }
 
     if (c_channel) {
       const cases = db.fetch_cases(guild.id).sort((a, b) => a.created_at - b.created_at);
 
-      system.update_cases(c_channel, cases);
+      await system.update_cases(c_channel, cases);
     }
   }
 }
