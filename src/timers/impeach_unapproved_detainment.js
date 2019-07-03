@@ -99,7 +99,7 @@ async function impeach(guild, warrant, defendant, officer, roles) {
 
     await discord.dm(officer.user, `You have been impeached for not getting your warrant \
 (${warrant.id}) approved within ${warrant.extended_time ? '12 hours' : '5 minutes'}.\n\nYou will \
-not be able to recieve a government official role on ${not_impeached.toLocaleString()}.`, guild);
+not be able tountil ive a government official role until ${not_impeached.toLocaleString()}.`, guild);
   }
 }
 
