@@ -68,8 +68,16 @@ module.exports = new class Detain extends Command {
         await add_role(msg.channel.guild.id, args.user.id, jailed_role);
       }
 
+      const msgs = await msg.channel.getMessages(fetch_limit);
+      const filtered = msgs.filter(x => x.author.id === args.user.id).slice(0, max_evidence);
+
+      if (!filtered.length) {
+        return CommandResult.fromError(`There were no recent messages sent \
+by ${args.user.mention}.`);
+      }
+
       const res = await this.verify(msg, msg.member, `What law did ${args.user.mention} break?\n
-Type \`cancel\` to cancel the command.`, args.user);
+Type \`cancel\` to cancel the command.`, args.user, filtered);
 
       this.running[key] = null;
 
@@ -83,7 +91,7 @@ Type \`cancel\` to cancel the command.`, args.user);
     });
   }
 
-  async verify(msg, member, content, to_detain) {
+  async verify(msg, member, content, to_detain, fetched) {
     const res = await discord.verify_channel_msg(
       msg,
       msg.channel,
@@ -103,21 +111,19 @@ Type \`cancel\` to cancel the command.`, args.user);
     const law = laws.find(x => x.name.toLowerCase() === reply);
 
     if (law) {
-      return this.detain(msg, to_detain, law);
+      return this.detain(msg, to_detain, law, fetched);
     }
 
     const new_content = `This law does not exist, please try again.\n
 Type \`cancel\` to cancel the command.`;
 
-    return this.verify(msg, member, new_content, to_detain);
+    return this.verify(msg, member, new_content, to_detain, fetched);
   }
 
-  async detain(msg, member, law) {
-    const msgs = await msg.channel.getMessages(fetch_limit);
-    const filtered = msgs.filter(x => x.author.id === member.id).slice(0, max_evidence);
-    const evidence = filtered
+  async detain(msg, member, law, fetched) {
+    const evidence = fetched
       .map((x, i) => {
-        let message = `${filtered.length - i}. ${x.content} `;
+        let message = `${fetched.length - i}. ${x.content} `;
 
         if (x.attachments.length) {
           message += `${x.attachments.map(c => c.proxy_url).join(', ')}`;
