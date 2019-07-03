@@ -30,16 +30,16 @@ client.on('guildMemberRemove', async (guild, member) => {
     return db.insert('members', {
       guild_id: guild.id,
       member_id: member.id,
-      jailed: member.roles.includes(trial_role) && t_role ? 1 : 0,
-      on_trial: member.roles.includes(jailed_role) && j_role ? 1 : 0
+      jailed: member.roles.includes(jailed_role) && t_role ? 1 : 0,
+      on_trial: member.roles.includes(trial_role) && j_role ? 1 : 0
     });
   }
 
   if (t_role) {
-    db.set_jailed(member.roles.includes(trial_role) ? 1 : 0, guild.id, member.id);
+    db.set_trial(member.roles.includes(trial_role) ? 1 : 0, guild.id, member.id);
   }
 
   if (j_role) {
-    db.set_trial(member.roles.includes(jailed_role) ? 1 : 0, guild.id, member.id);
+    db.set_jailed(member.roles.includes(jailed_role) ? 1 : 0, guild.id, member.id);
   }
 });
