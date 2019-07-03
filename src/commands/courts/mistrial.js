@@ -40,7 +40,7 @@ module.exports = new class Guilty extends Command {
       return res;
     }
 
-    const { case_id, plaintiff_id, defendant_id, cop } = res;
+    const { case_id, defendant_id } = res;
     const update = {
       guild_id: msg.channel.guild.id,
       case_id,
@@ -52,7 +52,7 @@ module.exports = new class Guilty extends Command {
     c_case = db.get_case(id);
 
     const {
-      officer_role, trial_role, jailed_role, case_channel
+      trial_role, jailed_role, case_channel
     } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const c_channel = msg.channel.guild.channels.get(case_channel);
 
@@ -62,18 +62,10 @@ module.exports = new class Guilty extends Command {
 
     const prefix = `${discord.tag(msg.author).boldified}, `;
 
-    if (cop) {
-      await remove_role(msg.channel.guild.id, plaintiff_id, officer_role);
-    }
-
     await remove_role(msg.channel.guild.id, defendant_id, trial_role);
     await remove_role(msg.channel.guild.id, defendant_id, jailed_role);
-    db.insert('impeachments', {
-      member_id: plaintiff_id, guild_id: msg.channel.guild.id
-    });
     await discord.create_msg(msg.channel, `${prefix}This court case has been declared as a \
-mistrial.\n\n${(cop || await client.getRESTUser(plaintiff_id)).mention} has been impeached.
-
+mistrial.\n\n\
 No verdict has been delivered and the accused may be prosecuted again.`);
     await system.close_case(msg, msg.channel);
   }
@@ -83,8 +75,7 @@ No verdict has been delivered and the accused may be prosecuted again.`);
       return CommandResult.fromError('This channel has no ongoing court case.');
     }
 
-    const { id: case_id, plaintiff_id, defendant_id } = c_case;
-    const cop = guild.members.get(plaintiff_id);
+    const { id: case_id, defendant_id } = c_case;
     const res = system.case_finished(case_id);
 
     if (res.finished) {
@@ -92,7 +83,7 @@ No verdict has been delivered and the accused may be prosecuted again.`);
     }
 
     return {
-      case_id, plaintiff_id, defendant_id, cop
+      case_id, defendant_id
     };
   }
 }();
