@@ -72,7 +72,8 @@ guilds_table: |-
     law_channel TEXT,
     warrant_channel TEXT,
     case_channel TEXT,
-    impeachment_time INTEGER NOT NULL DEFAULT 604800000
+    impeachment_time INTEGER NOT NULL DEFAULT 604800000,
+    cleanse TINYINT DEFAULT 0
   )
 
 commands_table: |-

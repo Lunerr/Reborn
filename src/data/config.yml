@@ -31,6 +31,9 @@ auto_verdict_time: 3e5
 # Interval for when the bot auto unmutes
 auto_unmute: 3e5
 
+# Interval for cleansing the server
+auto_cleanse: 3e5
+
 # Time when the detain needs to be approved
 detain_approved: 3e4
 
