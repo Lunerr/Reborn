@@ -90,6 +90,9 @@ function chunk(arr, size) {
 async function purify(channel) {
   return mutex.sync(`${channel.id}-${channel.guild.id}`, async () => {
     const msgs = await discord.fetch_msgs(channel, msg_limit);
+
+    await log.info(`Fetched ${msgs.length} messages to cleanse.`);
+
     const now = Date.now();
     const to_delete = msgs.filter(
       x => x.author.id !== channel.guild.ownerID
@@ -111,7 +114,7 @@ async function purify(channel) {
       await channel.deleteMessage(single_del[i].id, 'Contained profane content').catch(() => null);
     }
 
-    log.info(`Bulk deleted ${bulk_del.length} messages and deleted ${single_del.length} \
+    return log.info(`Bulk deleted ${bulk_del.length} messages and deleted ${single_del.length} \
 messages manually in ${channel.name} (${channel.id})`);
   });
 }
