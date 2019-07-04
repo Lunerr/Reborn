@@ -19,6 +19,7 @@ const { config } = require('../services/data.js');
 const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
 const discord = require('../utilities/discord.js');
+const log = require('../utilities/logger.js');
 const expiration = 18e5;
 const mutex = new MultiMutex();
 const chunk_size = 100;
@@ -109,6 +110,9 @@ async function purify(channel) {
     for (let i = 0; i < single_del.length; i++) {
       await channel.deleteMessage(single_del[i].id, 'Contained profane content').catch(() => null);
     }
+
+    log.info(`Bulk deleted ${bulk_del.length} messages and deleted ${single_del.length} \
+messages manually in ${channel.name} (${channel.id})`);
   });
 }
 
