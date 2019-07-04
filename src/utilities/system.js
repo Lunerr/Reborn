@@ -218,16 +218,17 @@ module.exports = {
 
   async update_warrants(channel, warrants) {
     return this.mutex.sync(`${channel.guild.id}-warrants`, async () => {
-      const fn = async (x, item) => x.embeds[0].description === (await this
-        .format_warrant(channel.guild, item, item.id, item.executed)).description;
-      const to_prune = await this.should_prune(channel, warrants, fn);
+      const msgs = await discord.fetch_msgs(channel);
+      const [most_recent] = msgs;
+      const id = Number(most_recent.embeds[0].description.split('**ID:** ')[1].split('\n')[0]);
+      const index = warrants.findIndex(x => x.id === id);
 
-      if (to_prune) {
-        await this.prune(channel);
+      if (index !== -1) {
+        const sliced = warrants.slice(index + 1);
 
-        for (let i = 0; i < warrants.length; i++) {
+        for (let i = 0; i < sliced.length; i++) {
           const obj = discord.embed(await this.format_warrant(
-            channel.guild, warrants[i], warrants[i].id, warrants[i].executed
+            channel.guild, sliced[i], sliced[i].id, sliced[i].executed
           ));
 
           await channel.createMessage(obj);
