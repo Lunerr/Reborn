@@ -125,7 +125,7 @@ Timer(async () => {
   for (let i = 0; i < keys.length; i++) {
     const guild = client.guilds.get(keys[i]);
     const {
-      cleanse, warrant_channel, law_channel, case_channel
+      cleanse, warrant_channel, law_channel, case_channel, court_category
     } = db.fetch('guilds', { guild_id: keys[i] });
 
     if (!guild || cleanse === 0) {
@@ -143,7 +143,8 @@ Timer(async () => {
 
       if (channel.id === warrant_channel
         || channel.id === law_channel
-        || channel.id === case_channel) {
+        || channel.id === case_channel
+        || channel.parentID === court_category) {
         continue;
       }
 
