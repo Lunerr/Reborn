@@ -115,7 +115,8 @@ async function custom_cmd(msg) {
     .split(' ')
     .filter(x => x)
     .map(remove_punc);
-  const custom = custom_cmds.find(x => x.active === 1 && names.includes(x.name.toLowerCase()));
+  const custom = custom_cmds
+    .find(x => x.active === 1 && names.some(c => c.includes(x.name.toLowerCase())));
 
   if (custom) {
     const options = {};
