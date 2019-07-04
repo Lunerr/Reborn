@@ -292,15 +292,16 @@ module.exports = {
 
   async update_cases(channel, cases) {
     return this.mutex.sync(`${channel.guild.id}-cases`, async () => {
-      const fn = async (x, item) => x.embeds[0].description === (await this
-        .format_case(channel.guild, item)).description;
-      const to_prune = await this.should_prune(channel, cases, fn);
+      const msgs = await discord.fetch_msgs(channel);
+      const [most_recent] = msgs;
+      const id = Number(most_recent.embeds[0].description.split('**ID:** ')[1].split('\n')[0]);
+      const index = cases.findIndex(x => x.id === id);
 
-      if (to_prune) {
-        await this.prune(channel);
+      if (index !== -1) {
+        const sliced = cases.slice(index + 1);
 
-        for (let i = 0; i < cases.length; i++) {
-          const obj = discord.embed(await this.format_case(channel.guild, cases[i]));
+        for (let i = 0; i < sliced.length; i++) {
+          const obj = discord.embed(await this.format_case(channel.guild, sliced[i]));
 
           await channel.createMessage(obj);
         }
