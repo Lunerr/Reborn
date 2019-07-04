@@ -42,7 +42,7 @@ module.exports = {
     }
   },
 
-  async fetch_msgs(channel) {
+  async fetch_msgs(channel, limit = null) {
     const msgs = [];
     let count = 0;
     let fetched;
@@ -50,6 +50,11 @@ module.exports = {
 
     while ((fetched = await channel.getMessages(max_fetch, last)).length) {
       msgs.push(...fetched);
+
+      if (limit !== null && msgs.length >= limit) {
+        break;
+      }
+
       last = fetched[fetched.length - 1].id;
       count++;
 

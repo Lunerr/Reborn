@@ -74,6 +74,7 @@ const bad_words = [
   'homophobic'
 ];
 const reg = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g;
+const msg_limit = 1e3;
 
 function chunk(arr, size) {
   const chunked = [];
@@ -87,7 +88,7 @@ function chunk(arr, size) {
 
 async function purify(channel) {
   return mutex.sync(`${channel.id}-${channel.guild.id}`, async () => {
-    const msgs = await discord.fetch_msgs(channel);
+    const msgs = await discord.fetch_msgs(channel, msg_limit);
     const now = Date.now();
     const to_delete = msgs.filter(
       x => x.author.id !== channel.guild.ownerID
