@@ -125,7 +125,11 @@ Timer(async () => {
       continue;
     }
 
-    const channels = guild.channels.filter(x => x.type === 0);
+    const channels = guild.channels.filter(
+      x => x.type === 0
+      && x.permissionsOf(client.user.id).has('manageMessages')
+      && x.permissionsOf(client.user.id).has('readMessages')
+    );
 
     for (let j = 0; j < channels.length; j++) {
       const channel = channels[j];
