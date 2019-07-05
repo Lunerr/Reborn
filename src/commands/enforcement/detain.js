@@ -78,7 +78,7 @@ module.exports = new class Detain extends Command {
   
         return CommandResult.fromError(`There were no recent messages sent \
 by ${args.user.mention}.`);
-      } else if (Date.now() - msgs[0].timestamp > recent) {
+      } else if (Date.now() - filtered[0].timestamp > recent) {
         await remove_role(msg.channel.guild.id, args.user.id, jailed_role);
   
         return CommandResult.fromError(`The most recent message sent by \
