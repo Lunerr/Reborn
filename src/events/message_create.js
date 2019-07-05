@@ -29,7 +29,8 @@ const punctuation_ending = [
   '?',
   '.',
   '*',
-  ','
+  ',',
+  ':'
 ];
 const max_len = 2e3;
 
