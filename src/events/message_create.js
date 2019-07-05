@@ -24,14 +24,6 @@ const handler = require('../services/handler.js');
 const log = require('../utilities/logger.js');
 const db = require('../services/database.js');
 const msg_collector = require('../services/message_collector.js');
-const punctuation_ending = [
-  '!',
-  '?',
-  '.',
-  '*',
-  ',',
-  ':'
-];
 const max_len = 2e3;
 
 function handle_err(result) {
@@ -104,16 +96,6 @@ ${result.context === Context.Guild ? 'DMs' : 'a server'}.`;
   await discord.create_msg(msg.channel, reply.slice(0, max_len), error_color);
 }
 
-function remove_punc(string) {
-  const last_char = string[string.length - 1];
-
-  if (!punctuation_ending.includes(last_char)) {
-    return string;
-  }
-
-  return remove_punc(string.slice(0, -1));
-}
-
 async function custom_cmd(msg) {
   const custom_cmds = db.fetch_commands(msg.channel.guild.id);
   const names = msg.content
@@ -121,7 +103,7 @@ async function custom_cmd(msg) {
     .toLowerCase()
     .split(' ')
     .filter(x => x)
-    .map(remove_punc);
+    .map(x => x.replace(/\W+/g, ''));
   const custom = custom_cmds
     .find(x => x.active === 1 && names.some(c => c === x.name.toLowerCase()));
 
