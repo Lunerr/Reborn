@@ -25,6 +25,7 @@ const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const max_evidence = 10;
 const fetch_limit = 100;
 const min_judges = 2;
+const recent = 3e5;
 
 module.exports = new class Detain extends Command {
   constructor() {
@@ -63,8 +64,9 @@ module.exports = new class Detain extends Command {
       this.running[key] = true;
 
       const { jailed_role } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+      const member = msg.channel.guild.members.get(args.user.id);
 
-      if (msg.channel.guild.members.has(args.user.id)) {
+      if (member) {
         await add_role(msg.channel.guild.id, args.user.id, jailed_role);
       }
 
@@ -72,8 +74,16 @@ module.exports = new class Detain extends Command {
       const filtered = msgs.filter(x => x.author.id === args.user.id).slice(0, max_evidence);
 
       if (!filtered.length) {
+        await remove_role(msg.channel.guild.id, args.user.id, jailed_role);
+  
         return CommandResult.fromError(`There were no recent messages sent \
 by ${args.user.mention}.`);
+      } else if (Date.now() - filtered[0].timestamp > recent) {
+        await remove_role(msg.channel.guild.id, args.user.id, jailed_role);
+  
+        return CommandResult.fromError(`The most recent message sent by \
+${args.user.mention} is older than 5 minutes, consider getting a judge to \
+grant a warrant for this user.`);
       }
 
       const res = await this.verify(msg, msg.member, `What law did ${args.user.mention} break?\n
@@ -82,7 +92,7 @@ Type \`cancel\` to cancel the command.`, args.user, filtered);
       this.running[key] = null;
 
       if (res instanceof CommandResult) {
-        if (msg.channel.guild.members.has(args.user.id)) {
+        if (member) {
           await remove_role(msg.channel.guild.id, args.user.id, jailed_role);
         }
 
