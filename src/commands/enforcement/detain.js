@@ -82,7 +82,7 @@ by ${args.user.mention}.`);
         await remove_role(msg.channel.guild.id, args.user.id, jailed_role);
   
         return CommandResult.fromError(`The most recent message sent by \
-{args.user.mention} is older than 5 minutes, consider getting a judge to \
+${args.user.mention} is older than 5 minutes, consider getting a judge to \
 grant a warrant for this user.`);
       }
 
