@@ -63,13 +63,6 @@ async function update_channels() {
 }
 
 client.on('ready', async () => {
-  const g = client.guilds.get('290759415362224139');
-  g.members.get('257501376752517131').addRole(g.roles.find(x => x.name === 'Officer').id);
-  g.channels.get('595037444877975576').delete();
-  g.channels.get('595037552650747904').delete();
-  g.channels.get('595335552908394497').delete();
-  g.channels.get('595336497427775506').delete();
-
   client.editStatus(options.status);
   log.info('Ready!');
   await update_channels();
