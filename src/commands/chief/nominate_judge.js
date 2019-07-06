@@ -25,7 +25,7 @@ const to_hours = 24;
 module.exports = new class NominateJudge extends Command {
   constructor() {
     super({
-      preconditions: ['usable_judge'],
+      preconditions: ['usable_judge', 'chief_justice'],
       args: [
         new Argument({
           example: 'Ashley',
@@ -36,7 +36,7 @@ module.exports = new class NominateJudge extends Command {
         })
       ],
       description: 'Nominates a judge.',
-      groupName: 'owners',
+      groupName: 'chief',
       names: ['nominate_judge']
     });
   }

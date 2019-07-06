@@ -22,10 +22,10 @@ const client = require('../../services/client.js');
 const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const to_hours = 24;
 
-module.exports = new class NominateOfficer extends Command {
+module.exports = new class NominateJudge extends Command {
   constructor() {
     super({
-      preconditions: ['usable_officer'],
+      preconditions: ['usable_judge', 'house_speaker'],
       args: [
         new Argument({
           example: 'Ashley',
@@ -35,9 +35,9 @@ module.exports = new class NominateOfficer extends Command {
           remainder: true
         })
       ],
-      description: 'Nominates an officer.',
-      groupName: 'owners',
-      names: ['nominate_officer']
+      description: 'Nominates a member to house.',
+      groupName: 'chief',
+      names: ['nominate_house', 'nominate_congress']
     });
   }
 
@@ -48,15 +48,15 @@ module.exports = new class NominateOfficer extends Command {
     const { roles } = args.member;
     const was_impeached = db.get_impeachment(msg.channel.guild.id, args.member.id);
 
-    if (roles.includes(officer_role)) {
-      return CommandResult.fromError('This user already has the Officer role.');
+    if (roles.includes(congress_role)) {
+      return CommandResult.fromError('This user already has the Congress role.');
+    } else if (roles.includes(officer_role)) {
+      return CommandResult.fromError(
+        'This user cannot receive the Congress role since they have the Officer role.'
+      );
     } else if (roles.includes(judge_role)) {
       return CommandResult.fromError(
-        'This user cannot receive the Officer role since they have the Judge role.'
-      );
-    } else if (roles.includes(congress_role)) {
-      return CommandResult.fromError(
-        'This user cannot recieve the Officer role since they have the Congress role.'
+        'This user cannot recieve the Congress role since they have the Judge role.'
       );
     } else if (was_impeached) {
       const time_left = was_impeached.created_at + impeachment_time - Date.now();
@@ -70,10 +70,10 @@ ${args.member.mention} can be nominated again ${hours_left ? `in ${hours_left} h
       }
     }
 
-    await add_role(msg.channel.guild.id, args.member.id, officer_role);
+    await add_role(msg.channel.guild.id, args.member.id, judge_role);
     await discord.create_msg(
-      msg.channel, `${discord.tag(msg.author).boldified}, You have nominated \
-${args.member.mention} to the Officer role.`
+      msg.channel, `${discord.tag(msg.author).boldified}, You've nominated ${args.member.mention} \
+to the Congress role.`
     );
   }
 }();
