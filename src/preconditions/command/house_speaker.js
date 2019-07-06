@@ -27,18 +27,18 @@ module.exports = new class HouseSpeaker extends Precondition {
     const role = msg.channel.guild.roles.get(house_speaker_role);
 
     if (!house_speaker_role) {
-      return PreconditionResult.fromError(cmd, 'the House Speaker role needs to be set.');
+      return PreconditionResult.fromError(cmd, 'the Speaker of House role needs to be set.');
     } else if (!role) {
       return PreconditionResult.fromError(
-        cmd, 'the House Speaker role was deleted and needs to be set.'
+        cmd, 'the Speaker of House role was deleted and needs to be set.'
       );
     } else if (!discord.usable_role(msg.channel.guild, role)) {
       return PreconditionResult.fromError(
-        cmd, 'the House Speaker role needs to be lower than me in hierarchy.'
+        cmd, 'the Speaker of House role needs to be lower than me in hierarchy.'
       );
     } else if (!msg.member.roles.includes(house_speaker_role)) {
       return PreconditionResult.fromError(
-        cmd, 'Only the House Speaker may use this command'
+        cmd, 'Only the Speaker of House may use this command'
       );
     }
 
