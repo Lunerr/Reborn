@@ -43,8 +43,10 @@ module.exports = new class NominateJudge extends Command {
 
   async run(msg, args) {
     const {
-      judge_role, officer_role, impeachment_time, congress_role
+      judge_role, officer_role, impeachment_time, congress_role,
+      chief_justice_role, chief_officer_role, house_speaker_role
     } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+    const chief = [chief_justice_role, chief_officer_role, house_speaker_role];
     const { roles } = args.member;
     const was_impeached = db.get_impeachment(msg.channel.guild.id, args.member.id);
 
@@ -57,6 +59,10 @@ module.exports = new class NominateJudge extends Command {
     } else if (roles.includes(congress_role)) {
       return CommandResult.fromError(
         'This user cannot recieve the Judge role since they have the Congress role.'
+      );
+    } else if (chief.some(x => roles.includes(x))) {
+      return CommandResult.fromError(
+        'This user cannot recieve the Judge role since they are a Chief.'
       );
     } else if (was_impeached) {
       const time_left = was_impeached.created_at + impeachment_time - Date.now();

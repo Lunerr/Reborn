@@ -142,7 +142,8 @@ client.on('guildMemberUpdate', async (guild, new_member, old_member) => {
   }
 
   const {
-    officer_role: officer, judge_role: judge, congress_role: congress, impeachment_time
+    officer_role: officer, judge_role: judge, congress_role: congress, impeachment_time,
+    chief_justice_role: chief_justice, chief_officer_role: chief_cop, house_speaker_role: house
   } = db.fetch('guilds', { guild_id: guild.id });
   const g_judge = guild.roles.get(judge);
 
@@ -157,7 +158,7 @@ client.on('guildMemberUpdate', async (guild, new_member, old_member) => {
   }
 
   const jobs = {
-    congress, officer, judge
+    congress, officer, judge, chief_justice, chief_cop, house
   };
 
   // await impeached(guild, new_member, jobs, impeachment_time);
