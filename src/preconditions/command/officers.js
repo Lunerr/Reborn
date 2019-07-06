@@ -23,15 +23,20 @@ module.exports = new class Officers extends Precondition {
   }
 
   async run(cmd, msg) {
-    const { officer_role } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+    const {
+      officer_role, chief_officer_role
+    } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const role = msg.channel.guild.roles.get(officer_role);
+    const is_chief = chief_officer_role && msg.member.roles.includes(chief_officer_role);
 
     if (!officer_role || !role || !discord.usable_role(msg.channel.guild, role)) {
       return PreconditionResult.fromError(cmd, 'the Officer role needs to be set.');
-    } else if (msg.member.roles.includes(officer_role)) {
+    } else if (msg.member.roles.includes(officer_role) || is_chief) {
       return PreconditionResult.fromSuccess();
     }
 
-    return PreconditionResult.fromError(cmd, 'only Officers can do that.');
+    return PreconditionResult.fromError(
+      cmd, 'only Officers or the Chief Officer can do that.'
+    );
   }
 }();

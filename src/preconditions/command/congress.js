@@ -23,8 +23,11 @@ module.exports = new class Congress extends Precondition {
   }
 
   async run(cmd, msg) {
-    const { congress_role } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+    const {
+      congress_role, house_speaker_role
+    } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const role = msg.channel.guild.roles.get(congress_role);
+    const not_speaker = house_speaker_role && !msg.member.roels.includes(house_speaker_role);
 
     if (!congress_role) {
       return PreconditionResult.fromError(cmd, 'the Congress role needs to be set.');
@@ -36,9 +39,9 @@ module.exports = new class Congress extends Precondition {
       return PreconditionResult.fromError(
         cmd, 'the Congress role needs to be lower than me in hierarchy.'
       );
-    } else if (!msg.member.roles.includes(congress_role)) {
+    } else if (!msg.member.roles.includes(congress_role) && not_speaker) {
       return PreconditionResult.fromError(
-        cmd, 'Only members of Congress may use this command'
+        cmd, 'Only members of Congress or the Speaker of House may use this command'
       );
     }
 
