@@ -25,7 +25,6 @@ let log = console;
 
 function log_error(err) {
   log.error(err);
-  process.exit(1);
 }
 
 process.on('uncaughtException', log_error);
