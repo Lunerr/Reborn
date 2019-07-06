@@ -72,7 +72,7 @@ async function close(c_case, guild, channel) {
       opinion: 'Auto closed due to inactivity'
     });
 
-    if (channel) {
+    if (channel && channel.permissionsOf(client.user.id).has('sendMessages')) {
       const msg = await channel.createMessage(`${judge.mention}\n${inactive_msg}`);
 
       await system.close_case(msg, channel);
