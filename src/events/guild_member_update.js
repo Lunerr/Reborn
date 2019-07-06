@@ -18,6 +18,8 @@ const catch_discord = require('../utilities/catch_discord.js');
 const discord = require('../utilities/discord.js');
 const number = require('../utilities/number.js');
 const db = require('../services/database.js');
+const verdict = require('../enums/verdict.js');
+const system = require('../utilities/system.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const edit_member = catch_discord(client.editGuildMember.bind(client));
 const to_hours = 24;
@@ -66,6 +68,69 @@ async function remove_extra_roles(guild, member, jobs) {
   }
 }
 
+async function edit_case(guild, id) {
+  const new_case = db.get_case(id);
+  const { case_channel } = db.fetch('guilds', { guild_id: guild.id });
+  const c_channel = guild.channels.get(case_channel);
+
+  if (c_channel) {
+    await system.edit_case(c_channel, new_case);
+  }
+}
+
+async function free(guild, defendant, trial_role, jailed_role) {
+  const t_role = guild.roles.get(trial_role);
+  const j_role = guild.roles.get(jailed_role);
+
+  if (guild.members.has(defendant.id)) {
+    if (t_role) {
+      await remove_role(guild.id, defendant.id, trial_role, 'Mistrial due to judge losing role.');
+    }
+
+    if (j_role) {
+      await remove_role(guild.id, defendant.id, jailed_role, 'Mistrial due to judge losing role.');
+    }
+  }
+}
+
+async function lost_judge(member) {
+  const cases = db.fetch_cases(member.guild.id);
+
+  for (let i = 0; i < cases.length; i++) {
+    const c_case = cases[i];
+    const case_verdict = db.get_verdict(c_case.id);
+
+    if (case_verdict && case_verdict.verdict !== verdict.pending) {
+      continue;
+    }
+
+    const channel = member.guild.channels.get(c_case.channel_id);
+
+    if (!channel) {
+      continue;
+    }
+
+    const { lastInsertRowid: id } = db.insert('verdicts', {
+      guild_id: member.guild.id,
+      case_id: c_case.id,
+      defendant_id: c_case.defendant_id,
+      verdict: verdict.mistrial,
+      opinion: 'Automatically marked as a mistrial due to the judge losing their role'
+    });
+    const { defendant_id, judge_id, plaintiff_id } = c_case;
+    const { trial_role, jailed_role } = db.fetch('guilds', { guild_id: member.guild.id });
+    const judge = member.guild.members.get(judge_id) || await client.getRESTUser(judge_id);
+    const def = member.guild.members.get(defendant_id) || await client.getRESTUser(defendant_id);
+    const cop = member.guild.members.get(plaintiff_id) || await client.getRESTUser(plaintiff_id);
+    const msg = await channel.createMessage(`${cop.mention} ${def.mention} ${judge.mention}
+This case has been marked as a mistrial due to the judge losing their judge role.`);
+
+    await free(member.guild, def, trial_role, jailed_role);
+    await system.close_case(msg, channel);
+    await edit_case(member.guild, id);
+  }
+}
+
 client.on('guildMemberUpdate', async (guild, new_member, old_member) => {
   if (new_member.roles.length === old_member.roles.length) {
     return;
@@ -74,8 +139,13 @@ client.on('guildMemberUpdate', async (guild, new_member, old_member) => {
   const {
     officer_role: officer, judge_role: judge, congress_role: congress, impeachment_time
   } = db.fetch('guilds', { guild_id: guild.id });
-  const g_officer = guild.roles.get(officer);
   const g_judge = guild.roles.get(judge);
+
+  if (g_judge && old_member.roles.includes(judge) && !new_member.roles.includes(judge)) {
+    await lost_judge(new_member, g_judge);
+  }
+
+  const g_officer = guild.roles.get(officer);
 
   if (!officer || !g_officer || !g_judge || !g_officer) {
     return;
