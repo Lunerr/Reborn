@@ -98,6 +98,11 @@ async function lost_judge(member) {
 
   for (let i = 0; i < cases.length; i++) {
     const c_case = cases[i];
+
+    if (c_case.judge_id !== member.id) {
+      continue;
+    }
+
     const case_verdict = db.get_verdict(c_case.id);
 
     if (case_verdict && case_verdict.verdict !== verdict.pending) {
