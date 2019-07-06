@@ -85,7 +85,7 @@ async function close(c_case, guild, channel) {
     const pings = `${judge.mention} ${defendant.mention} ${cop.mention}`;
     const left = max_inactive - inactive_count;
 
-    if (channel) {
+    if (channel && channel.permissionsOf(client.user.id).has('sendMessages')) {
       await channel.createMessage(`${pings}\nThis case has not yet reached a verdict and there has \
 been no recent activity.\nThis case will be marked as inactive ${left === 1 ? 'soon ' : ''}if no \
 recent message is sent.\n\n${judge.mention}, it is your duty to proceed with the case and come to \
