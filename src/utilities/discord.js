@@ -88,6 +88,7 @@ module.exports = {
 
     return msgs;
   },
+
   embed(options) {
     if (!options.color) {
       options.color = constants
