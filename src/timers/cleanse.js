@@ -72,10 +72,14 @@ const bad_words = [
   'gay',
   'homo',
   'homosexual',
-  'homophobic'
+  'homophobic',
+  'underage',
+  'year',
+  'old',
+  '18'
 ];
 const reg = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g;
-const msg_limit = 1000;
+const msg_limit = 2e3
 
 function chunk(arr, size) {
   const chunked = [];
