@@ -75,15 +75,14 @@ module.exports = new class Detain extends Command {
 
       if (!filtered.length) {
         await remove_role(msg.channel.guild.id, args.user.id, jailed_role);
-  
+
         return CommandResult.fromError(`There were no recent messages sent \
 by ${args.user.mention}.`);
       } else if (Date.now() - filtered[0].timestamp > recent) {
         await remove_role(msg.channel.guild.id, args.user.id, jailed_role);
-  
-        return CommandResult.fromError(`The most recent message sent by \
-${args.user.mention} is older than 5 minutes, consider getting a judge to \
-grant a warrant for this user.`);
+
+        return CommandResult.fromError(`The most recent message sent by ${args.user.mention} is \
+older than 5 minutes, consider getting a judge to grant a warrant for this user.`);
       }
 
       const res = await this.verify(msg, msg.member, `What law did ${args.user.mention} break?\n
