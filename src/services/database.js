@@ -173,6 +173,14 @@ module.exports = {
     return queries.select_impeachment.get(guild_id, member_id);
   },
 
+  remove_channel(channel_id) {
+    return queries.remove_channel.run(channel_id);
+  },
+
+  fetch_channels(guild_id) {
+    return queries.select_channels.all(guild_id);
+  },
+
   fetch_cases(id) {
     return queries.select_cases.all(id);
   },
