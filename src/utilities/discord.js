@@ -17,6 +17,7 @@ const catch_discord = require('./catch_discord.js');
 const client = require('../services/client.js');
 const { config, constants } = require('../services/data.js');
 const msg_collector = require('../services/message_collector.js');
+const system = require('../utilities/system.js');
 const create_message = catch_discord((...args) => client.createMessage(...args));
 const fetch = require('node-fetch');
 const delay = 2e3;
@@ -35,6 +36,28 @@ module.exports = {
           icon_url: guild.iconURL
         }
       }));
+
+      return true;
+    } catch (_) {
+      return false;
+    }
+  },
+
+  async dm_fallback(user, content, guild = {}) {
+    const res = await this.dm(user, content, guild);
+
+    if (res) {
+      return true;
+    }
+
+    const main_channel = system.get_main_channel(guild.id);
+
+    if (!main_channel) {
+      return false;
+    }
+
+    try {
+      await main_channel.createMessage(content);
 
       return true;
     } catch (_) {
