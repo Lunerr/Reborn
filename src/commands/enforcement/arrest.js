@@ -208,7 +208,11 @@ the prosecutor and defendant have the right to request a qualified and earnest a
     const { lastInsertRowid: id } = db.insert('cases', c_case);
 
     c_case.id = id;
-    await add_role(channel.guild.id, defendant_id, role);
+
+    if (channel.guild.members.has(defendant_id)) {
+      await add_role(channel.guild.id, defendant_id, role);
+    }
+
     db.close_warrant(warrant.id);
 
     const { warrant_channel, case_channel } = db.fetch('guilds', { guild_id: channel.guild.id });
