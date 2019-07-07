@@ -54,8 +54,6 @@ module.exports = new class NotGuilty extends Command {
       return CommandResult.fromError(res.reason);
     }
 
-    await this.free(msg.channel.guild, defendant);
-
     const update = {
       guild_id: msg.channel.guild.id,
       case_id,
@@ -65,6 +63,7 @@ module.exports = new class NotGuilty extends Command {
     };
     const { lastInsertRowid: id } = db.insert('verdicts', update);
 
+    await this.free(msg.channel.guild, defendant);
     c_case = db.get_case(id);
 
     const { case_channel } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
