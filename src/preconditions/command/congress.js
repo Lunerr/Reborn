@@ -27,7 +27,7 @@ module.exports = new class Congress extends Precondition {
       congress_role, house_speaker_role
     } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const role = msg.channel.guild.roles.get(congress_role);
-    const not_speaker = house_speaker_role && !msg.member.roels.includes(house_speaker_role);
+    const not_speaker = house_speaker_role && !msg.member.roles.includes(house_speaker_role);
 
     if (!congress_role) {
       return PreconditionResult.fromError(cmd, 'the Congress role needs to be set.');
