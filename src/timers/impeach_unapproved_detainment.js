@@ -47,8 +47,8 @@ function get_judges(guild, role, chief) {
     return null;
   }
 
-  return guild.members
-    .filter(x => (x.roles.includes(role) || x.roles.includes(chief)) && x.status === 'online');
+  return guild.members.filter(x => (x.roles.includes(role) || x.roles.includes(chief))
+    && (x.status === 'online' || x.status === 'dnd'));
 }
 
 async function dm(warrant, time_left, officer, judges, guild) {

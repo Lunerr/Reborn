@@ -180,8 +180,8 @@ or else you will get impeached.`
       return 0;
     }
 
-    const members = guild.members
-      .filter(x => (x.roles.includes(role) || x.roles.includes(chief)) && x.status === 'online');
+    const members = guild.members.filter(x => (x.roles.includes(role) || x.roles.includes(chief))
+      && (x.status === 'online' || x.status === 'dnd'));
 
     return members.length;
   }
