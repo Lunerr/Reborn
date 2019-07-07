@@ -13,7 +13,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 'use strict';
-const { Argument, Command, CommandResult } = require('patron.js');
+const { Argument, Command, CommandResult, MultiMutex } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const registry = require('../../services/registry.js');
@@ -45,41 +45,46 @@ module.exports = new class ApproveDetainment extends Command {
       groupName: 'courts',
       names: ['approve_detainment', 'approve']
     });
+    this.mutex = new MultiMutex();
   }
 
   async run(msg, args) {
-    if (args.warrant.executed) {
-      return CommandResult.fromError('This detainment has already been executed.');
-    } else if (args.warrant.approved === 1) {
-      return CommandResult.fromError('This detainment has already been approved.');
-    }
+    return this.mutex.sync(`${msg.channel.guild.id}-${args.warrant.id}`, async () => {
+      const warrant = db.get_warrant(args.warrant.id);
 
-    const verified = await discord.verify_msg(
-      msg, `${discord.tag(msg.author).boldified}, ${content}`, null, 'yes'
-    );
+      if (warrant.executed === 1) {
+        return CommandResult.fromError('This detainment has already been executed.');
+      } else if (warrant.approved === 1) {
+        return CommandResult.fromError('This detainment has already been approved.');
+      }
 
-    if (!verified) {
-      return CommandResult.fromError('The command has been cancelled.');
-    }
+      const verified = await discord.verify_msg(
+        msg, `${discord.tag(msg.author).boldified}, ${content}`, null, 'yes'
+      );
 
-    db.approve_warrant(args.warrant.id, msg.author.id);
-    await discord.create_msg(
-      msg.channel, `${discord.tag(msg.author).boldified}, You've approved this detainment.`
-    );
-    await this.dm(msg.channel.guild, args.warrant.officer_id, msg.author, args.warrant);
+      if (!verified) {
+        return CommandResult.fromError('The command has been cancelled.');
+      }
 
-    const {
-      warrant_channel, judge_role, trial_role, court_category
-    } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
-    const w_channel = msg.channel.guild.channels.get(warrant_channel);
-    const new_warrant = Object.assign(args.warrant, { judge_id: msg.author.id });
+      db.approve_warrant(warrant.id, msg.author.id);
+      await discord.create_msg(
+        msg.channel, `${discord.tag(msg.author).boldified}, You've approved this detainment.`
+      );
+      await this.dm(msg.channel.guild, warrant.officer_id, msg.author, warrant);
 
-    if (w_channel) {
-      await system.edit_warrant(w_channel, new_warrant);
-    }
+      const {
+        warrant_channel, judge_role, trial_role, court_category
+      } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+      const w_channel = msg.channel.guild.channels.get(warrant_channel);
+      const new_warrant = Object.assign(warrant, { judge_id: msg.author.id });
 
-    await this.setup({
-      guild: msg.channel.guild, warrant: new_warrant, judge_role, trial_role, court_category
+      if (w_channel) {
+        await system.edit_warrant(w_channel, new_warrant);
+      }
+
+      await this.setup({
+        guild: msg.channel.guild, warrant: new_warrant, judge_role, trial_role, court_category
+      });
     });
   }
 
