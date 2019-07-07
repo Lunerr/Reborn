@@ -61,8 +61,6 @@ const bad_words = [
   'lgbt',
   'gay',
   'homo',
-  'homosexual',
-  'homophobic',
   'underage',
   'year',
   'old',
