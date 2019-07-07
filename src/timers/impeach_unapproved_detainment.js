@@ -40,14 +40,15 @@ function edit_case(guild, warrant) {
   }
 }
 
-function get_judges(guild, role) {
+function get_judges(guild, role, chief) {
   const g_role = guild.roles.get(role);
 
   if (!g_role) {
     return null;
   }
 
-  return guild.members.filter(x => x.roles.includes(role) && x.status === 'online');
+  return guild.members
+    .filter(x => (x.roles.includes(role) || x.roles.includes(chief)) && x.status === 'online');
 }
 
 async function dm(warrant, time_left, officer, judges, guild) {
@@ -124,11 +125,13 @@ Timer(async () => {
 
       const time = warrant.extended_time ? extended_expiration : expiration;
       const time_left = warrant.created_at + time - Date.now();
-      const { judge_role, jailed_role, officer_role } = db.fetch('guilds', { guild_id: guild.id });
+      const {
+        judge_role, jailed_role, officer_role, chief_justice_role
+      } = db.fetch('guilds', { guild_id: guild.id });
       const officer = guild.members.get(warrant.officer_id);
 
       if (time_left > 0) {
-        const judges = get_judges(guild, judge_role);
+        const judges = get_judges(guild, judge_role, chief_justice_role);
 
         await dm(warrant, time_left, officer, judges, guild);
         continue;

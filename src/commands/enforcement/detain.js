@@ -143,8 +143,10 @@ Type \`cancel\` to cancel the command.`;
       .reverse()
       .join('\n')
       .trim();
-    const { warrant_channel, judge_role } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
-    const online = this.get_judges(msg.channel.guild, judge_role);
+    const {
+      warrant_channel, judge_role, chief_justice_role
+    } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+    const online = this.get_judges(msg.channel.guild, judge_role, chief_justice_role);
     const warrant = {
       guild_id: msg.channel.guild.id,
       law_id: law.id,
@@ -171,14 +173,15 @@ or else you will get impeached.`
     }
   }
 
-  get_judges(guild, role) {
+  get_judges(guild, role, chief) {
     const g_role = guild.roles.get(role);
 
     if (!g_role) {
       return 0;
     }
 
-    const members = guild.members.filter(x => x.roles.includes(role) && x.status === 'online');
+    const members = guild.members
+      .filter(x => (x.roles.includes(role) || x.roles.includes(chief)) && x.status === 'online');
 
     return members.length;
   }
