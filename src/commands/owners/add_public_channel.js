@@ -16,6 +16,7 @@
 const { Argument, Command, CommandResult } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
+const send_bitfield = 2048;
 
 module.exports = new class AddPublicChannel extends Command {
   constructor() {
@@ -50,9 +51,24 @@ module.exports = new class AddPublicChannel extends Command {
     };
 
     db.insert('public_channels', channel);
+    await this.add_overwrites(msg.channnel.guild, args.channel);
     await discord.create_msg(
       msg.channel, `${discord.tag(msg.author).boldified}, ${args.channel.mention} has \
 been added as a public channel.`
     );
+  }
+
+  async add_overwrites(guild, channel) {
+    const {
+      trial_role, jailed_role, imprisoned_role
+    } = db.fetch('guilds', { guild_id: guild.id });
+    const roles = [trial_role, jailed_role, imprisoned_role]
+      .filter(x => guild.roles.has(x));
+
+    for (let i = 0; i < roles.length; i++) {
+      const role = roles[i];
+
+      await channel.editPermission(role, 0, send_bitfield, 'role');
+    }
   }
 }();
