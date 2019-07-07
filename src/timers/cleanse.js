@@ -25,20 +25,12 @@ const mutex = new MultiMutex();
 const chunk_size = 100;
 const bulk_del_time = 12e8;
 const bad_words = [
-  'nigger',
-  'negro',
+  'neg',
   'nig',
-  'negus',
-  'nigga',
-  'nignog',
-  'niglet',
-  'faggot',
+  'fag',
   'queer',
   'whore',
   'fuck',
-  'fucking',
-  'fuckin',
-  'fucker',
   'cunt',
   'chink',
   'bitch',
@@ -66,13 +58,9 @@ const bad_words = [
   'trap',
   'trannie',
   'tranny',
-  'transgender',
-  'lgbtq',
   'lgbt',
   'gay',
-  'homo',
-  'homosexual',
-  'homophobic'
+  'homo'
 ];
 const reg = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g;
 const msg_limit = 1000;
