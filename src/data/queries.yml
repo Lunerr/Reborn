@@ -79,6 +79,16 @@ guilds_table: |-
     cleanse TINYINT DEFAULT 0
   )
 
+public_channels_table: |-
+  CREATE TABLE IF NOT EXISTS public_channels (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    channel_id TEXT NOT NULL
+    guild_id TEXT NOT NULL REFERENCES guilds(guild_id),
+    created_at INTEGER NOT NULL,
+    last_modified_at INTEGER NOT NULL,
+    active TINYINT NOT NULL DEFAULT 1
+  )
+
 commands_table: |-
   CREATE TABLE IF NOT EXISTS commands (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -119,6 +129,8 @@ select: SELECT * FROM {0} WHERE guild_id = ?
 insert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT DO NOTHING
 
 upsert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT(guild_id) DO UPDATE SET {3}
+
+remove_channel: UPDATE public_channels SET active = 0 WHERE channel_id = ?
 
 serve_verdict: UPDATE verdicts SET served = 1 WHERE id = ?
 
