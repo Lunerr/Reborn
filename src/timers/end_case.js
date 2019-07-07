@@ -38,9 +38,10 @@ async function edit_case(guild, id) {
   }
 }
 
-async function impeach(guild, judge_id, defendant_id, judge_role, trial_role) {
+async function impeach(guild, judge_id, defendant_id, judge_role, trial_role, jailed) {
   const j_role = guild.roles.get(judge_role);
   const t_role = guild.roles.get(trial_role);
+  const jailed_role = guild.roles.get(jailed);
 
   db.insert('impeachments', {
     member_id: judge_id, guild_id: guild.id
@@ -48,6 +49,10 @@ async function impeach(guild, judge_id, defendant_id, judge_role, trial_role) {
 
   if (j_role) {
     await remove_role(guild.id, judge_id, judge_role, 'Impeached for inactive case.');
+  }
+  
+  if (jailed_role) {
+    await remove_role(guild.id, defendant_id, jailed, 'Inactive case.');
   }
 
   if (t_role) {
@@ -60,9 +65,11 @@ async function close(c_case, guild, channel) {
   const judge = guild.members.get(judge_id) || await client.getRESTUser(judge_id);
 
   if (inactive_count >= max_inactive) {
-    const { judge_role, trial_role } = db.fetch('guilds', { guild_id: guild.id });
+    const {
+      judge_role, trial_role, jailed_role: jailed
+    } = db.fetch('guilds', { guild_id: guild.id });
 
-    await impeach(guild, judge_id, defendant_id, judge_role, trial_role);
+    await impeach(guild, judge_id, defendant_id, judge_role, trial_role, jailed);
 
     const { lastInsertRowid: id } = db.insert('verdicts', {
       guild_id: guild.id,
