@@ -76,8 +76,8 @@ module.exports = new class Arrest extends Command {
 
       const defendant = (msg.channel.guild.members.get(args.warrant.defendant_id) || {}).user
         || await client.getRESTUser(args.warrant.defendant_id);
-      const { court_category, judge_role, trial_role } = res;
-      const judge = this.get_judge(msg.channel.guild, args.warrant, judge_role);
+      const { court_category, judge_role, trial_role, chief_justice_role: chief } = res;
+      const judge = this.get_judge(msg.channel.guild, args.warrant, judge_role, chief);
 
       await this.set_up({
         guild: msg.channel.guild, defendant, judge, officer: msg.author, trial_role,
@@ -92,7 +92,7 @@ module.exports = new class Arrest extends Command {
 
   async prerequisites(msg, warrant) {
     const {
-      court_category, judge_role, trial_role
+      court_category, judge_role, trial_role, chief_justice_role
     } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const n_warrant = db.get_warrant(warrant.id);
     const prefix = `${discord.tag(msg.author).boldified}, `;
@@ -112,7 +112,7 @@ module.exports = new class Arrest extends Command {
     }
 
     return {
-      court_category, judge_role, trial_role
+      court_category, judge_role, trial_role, chief_justice_role
     };
   }
 
@@ -231,8 +231,9 @@ the prosecutor and defendant have the right to request a qualified and earnest a
     }
   }
 
-  get_judge(guild, warrant, judge_role) {
-    let judge = guild.members.filter(mbr => mbr.roles.includes(judge_role));
+  get_judge(guild, warrant, judge_role, chief) {
+    let judge = guild.members
+      .filter(mbr => mbr.roles.includes(judge_role) || mbr.roles.inclides(chief));
 
     if (judge.length > 1) {
       judge.splice(judge.findIndex(mbr => mbr.id === warrant.judge_id), 1);
@@ -241,6 +242,12 @@ the prosecutor and defendant have the right to request a qualified and earnest a
 
       if (defendant !== -1) {
         judge.splice(defendant, 1);
+      }
+
+      const prosecutor = judge.findIndex(x => x.id === warrant.officer_id);
+
+      if (prosecutor !== -1) {
+        judge.splice(prosecutor, 1);
       }
 
       const active = judge.filter(x => x.status === 'online' || x.status === 'dnd');
