@@ -17,7 +17,7 @@ const catch_discord = require('./catch_discord.js');
 const client = require('../services/client.js');
 const { config, constants } = require('../services/data.js');
 const msg_collector = require('../services/message_collector.js');
-const system = require('../utilities/system.js');
+const db = require('../services/database.js');
 const create_message = catch_discord((...args) => client.createMessage(...args));
 const fetch = require('node-fetch');
 const delay = 2e3;
@@ -25,6 +25,33 @@ const max_fetch = 100;
 const rl = 5;
 
 module.exports = {
+  get_main_channel(guild_id) {
+    const channels = db
+      .fetch_channels(guild_id)
+      .filter(x => x.active === 1);
+    let channel = null;
+
+    for (let i = 0; i < channels.length; i++) {
+      const guild = client.guilds.get(client.channelGuildMap[channels[i].channel_id]);
+      const guild_channel = guild.channels.get(channels[i].channel_id);
+
+      if (!guild_channel) {
+        continue;
+      }
+
+      const name = guild_channel.name.toLowerCase();
+
+      if (name.includes('main') || name.includes('general')) {
+        channel = guild_channel;
+        break;
+      }
+
+      channel = guild_channel;
+    }
+
+    return channel;
+  },
+
   async dm(user, content, guild = {}) {
     try {
       const dm = await user.getDMChannel();
@@ -50,7 +77,7 @@ module.exports = {
       return true;
     }
 
-    const main_channel = system.get_main_channel(guild.id);
+    const main_channel = this.get_main_channel(guild.id);
 
     if (!main_channel) {
       return false;
