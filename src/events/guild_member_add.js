@@ -17,7 +17,7 @@ const client = require('../services/client.js');
 const catch_discord = require('../utilities/catch_discord.js');
 const verdict = require('../enums/verdict.js');
 const db = require('../services/database.js');
-const send_msg = catch_discord(client.createMessage.bind(client));
+const discord = require('../utilities/discord.js');
 const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const msg = `**BY THE PEOPLE, FOR THE PEOPLE**
 
@@ -33,11 +33,7 @@ ABSOLUTE LIBERTY FOR ALL.
 \`\`\``;
 
 client.on('guildMemberAdd', async (guild, member) => {
-  const dm_channel = await member.user.getDMChannel().catch(() => null);
-
-  if (dm_channel) {
-    await send_msg(dm_channel.id, msg).catch(() => null);
-  }
+  await discord.dm(member.user, msg, guild);
 
   const { imprisoned_role, trial_role, jailed_role } = db.fetch('guilds', { guild_id: guild.id });
   const t_role = guild.roles.get(trial_role);
