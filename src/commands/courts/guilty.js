@@ -143,12 +143,9 @@ charged with committing a misdemeanor'}.`;
     if (in_server) {
       await remove_role(ids.guild, ids.defendant, trial_role);
       await remove_role(ids.guild, ids.defendant, jailed_role);
-    }
 
-    if (sentence !== empty_argument && addSentence) {
-      update.sentence = sentence;
-
-      if (in_server) {
+      if (sentence !== empty_argument && addSentence) {
+        update.sentence = sentence;
         await add_role(ids.guild, ids.defendant, imprisoned_role);
       }
     }
