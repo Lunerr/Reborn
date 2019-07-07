@@ -224,7 +224,7 @@ the prosecutor and defendant have the right to request a qualified and earnest a
 
   get_judge(guild, warrant, judge_role, chief) {
     let judge = guild.members
-      .filter(mbr => mbr.roles.includes(judge_role) || mbr.roles.inclides(chief));
+      .filter(mbr => mbr.roles.includes(judge_role) || mbr.roles.includes(chief));
 
     if (judge.length > 1) {
       judge.splice(judge.findIndex(mbr => mbr.id === warrant.judge_id), 1);
