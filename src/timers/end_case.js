@@ -50,7 +50,7 @@ async function impeach(guild, judge_id, defendant_id, judge_role, trial_role, ja
   if (j_role) {
     await remove_role(guild.id, judge_id, judge_role, 'Impeached for inactive case.');
   }
-  
+
   if (jailed_role) {
     await remove_role(guild.id, defendant_id, jailed, 'Inactive case.');
   }
