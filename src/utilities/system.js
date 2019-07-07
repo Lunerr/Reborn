@@ -287,7 +287,7 @@ module.exports = {
     const warrant = db.get_warrant(c_case.warrant_id);
     const format = await this.format_warrant(guild, warrant, c_case.id, case_verdict, 'Case');
 
-    format.description += append;
+    format.description = format.description.slice(0, this.max_evidence) + append;
 
     return format;
   },
