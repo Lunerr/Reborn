@@ -15,6 +15,33 @@ module.exports = {
   bitfield: 2048,
   mutex: new MultiMutex(),
 
+  get_main_channel(guild_id) {
+    const channels = db
+      .fetch_channels(guild_id)
+      .filter(x => x.active === 1);
+    let channel = null;
+
+    for (let i = 0; i < channels.length; i++) {
+      const guild = client.guilds.get(client.channelGuildMap[channels[i].channel_id]);
+      const guild_channel = guild.channels.get(channels[i].channel_id);
+
+      if (!guild_channel) {
+        continue;
+      }
+
+      const name = guild_channel.name.toLowerCase();
+
+      if (name.includes('main') || name.includes('general')) {
+        channel = guild_channel;
+        break;
+      }
+
+      channel = guild_channel;
+    }
+
+    return channel;
+  },
+
   async free_from_court(guild_id, defendant_id, roles) {
     const cases = db.fetch_cases(guild_id);
     let free = true;
