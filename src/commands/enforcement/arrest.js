@@ -160,16 +160,7 @@ the prosecutor and defendant have the right to request a qualified and earnest a
   }
 
   get_index(string, char, max) {
-    let i = -1;
-    let index = -1;
-
-    while ((i = string.indexOf(char, i + 1)) >= 0) {
-      if (i < max) {
-        index = i;
-      }
-    }
-
-    return index;
+    return string.slice(0, max).lastIndexOf(char);
   }
 
   format_evidence(evidence) {
