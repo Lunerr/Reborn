@@ -5,6 +5,8 @@ const discord = require('./discord.js');
 const db = require('../services/database.js');
 const verdict = require('../enums/verdict.js');
 const number = require('./number.js');
+const catch_discord = require('../utilities/catch_discord.js');
+const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 
 module.exports = {
   day_hours: 24,
@@ -12,6 +14,33 @@ module.exports = {
   max_warrants: 25,
   bitfield: 2048,
   mutex: new MultiMutex(),
+
+  async free_from_court(guild_id, defendant_id, roles) {
+    const cases = db.fetch_cases(guild_id);
+    let free = true;
+
+    for (let i = 0; i < cases.length; i++) {
+      if (cases[i].defendant_id !== defendant_id) {
+        continue;
+      }
+
+      const case_verdict = db.get_verdict(cases[i].id);
+      const no_verdict = !case_verdict || case_verdict.verdict === verdict.pending;
+
+      if (no_verdict) {
+        free = false;
+        break;
+      }
+    }
+
+    if (free) {
+      for (let i = 0; i < roles.length; i++) {
+        await remove_role(guild_id, defendant_id, roles[i], 'Court case is over');
+      }
+    }
+
+    return free;
+  },
 
   case_finished(case_id) {
     const currrent_verdict = db.get_verdict(case_id);

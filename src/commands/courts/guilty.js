@@ -22,7 +22,6 @@ const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
 const system = require('../../utilities/system.js');
 const add_role = catch_discord(client.addGuildMemberRole.bind(client));
-const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const empty_argument = Symbol('Empty Argument');
 const hours_per_day = 24;
 const content = `Rendering a guilty verdict when there remains a reasonable doubt will result in \
@@ -141,8 +140,7 @@ charged with committing a misdemeanor'}.`;
     const in_server = guild.members.has(ids.defendant);
 
     if (in_server) {
-      await remove_role(ids.guild, ids.defendant, trial_role);
-      await remove_role(ids.guild, ids.defendant, jailed_role);
+      await system.free_from_court(ids.guild, ids.defendant, [trial_role, jailed_role]);
 
       if (sentence !== empty_argument && addSentence) {
         update.sentence = sentence;

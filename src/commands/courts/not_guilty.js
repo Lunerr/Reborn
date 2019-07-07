@@ -14,13 +14,11 @@
  */
 'use strict';
 const { Argument, Command, CommandResult } = require('patron.js');
-const catch_discord = require('../../utilities/catch_discord.js');
 const client = require('../../services/client.js');
 const verdict = require('../../enums/verdict.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
-const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 
 module.exports = new class NotGuilty extends Command {
   constructor() {
@@ -89,8 +87,7 @@ ${(defendant || await client.getRESTUser(defendant_id)).mention} not guilty.`
     if (defendant) {
       const { trial_role, jailed_role } = db.fetch('guilds', { guild_id: guild.id });
 
-      await remove_role(guild.id, defendant.id, trial_role);
-      await remove_role(guild.id, defendant.id, jailed_role);
+      await system.free_from_court(guild.id, defendant.id, [trial_role, jailed_role]);
     }
   }
 }();

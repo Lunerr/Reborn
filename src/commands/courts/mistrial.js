@@ -14,13 +14,10 @@
  */
 'use strict';
 const { Command, CommandResult } = require('patron.js');
-const catch_discord = require('../../utilities/catch_discord.js');
-const client = require('../../services/client.js');
 const verdict = require('../../enums/verdict.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
-const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 
 module.exports = new class Guilty extends Command {
   constructor() {
@@ -34,7 +31,7 @@ module.exports = new class Guilty extends Command {
 
   async run(msg) {
     let c_case = db.get_channel_case(msg.channel.id);
-    const res = await this.prerequisites(c_case, msg.channel.guild);
+    const res = await this.prerequisites(c_case);
 
     if (res instanceof CommandResult) {
       return res;
@@ -62,15 +59,17 @@ module.exports = new class Guilty extends Command {
 
     const prefix = `${discord.tag(msg.author).boldified}, `;
 
-    await remove_role(msg.channel.guild.id, defendant_id, trial_role);
-    await remove_role(msg.channel.guild.id, defendant_id, jailed_role);
+    if (msg.channel.guild.members.has(defendant_id)) {
+      await system.free_from_court(msg.channel.guild.id, defendant_id, [trial_role, jailed_role]);
+    }
+
     await discord.create_msg(msg.channel, `${prefix}This court case has been declared as a \
 mistrial.\n\n\
 No verdict has been delivered and the accused may be prosecuted again.`);
     await system.close_case(msg, msg.channel);
   }
 
-  async prerequisites(c_case, guild) {
+  async prerequisites(c_case) {
     if (!c_case) {
       return CommandResult.fromError('This channel has no ongoing court case.');
     }
