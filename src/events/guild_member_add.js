@@ -36,20 +36,6 @@ client.on('guildMemberAdd', async (guild, member) => {
   await discord.dm(member.user, msg, guild);
 
   const { imprisoned_role, trial_role, jailed_role } = db.fetch('guilds', { guild_id: guild.id });
-  const t_role = guild.roles.get(trial_role);
-  const j_role = guild.roles.get(jailed_role);
-  const db_member = db.get_member(member.id, guild.id);
-
-  if (db_member) {
-    if (db_member.jailed && j_role) {
-      await add_role(guild.id, member.id, jailed_role, 'Role persistence');
-    }
-
-    if (db_member.on_trial && t_role) {
-      await add_role(guild.id, member.id, trial_role, 'Role persistence');
-    }
-  }
-
   const i_role = guild.roles.get(imprisoned_role);
 
   if (!imprisoned_role || !i_role) {
@@ -68,6 +54,23 @@ client.on('guildMemberAdd', async (guild, member) => {
     if (mute > 0) {
       await add_role(guild.id, member.id, imprisoned_role, 'Mute persistence');
       break;
+    }
+  }
+
+  const t_role = guild.roles.get(trial_role);
+  const j_role = guild.roles.get(jailed_role);
+  const db_member = db.get_member(member.id, guild.id);
+
+  if (member.roles.includes(imprisoned_role)) {
+    db.set_trial(0, guild.id, member.id);
+    db.set_jailed(0, guild.id, member.id);
+  } else if (db_member) {
+    if (db_member.jailed && j_role) {
+      await add_role(guild.id, member.id, jailed_role, 'Role persistence');
+    }
+
+    if (db_member.on_trial && t_role) {
+      await add_role(guild.id, member.id, trial_role, 'Role persistence');
     }
   }
 });
