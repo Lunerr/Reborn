@@ -37,6 +37,9 @@ auto_cleanse: 3e5
 # Time when the detain needs to be approved
 detain_approved: 3e4
 
+# Interval for remind chiefs to nominate more people
+auto_dm_nominations: 6e4
+
 # Time until verification is denied in ms.
 verify_timeout: 3e5
 

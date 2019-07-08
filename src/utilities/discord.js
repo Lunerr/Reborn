@@ -84,7 +84,9 @@ module.exports = {
     }
 
     try {
-      await main_channel.createMessage(content);
+      const mem = guild.members.get(user.id) || user;
+
+      await main_channel.createMessage(`${mem.mention}\n${content}`);
 
       return true;
     } catch (_) {

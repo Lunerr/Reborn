@@ -157,7 +157,7 @@ get_notification: SELECT * FROM notifications WHERE member_id = ? AND guild_id =
 
 select_nominations: SELECT * FROM nominations WHERE guild_id = ?
 
-select_nominator_nominations: SELECT * FROM nominations WHERE nominator = ?
+select_nominator_nominations: SELECT * FROM nominations WHERE nominator = ? AND guild_id = ?
 
 remove_channel: UPDATE public_channels SET active = 0 WHERE channel_id = ?
 

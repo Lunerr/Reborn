@@ -189,8 +189,8 @@ module.exports = {
     return queries.select_nominations.all(guild_id);
   },
 
-  fetch_nominator_nominators(nominator_id) {
-    return queries.select_nominator_nominations.all(nominator_id);
+  fetch_nominator_nominations(nominator_id, guild_id) {
+    return queries.select_nominator_nominations.all(nominator_id, guild_id);
   },
 
   fetch_channels(guild_id) {
