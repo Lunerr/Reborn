@@ -90,7 +90,7 @@ module.exports = new class GrantWarrantForArrest extends Command {
       law_id: args.law.id,
       defendant_id: args.member.id,
       judge_id: msg.author.id,
-      evidence: discord.sanitize_mentions(msg, evidence)
+      evidence: `\n${discord.sanitize_mentions(msg, evidence)}`
     };
     const { lastInsertRowid: id } = db.insert('warrants', obj);
 
