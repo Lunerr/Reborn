@@ -139,16 +139,17 @@ charged with committing a misdemeanor'}.`;
     } = db.fetch('guilds', { guild_id: ids.guild });
     const in_server = guild.members.has(ids.defendant);
 
-    if (in_server) {
-      await system.free_from_court(ids.guild, ids.defendant, [trial_role, jailed_role]);
-
-      if (sentence !== empty_argument && addSentence) {
-        update.sentence = sentence;
-        await add_role(ids.guild, ids.defendant, imprisoned_role);
-      }
+    if (in_server && sentence !== empty_argument && addSentence) {
+      update.sentence = sentence;
+      await add_role(ids.guild, ids.defendant, imprisoned_role);
     }
 
     const { lastInsertRowid: id } = db.insert('verdicts', update);
+
+    if (in_server) {
+      await system.free_from_court(ids.guild, ids.defendant, [trial_role, jailed_role]);
+    }
+
     const c_case = db.get_case(id);
     const { case_channel } = db.fetch('guilds', { guild_id: ids.guild });
     const c_channel = client.guilds.get(ids.guild).channels.get(case_channel);
