@@ -22,6 +22,7 @@ const { config } = require('../services/data.js');
 const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
 const system = require('../utilities/system.js');
+const notifications = require('../enums/notifications.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const expiration = 3e5;
 const extended_expiration = 432e5;
@@ -53,10 +54,11 @@ function get_judges(guild, role, chief) {
 
 async function dm(warrant, time_left, officer, judges, guild) {
   const now = Date.now();
-  const last_notified = now - warrant.last_notified;
+  const notification = db.get_notification(officer.id, guild.id, notifications.detainment);
+  const last_notified = now - notification.last_notified;
   const past = warrant.extended_time ? last_notified > extended_dm : last_notified > regular_dm;
 
-  if (warrant.last_notified === null || past) {
+  if (!notification || past) {
     const { hours, minutes } = number.msToTime(time_left);
     let format;
 
@@ -77,7 +79,17 @@ request that they grant your warrant: ${string.list(judges.map(x => x.user.menti
       await discord.dm(officer.user, `You will be automatically impeached if you do not get a \
 warrant in the next ${format}.\n\nYour warrant may be approved with the following \
 command: \`!approve ${warrant.id}\`.\n\n${judge_append}`, guild);
-      db.set_warrant_last_notified(warrant.id, now);
+
+      if (notification) {
+        db.set_last_notified(officer.id, guild.id, notifications.detainment, now);
+      } else {
+        db.insert('notifications', {
+          guild_id: guild.id,
+          member_id: officer.id,
+          type: notifications.detainment,
+          last_notified: now
+        });
+      }
     }
   }
 }

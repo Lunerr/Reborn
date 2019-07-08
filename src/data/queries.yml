@@ -22,7 +22,6 @@ warrants_table: |-
     officer_id TEXT,
     evidence TEXT,
     extended_time TINYINT NOT NULL DEFAULT 0,
-    last_notified INTEGER,
     request TINYINT NOT NULL DEFAULT 0,
     approved TINYINT NOT NULL DEFAULT 0,
     executed TINYINT NOT NULL DEFAULT 0
@@ -96,7 +95,9 @@ notifications_table: |-
     guild_id TEXT NOT NULL REFERENCES guilds(guild_id),
     member_id TEXT NOT NULL,
     type TINYINT NOT NULL,
-    last_notified INTEGER
+    last_notified INTEGER,
+    created_at INTEGER NOT NULL,
+    last_modified_at INTEGER NOT NULL
   )
 
 public_channels_table: |-
@@ -150,7 +151,9 @@ insert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT DO NOTHING
 
 upsert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT(guild_id) DO UPDATE SET {3}
 
-set_last_notified: UPDATE notifications SET last_notified = ? WHERE member_id = ? AND type = ?
+set_last_notified: UPDATE notifications SET last_notified = ? WHERE member_id = ? AND guild_id = ? AND type = ?
+
+get_notification: SELECT * FROM notifications WHERE member_id = ? AND guild_id = ? AND type = ?
 
 select_nominations: SELECT * FROM nominations WHERE guild_id = ?
 
