@@ -133,10 +133,6 @@ module.exports = {
     return queries.set_trial.run(status, member_id, guild_id);
   },
 
-  set_warrant_last_notified(id, time) {
-    return queries.set_warrant_last_notified.run(time, id);
-  },
-
   set_case_inactive_count(id, count) {
     return queries.set_case_inactive_count.run(count, id);
   },

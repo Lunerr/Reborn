@@ -169,8 +169,6 @@ set_jailed: UPDATE members SET jailed = ? WHERE member_id = ? AND guild_id = ?
 
 set_trial: UPDATE members SET on_trial = ? WHERE member_id = ? AND guild_id = ?
 
-set_warrant_last_notified: UPDATE warrants SET last_notified = ? WHERE id = ?
-
 get_member: SELECT * FROM members WHERE member_id = ? AND guild_id = ?
 
 close_case: UPDATE verdicts SET verdict = 0 WHERE id = ?
