@@ -83,7 +83,7 @@ ${args.member.mention} can be nominated again ${hours_left ? `in ${hours_left} h
       nominatee: args.member.id,
       branch: nominiation.house
     });
-    await add_role(msg.channel.guild.id, args.member.id, judge_role);
+    await add_role(msg.channel.guild.id, args.member.id, congress_role);
     await discord.create_msg(
       msg.channel, `${discord.tag(msg.author).boldified}, You've nominated ${args.member.mention} \
 to the Congress role.`
