@@ -41,7 +41,7 @@ module.exports = new class Congress extends Precondition {
       );
     } else if (!msg.member.roles.includes(congress_role) && not_speaker) {
       return PreconditionResult.fromError(
-        cmd, 'Only members of Congress or the Speaker of House may use this command'
+        cmd, 'Only members of Congress can do that.'
       );
     }
 
