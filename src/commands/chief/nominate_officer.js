@@ -68,7 +68,7 @@ module.exports = new class NominateOfficer extends Command {
     } else if (was_impeached) {
       const time_left = was_impeached.created_at + impeachment_time - Date.now();
 
-      if (time_left > 0) {
+      if (time_left > 0 && 0) {
         const { days, hours } = number.msToTime(time_left);
         const hours_left = (days * to_hours) + hours;
 
