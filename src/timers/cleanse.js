@@ -126,11 +126,15 @@ Timer(async () => {
       continue;
     }
 
-    const channels = guild.channels.filter(
-      x => x.type === 0
-      && x.permissionsOf(client.user.id).has('manageMessages')
-      && x.permissionsOf(client.user.id).has('readMessages')
-    );
+    const public_channels = db.fetch_channels(guild.id);
+    const channels = public_channels
+      .map(x => guild.channels.get(x.channel_id))
+      .filter(
+        x => x
+        && x.type === 0
+        && x.permissionsOf(client.user.id).has('manageMessages')
+        && x.permissionsOf(client.user.id).has('readMessages')
+      );
 
     for (let j = 0; j < channels.length; j++) {
       const channel = channels[j];
