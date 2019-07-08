@@ -43,6 +43,10 @@ module.exports = new class NominateJudge extends Command {
   }
 
   async run(msg, args) {
+    if (args.member.user.bot) {
+      return CommandResult.fromError('Bots may not be members of Congress.');
+    }
+
     const {
       judge_role, officer_role, impeachment_time, congress_role,
       chief_justice_role, chief_officer_role, house_speaker_role
