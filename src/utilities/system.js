@@ -10,7 +10,7 @@ const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 
 module.exports = {
   day_hours: 24,
-  max_evidence: 17e2,
+  max_evidence: 16e2,
   max_warrants: 25,
   bitfield: 2048,
   mutex: new MultiMutex(),
@@ -287,7 +287,7 @@ module.exports = {
     const warrant = db.get_warrant(c_case.warrant_id);
     const format = await this.format_warrant(guild, warrant, c_case.id, case_verdict, 'Case');
 
-    format.description = format.description.slice(0, this.max_evidence) + append;
+    format.description += append;
 
     return format;
   },
