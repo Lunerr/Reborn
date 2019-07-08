@@ -38,14 +38,10 @@ module.exports = new class RemovePublicChannel extends Command {
 
   async run(msg, args) {
     const channels = db.fetch_channels(msg.channel.guild.id);
-    const existing = channels.find(x => x.channel_id === args.channel.id);
+    const existing = channels.find(x => x.channel_id === args.channel.id && x.active === 1);
 
     if (!existing) {
       return CommandResult.fromError(`${args.channel.mention} is not a public channel.`);
-    } else if (existing.active === 0) {
-      return CommandResult.fromError(
-        `${args.channel.mention} was already removed as a public channel.`
-      );
     }
 
     db.remove_channel(args.channel.id);
