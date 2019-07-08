@@ -84,7 +84,8 @@ async function purify(channel) {
     const msgs = await discord.fetch_msgs(channel, msg_limit);
     const now = Date.now();
     const to_delete = msgs.filter(
-      x => x.author.id !== channel.guild.ownerID
+      x => x
+        && x.author.id !== channel.guild.ownerID
         && !x.pinned
         && x.timestamp + expiration < now
         && (bad_words.some(c => x.content.toLowerCase().includes(c.toLowerCase()))
