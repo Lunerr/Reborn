@@ -44,7 +44,7 @@ module.exports = new class NominateJudge extends Command {
 
   async run(msg, args) {
     if (args.member.user.bot) {
-      return CommandResult.fromError('Bots may not be judges');
+      return CommandResult.fromError('Bots may not be Judges.');
     }
 
     const {
