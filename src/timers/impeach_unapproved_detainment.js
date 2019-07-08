@@ -55,7 +55,7 @@ function get_judges(guild, role, chief) {
 async function dm(warrant, time_left, officer, judges, guild) {
   const now = Date.now();
   const notification = db.get_notification(officer.id, guild.id, notifications.detainment);
-  const last_notified = now - notification.last_notified;
+  const last_notified = now - (notification || { last_notified: 0 }).last_notified;
   const past = warrant.extended_time ? last_notified > extended_dm : last_notified > regular_dm;
 
   if (!notification || past) {
