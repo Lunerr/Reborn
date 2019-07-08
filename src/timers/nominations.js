@@ -70,7 +70,7 @@ async function dm(chief, guild, branch, count) {
     if (!notification || !notification.last_notified || elapsed) {
       const first = notification ? '' : ' within 48 hours since you were first notified';
 
-      await discord.dm_fallback(mem.user, `Due to the lack of not having at least ${min_online} \
+      await discord.dm_fallback(mem.user, `Due to the lack of having at least ${min_online} \
 members of your branch online consistently, you will have to nominate ${min_nominations} or more \
 people using the \`!nominate_${branch}\` command or you will be impeached${first}.`, guild);
 
