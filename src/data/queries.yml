@@ -82,7 +82,7 @@ guilds_table: |-
 nominations_table: |-
   CREATE TABLE IF NOT EXISTS nominations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    guild_id TEXT NOT NULL REFERENCES guilds(guild_id)
+    guild_id TEXT NOT NULL REFERENCES guilds(guild_id),
     nominator TEXT NOT NULL,
     nominatee TEXT NOT NULL,
     branch TEXT NOT NULL,
