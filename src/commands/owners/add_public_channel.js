@@ -51,7 +51,7 @@ module.exports = new class AddPublicChannel extends Command {
     };
 
     db.insert('public_channels', channel);
-    await this.add_overwrites(msg.channnel.guild, args.channel);
+    await this.add_overwrites(msg.channel.guild, args.channel);
     await discord.create_msg(
       msg.channel, `${discord.tag(msg.author).boldified}, ${args.channel.mention} has \
 been added as a public channel.`
