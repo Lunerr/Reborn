@@ -42,19 +42,21 @@ module.exports = new class Resign extends Command {
       chief_officer_role,
       house_speaker_role
     ].filter(x => msg.channel.guild.roles.has(x));
+    const copy = msg.member.roles.slice();
 
     for (let i = 0; i < roles.length; i++) {
       const role = roles[i];
       const index = msg.member.roles.indexOf(role);
 
       if (index !== -1) {
-        roles.splice(index, 1);
+        copy.splice(index, 1);
       }
     }
 
     await edit_member(msg.channel.guild.id, msg.author.id, {
-      roles
+      roles: copy
     }, 'Resigned');
-    await discord.create_msg(msg.channel, 'You have successfully resigned.');
+    await discord.create_msg(msg.channel, `${discord.tag(msg.author).boldified}, \
+You have successfully resigned.`);
   }
 }();
