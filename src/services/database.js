@@ -173,6 +173,10 @@ module.exports = {
     return queries.select_impeachment.get(guild_id, member_id);
   },
 
+  set_last_notified(id, time) {
+    return queries.set_last_notified.run(time, id);
+  },
+
   remove_channel(channel_id) {
     return queries.remove_channel.run(channel_id);
   },

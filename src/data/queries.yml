@@ -87,7 +87,8 @@ nominations_table: |-
     nominatee TEXT NOT NULL,
     branch TEXT NOT NULL,
     created_at INTEGER NOT NULL,
-    last_modified_at INTEGER NOT NULL
+    last_modified_at INTEGER NOT NULL,
+    last_notified INTEGER
   )
 
 public_channels_table: |-
@@ -140,6 +141,8 @@ select: SELECT * FROM {0} WHERE guild_id = ?
 insert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT DO NOTHING
 
 upsert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT(guild_id) DO UPDATE SET {3}
+
+set_last_notified: UPDATE nominations SET last_notified = ? WHERE id = ?
 
 select_nominations: SELECT * FROM nominations WHERE guild_id = ?
 
