@@ -22,6 +22,7 @@ const string = require('../../utilities/string.js');
 module.exports = new class PublicChannels extends Command {
   constructor() {
     super({
+      preconditions: ['guild_db_exists'],
       description: 'View the server\'s public channels.',
       groupName: 'general',
       names: ['public_channels']
