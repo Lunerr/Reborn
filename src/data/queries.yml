@@ -159,7 +159,7 @@ select_nominations: SELECT * FROM nominations WHERE guild_id = ?
 
 select_nominator_nominations: SELECT * FROM nominations WHERE nominator = ? AND guild_id = ?
 
-remove_channel: UPDATE public_channels SET active = 0 WHERE channel_id = ? AND active = 1
+remove_channel: UPDATE public_channels SET active = 0 WHERE channel_id = ?
 
 select_channels: SELECT * FROM public_channels WHERE guild_id = ?
 
