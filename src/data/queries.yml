@@ -150,7 +150,7 @@ insert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT DO NOTHING
 
 upsert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT(guild_id) DO UPDATE SET {3}
 
-set_last_notified: UPDATE nominations SET last_notified = ? WHERE id = ?
+set_last_notified: UPDATE notifications SET last_notified = ? WHERE member_id = ? AND type = ?
 
 select_nominations: SELECT * FROM nominations WHERE guild_id = ?
 
