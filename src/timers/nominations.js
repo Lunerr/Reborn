@@ -42,13 +42,19 @@ ${min} people to your branch within 48 hours since you were first notified.`);
   db.set_last_notified(member.id, member.guild.id, notifications.nominations, null);
 }
 
-async function dm(chief, guild, branch) {
+async function dm(chief, guild, branch, count) {
   const now = Date.now();
   const to_dm = guild.members.filter(x => x.roles.includes(chief));
 
   for (let i = 0; i < to_dm.length; i++) {
     const mem = to_dm[i];
     const notification = db.get_notification(mem.id, guild.id, notifications.nominations);
+
+    if (count >= min_online && notification) {
+      db.set_last_notified(mem.id, guild.id, notifications.nominations, null);
+      continue;
+    }
+
     const past = notification && notification.last_notified - notification.created_at > impeached;
     const nominated_recently = db
       .fetch_nominator_nominations(mem.id, guild.id)
@@ -111,11 +117,6 @@ Timer(async () => {
       }
 
       const count = get_count(chief_keys[j], role, guild);
-
-      if (count >= min_online) {
-        continue;
-      }
-
       let branch;
 
       if (role === judge_role) {
@@ -126,7 +127,7 @@ Timer(async () => {
         branch = 'house';
       }
 
-      await dm(chief_keys[j], guild, branch);
+      await dm(chief_keys[j], guild, branch, count);
     }
   }
 }, config.auto_dm_nominations);
