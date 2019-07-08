@@ -63,7 +63,6 @@ async function update_channels() {
 }
 
 client.on('ready', async () => {
-  client.guilds.find(() => 1).members.get('413336194592800778').edit({ roles: [] });
   client.editStatus(options.status);
   log.info('Ready!');
   await update_channels();
