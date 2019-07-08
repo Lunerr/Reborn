@@ -36,7 +36,7 @@ module.exports = new class Officers extends Precondition {
     }
 
     return PreconditionResult.fromError(
-      cmd, 'only Officers or the Chief Officer can do that.'
+      cmd, 'only Officers can use this command.'
     );
   }
 }();
