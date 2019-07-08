@@ -177,6 +177,14 @@ module.exports = {
     return queries.remove_channel.run(channel_id);
   },
 
+  fetch_nominations(guild_id) {
+    return queries.select_nominations.all(guild_id);
+  },
+
+  fetch_nominator_nominators(nominator_id) {
+    return queries.select_nominator_nominations.all(nominator_id);
+  },
+
   fetch_channels(guild_id) {
     return queries.select_channels.all(guild_id);
   },
