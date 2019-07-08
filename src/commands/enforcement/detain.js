@@ -70,25 +70,18 @@ module.exports = new class Detain extends Command {
         await add_role(msg.channel.guild.id, args.user.id, jailed_role);
       }
 
-      const msgs = await msg.channel.getMessages(fetch_limit);
-      const filtered = msgs.filter(x => x.author.id === args.user.id).slice(0, max_evidence);
+      const filtered = await this.prerequisites(msg, args.user, jailed_role);
 
-      if (!filtered.length) {
-        await remove_role(msg.channel.guild.id, args.user.id, jailed_role);
+      if (filtered instanceof CommandResult) {
+        this.running[key] = false;
 
-        return CommandResult.fromError(`There were no recent messages sent \
-by ${args.user.mention}.`);
-      } else if (Date.now() - filtered[0].timestamp > recent) {
-        await remove_role(msg.channel.guild.id, args.user.id, jailed_role);
-
-        return CommandResult.fromError(`The most recent message sent by ${args.user.mention} is \
-older than 5 minutes, consider getting a judge to grant a warrant for this user.`);
+        return filtered;
       }
 
       const res = await this.verify(msg, msg.member, `What law did ${args.user.mention} break?\n
 Type \`cancel\` to cancel the command.`, args.user, filtered);
 
-      this.running[key] = null;
+      this.running[key] = false;
 
       if (res instanceof CommandResult) {
         if (member) {
@@ -98,6 +91,25 @@ Type \`cancel\` to cancel the command.`, args.user, filtered);
         return res;
       }
     });
+  }
+
+  async prerequisites(msg, user, jailed_role) {
+    const msgs = await msg.channel.getMessages(fetch_limit);
+    const filtered = msgs.filter(x => x.author.id === user.id).slice(0, max_evidence);
+
+    if (!filtered.length) {
+      await remove_role(msg.channel.guild.id, user.id, jailed_role);
+
+      return CommandResult.fromError(`There were no recent messages sent \
+by ${user.mention}.`);
+    } else if (Date.now() - filtered[0].timestamp > recent) {
+      await remove_role(msg.channel.guild.id, user.id, jailed_role);
+
+      return CommandResult.fromError(`The most recent message sent by ${user.mention} is \
+older than 5 minutes, consider getting a judge to grant a warrant for this user.`);
+    }
+
+    return filtered;
   }
 
   async verify(msg, member, content, to_detain, fetched) {
