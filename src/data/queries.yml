@@ -85,9 +85,17 @@ nominations_table: |-
     guild_id TEXT NOT NULL REFERENCES guilds(guild_id),
     nominator TEXT NOT NULL,
     nominatee TEXT NOT NULL,
-    branch TEXT NOT NULL,
+    branch TINYINT NOT NULL,
     created_at INTEGER NOT NULL,
-    last_modified_at INTEGER NOT NULL,
+    last_modified_at INTEGER NOT NULL
+  )
+
+notifications_table: |-
+  CREATE TABLE IF NOT EXISTS notifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    guild_id TEXT NOT NULL REFERENCES guilds(guild_id),
+    member_id TEXT NOT NULL,
+    type TINYINT NOT NULL,
     last_notified INTEGER
   )
 

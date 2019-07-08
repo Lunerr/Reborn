@@ -19,6 +19,7 @@ const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
 const catch_discord = require('../../utilities/catch_discord.js');
 const client = require('../../services/client.js');
+const nominiation = require('../../enums/nomination.js');
 const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const to_hours = 24;
 
@@ -76,6 +77,12 @@ ${args.member.mention} can be nominated again ${hours_left ? `in ${hours_left} h
       }
     }
 
+    db.insert('nominations', {
+      guild_id: msg.channel.guild.id,
+      nominator: msg.author.id,
+      nominatee: args.member.id,
+      branch: nominiation.officer
+    });
     await add_role(msg.channel.guild.id, args.member.id, officer_role);
     await discord.create_msg(
       msg.channel, `${discord.tag(msg.author).boldified}, You have nominated \
