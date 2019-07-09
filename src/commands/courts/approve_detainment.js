@@ -73,7 +73,7 @@ module.exports = new class ApproveDetainment extends Command {
       await this.dm(msg.channel.guild, warrant.officer_id, msg.author, warrant);
 
       const {
-        warrant_channel, judge_role, trial_role, court_category
+        warrant_channel, judge_role, trial_role, jailed_role, court_category
       } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
       const w_channel = msg.channel.guild.channels.get(warrant_channel);
       const new_warrant = Object.assign(warrant, { judge_id: msg.author.id });
@@ -83,12 +83,13 @@ module.exports = new class ApproveDetainment extends Command {
       }
 
       await this.setup({
-        guild: msg.channel.guild, warrant: new_warrant, judge_role, trial_role, court_category
+        guild: msg.channel.guild, warrant: new_warrant,
+        judge_role, trial_role, court_category, jailed: jailed_role
       });
     });
   }
 
-  async setup({ guild, warrant, judge_role, trial_role, court_category }) {
+  async setup({ guild, warrant, judge_role, trial_role, jailed, court_category }) {
     const arrest = registry.commands.find(x => x.names[0] === 'arrest');
     const judge = arrest.get_judge(guild, warrant, judge_role);
     const defendant = guild.members.get(warrant.defendant_id) || await guild.shard
@@ -97,7 +98,7 @@ module.exports = new class ApproveDetainment extends Command {
       .client.getRESTUser(warrant.officer_id);
 
     await arrest.set_up({
-      guild, defendant, judge, officer, warrant, trial_role, category: court_category
+      guild, defendant, judge, officer, warrant, trial_role, category: court_category, jailed
     });
   }
 

@@ -6,7 +6,7 @@
   "description": "The core control of the only truly free and fair discord server.",
   "dependencies": {
     "better-sqlite3": "^5.4.0",
-    "eris": "^0.9.0",
+    "eris": "github:abalabahaha/eris#dev",
     "js-yaml": "^3.13.1",
     "node-fetch": "^2.6.0",
     "patron.js": "github:Asshley/patron.js",

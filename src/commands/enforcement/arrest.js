@@ -21,6 +21,7 @@ const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
 const create_channel = catch_discord(client.createChannel.bind(client));
 const add_role = catch_discord(client.addGuildMemberRole.bind(client));
+const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const arrest_message = `Executing unlawful warrants will result in \
 impeachment and **national disgrace**.
 
@@ -76,12 +77,14 @@ module.exports = new class Arrest extends Command {
 
       const defendant = (msg.channel.guild.members.get(args.warrant.defendant_id) || {}).user
         || await client.getRESTUser(args.warrant.defendant_id);
-      const { court_category, judge_role, trial_role, chief_justice_role: chief } = res;
+      const {
+        court_category, judge_role, trial_role, chief_justice_role: chief, jailed_role
+      } = res;
       const judge = this.get_judge(msg.channel.guild, args.warrant, judge_role, chief);
 
       await this.set_up({
         guild: msg.channel.guild, defendant, judge, officer: msg.author, trial_role,
-        warrant: args.warrant, category: court_category
+        warrant: args.warrant, category: court_category, jailed: jailed_role
       });
 
       const prefix = `${discord.tag(msg.author).boldified}, `;
@@ -92,7 +95,7 @@ module.exports = new class Arrest extends Command {
 
   async prerequisites(msg, warrant) {
     const {
-      court_category, judge_role, trial_role, chief_justice_role
+      court_category, judge_role, trial_role, jailed_role, chief_justice_role
     } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const n_warrant = db.get_warrant(warrant.id);
     const prefix = `${discord.tag(msg.author).boldified}, `;
@@ -112,11 +115,11 @@ module.exports = new class Arrest extends Command {
     }
 
     return {
-      court_category, judge_role, trial_role, chief_justice_role
+      court_category, judge_role, trial_role, chief_justice_role, jailed_role
     };
   }
 
-  async set_up({ guild, defendant, judge, officer, warrant, trial_role, category }) {
+  async set_up({ guild, defendant, judge, officer, warrant, trial_role, jailed, category }) {
     const channel_name_cop = discord.formatUsername(officer.username).trim() || officer.id;
     const channel_name_def = discord.formatUsername(defendant.username).trim() || defendant.id;
     const channel = await create_channel(
@@ -156,7 +159,7 @@ the prosecutor and defendant have the right to request a qualified and earnest a
     }
 
     await sent.pin();
-    await this.close(channel, warrant, defendant.id, judge.id, officer.id, trial_role);
+    await this.close(channel, warrant, defendant.id, judge.id, officer.id, trial_role, jailed);
   }
 
   get_index(string, char, max) {
@@ -186,7 +189,7 @@ the prosecutor and defendant have the right to request a qualified and earnest a
     return [initial].concat(rest);
   }
 
-  async close(channel, warrant, defendant_id, judge_id, plaintiff_id, role) {
+  async close(channel, warrant, defendant_id, judge_id, plaintiff_id, role, jailed) {
     const c_case = {
       guild_id: channel.guild.id,
       channel_id: channel.id,
@@ -201,6 +204,7 @@ the prosecutor and defendant have the right to request a qualified and earnest a
     c_case.id = id;
 
     if (channel.guild.members.has(defendant_id)) {
+      await remove_role(channel.guild.id, defendant_id, jailed);
       await add_role(channel.guild.id, defendant_id, role);
     }
 
