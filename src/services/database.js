@@ -177,6 +177,10 @@ module.exports = {
     return queries.set_last_notified.run(time, member_id, guild_id, type);
   },
 
+  set_last_active(member_id, guild_id, type, time) {
+    return queries.set_last_active.run(time, member_id, guild_id, type);
+  },
+
   get_notification(member_id, guild_id, type) {
     return queries.get_notification.get(member_id, guild_id, type);
   },

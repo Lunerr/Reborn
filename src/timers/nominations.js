@@ -19,12 +19,14 @@ const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
 const notifications = require('../enums/notifications.js');
 const discord = require('../utilities/discord.js');
+const number = require('../utilities/number.js');
 const catch_discord = require('../utilities/catch_discord.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const min_online = 4;
 const min_nominations = 5;
 const dm_interval = 144e5;
 const impeached = 1728e5;
+const hours_in_day = 24;
 
 function get_count(role, chief, guild) {
   return guild.members.filter(x => (x.roles.includes(role) || x.roles.includes(chief))
@@ -42,6 +44,22 @@ ${min} people to your branch within 48 hours since you were first notified.`);
   db.set_last_notified(member.id, member.guild.id, notifications.nominations, null);
 }
 
+function format_time(time) {
+  const { days, hours, minutes } = number.msToTime(time);
+  const total_hours = (days * hours_in_day) + hours;
+  let format;
+
+  if (total_hours) {
+    format = `${total_hours} hours`;
+  } else if (minutes) {
+    format = `${minutes} minutes`;
+  } else {
+    format = 'soon';
+  }
+
+  return format;
+}
+
 async function dm(chief, guild, branch, count) {
   const now = Date.now();
   const to_dm = guild.members.filter(x => x.roles.includes(chief));
@@ -52,10 +70,12 @@ async function dm(chief, guild, branch, count) {
 
     if (count >= min_online && notification) {
       db.set_last_notified(mem.id, guild.id, notifications.nominations, null);
+      db.set_last_active(mem.id, guild.id, notifications.nominations, now);
       continue;
     }
 
-    const past = notification && notification.last_notified - notification.created_at > impeached;
+    const left = notification.last_notified - notification.last_modified_at;
+    const past = notification && left > impeached;
     const nominated_recently = db
       .fetch_nominator_nominations(mem.id, guild.id)
       .filter(x => x.created_at > now - impeached && x.created_at < now);
@@ -69,11 +89,11 @@ async function dm(chief, guild, branch, count) {
 
     if (!notification || elapsed) {
       const first = !notification
-        || !notification.last_notified ? ' within 48 hours since this message' : '';
+        || !notification.last_notified ? '48 hours since this message' : format_time(left);
 
       await discord.dm_fallback(mem.user, `Due to the lack of having at least ${min_online} \
 members of your branch online consistently, you will have to nominate ${min_nominations} or more \
-people using the \`!nominate_${branch}\` command or you will be impeached${first}.`, guild);
+people using the \`!nominate_${branch}\` command or you will be impeached within ${first}.`, guild);
 
       if (notification) {
         db.set_last_dm(mem.id, guild.id, notifications.nominations, now);

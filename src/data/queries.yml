@@ -156,6 +156,8 @@ set_last_notified: UPDATE notifications SET last_notified = ? WHERE member_id = 
 
 set_last_dm: UPDATE notifications SET last_dm = ? WHERE member_id = ? AND guild_id = ? AND type = ?
 
+set_last_active: UPDATE notifications SET last_modified_at = ? WHERE member_id = ? AND guild_id = ? AND type = ?
+
 get_notification: SELECT * FROM notifications WHERE member_id = ? AND guild_id = ? AND type = ?
 
 select_nominations: SELECT * FROM nominations WHERE guild_id = ?
