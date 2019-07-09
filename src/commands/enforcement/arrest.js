@@ -247,7 +247,7 @@ the prosecutor and defendant have the right to request a qualified and earnest a
 
       const active = judge.filter(x => x.status === 'online' || x.status === 'dnd');
 
-      if (active.length > 1) {
+      if (active.length >= 1) {
         judge = active;
       }
     }
