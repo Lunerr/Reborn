@@ -96,6 +96,7 @@ notifications_table: |-
     member_id TEXT NOT NULL,
     type TINYINT NOT NULL,
     last_notified INTEGER,
+    last_dm INTEGER,
     created_at INTEGER NOT NULL,
     last_modified_at INTEGER NOT NULL
   )
@@ -152,6 +153,8 @@ insert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT DO NOTHING
 upsert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT(guild_id) DO UPDATE SET {3}
 
 set_last_notified: UPDATE notifications SET last_notified = ? WHERE member_id = ? AND guild_id = ? AND type = ?
+
+set_last_dm: UPDATE notifications SET last_dm = ? WHERE member_id = ? AND guild_id = ? AND type - ?
 
 get_notification: SELECT * FROM notifications WHERE member_id = ? AND guild_id = ? AND type = ?
 

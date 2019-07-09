@@ -64,23 +64,26 @@ async function dm(chief, guild, branch, count) {
       return impeach(mem, chief, min_nominations);
     }
 
-    const time_left = now - (notification || { last_notified: 0 }).last_notified;
+    const time_left = now - (notification || { last_dm: 0 }).last_dm;
     const elapsed = time_left > dm_interval;
 
     if (!notification || !notification.last_notified || elapsed) {
-      const first = notification ? '' : ' within 48 hours since you were first notified';
+      const first = !notification
+        || !notification.last_notified ? ' within 48 hours since this message' : '';
 
       await discord.dm_fallback(mem.user, `Due to the lack of having at least ${min_online} \
 members of your branch online consistently, you will have to nominate ${min_nominations} or more \
 people using the \`!nominate_${branch}\` command or you will be impeached${first}.`, guild);
 
       if (notification) {
+        db.set_last_dm(mem.id, guild.id, notifications.nominations, now);
         db.set_last_notified(mem.id, guild.id, notifications.nominations, now);
       } else {
         db.insert('notifications', {
           guild_id: guild.id,
           member_id: mem.id,
           type: notifications.nominations,
+          last_dm: now,
           last_notified: now
         });
       }

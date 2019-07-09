@@ -169,6 +169,10 @@ module.exports = {
     return queries.select_impeachment.get(guild_id, member_id);
   },
 
+  set_last_dm(member_id, guild_id, type, time) {
+    return queries.set_last_dm.run(time, member_id, guild_id, type);
+  },
+
   set_last_notified(member_id, guild_id, type, time) {
     return queries.set_last_notified.run(time, member_id, guild_id, type);
   },
