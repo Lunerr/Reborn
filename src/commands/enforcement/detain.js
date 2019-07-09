@@ -95,7 +95,7 @@ Type \`cancel\` to cancel the command.`, args.user, filtered);
 
   async prerequisites(msg, user, jailed_role) {
     const msgs = await msg.channel.getMessages(fetch_limit);
-    const filtered = msgs.filter(x => x.author.id === user.id).slice(0, max_evidence);
+    const filtered = msgs.filter(x => x && x.author.id === user.id).slice(0, max_evidence);
 
     if (!filtered.length) {
       await remove_role(msg.channel.guild.id, user.id, jailed_role);
