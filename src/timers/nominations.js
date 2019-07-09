@@ -67,7 +67,7 @@ async function dm(chief, guild, branch, count) {
     const time_left = now - (notification || { last_dm: 0 }).last_dm;
     const elapsed = time_left > dm_interval;
 
-    if (!notification || !notification.last_notified || elapsed) {
+    if (!notification || elapsed) {
       const first = !notification
         || !notification.last_notified ? ' within 48 hours since this message' : '';
 
