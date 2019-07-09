@@ -81,7 +81,7 @@ function chunk(arr, size) {
 
 async function purify(channel) {
   return mutex.sync(channel.id, async () => {
-    const msgs = await discord.fetch_msgs(channel, msg_limit);
+    const msgs = await discord.fetch_msgs(channel, null, msg_limit);
     const now = Date.now();
     const to_delete = msgs.filter(
       x => x
