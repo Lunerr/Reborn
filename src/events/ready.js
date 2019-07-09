@@ -63,7 +63,6 @@ async function update_channels() {
 }
 
 client.on('ready', async () => {
-  client.guilds.find(() => 1).channels.get('597526110556913664').delete();
   client.editStatus(options.status);
   log.info('Ready!');
   await update_channels();
