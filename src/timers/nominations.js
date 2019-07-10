@@ -74,7 +74,7 @@ async function dm(chief, guild, count) {
       continue;
     }
 
-    const left = notification.last_notified - notification.last_modified_at;
+    const left = (notification || {}).last_notified - notification.last_modified_at;
     const past = notification && left > impeached;
     const nominated_recently = db
       .fetch_nominator_nominations(mem.id, guild.id)
