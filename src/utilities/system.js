@@ -180,7 +180,7 @@ module.exports = {
   async should_prune(channel, arr, fn) {
     const messages = await discord.fetch_msgs(channel);
 
-    if (messages.length !== arr.length || messages.some(x => !x.embeds.length)) {
+    if (messages.length !== arr.length || messages.some(x => x && !x.embeds.length)) {
       return true;
     }
 
@@ -224,7 +224,7 @@ module.exports = {
 
   async update_laws(channel, laws) {
     return this.mutex.sync(`${channel.guild.id}-laws`, async () => {
-      const fn = (x, item) => x.embeds[0].title === item.name;
+      const fn = (x, item) => x && x.embeds[0].title === item.name;
       const to_prune = await this.should_prune(channel, laws, fn);
 
       if (to_prune) {
