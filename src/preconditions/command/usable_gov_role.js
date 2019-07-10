@@ -18,7 +18,6 @@
 'use strict';
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
-const system = require('../../utilities/system.js');
 const str = require('../../utilities/string.js');
 const { Precondition, PreconditionResult } = require('patron.js');
 
@@ -29,11 +28,7 @@ module.exports = new class UsableGovRole extends Precondition {
 
   async run(cmd, msg, options) {
     const res = db.fetch('guilds', { guild_id: msg.channel.guild.id });
-    let { roles } = options || {};
-
-    if (!roles) {
-      roles = system.gov_roles;
-    }
+    const roles = options && options.roles ? options.roles : [];
 
     for (let i = 0; i < roles.length; i++) {
       const id = res[roles[i]];

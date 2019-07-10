@@ -35,6 +35,7 @@ module.exports = new class Nominate extends Command {
   constructor() {
     super({
       preconditions: ['usable_gov_role', 'chief_roles_set', 'is_chief'],
+      preconditionOptions: [{ roles: system.gov_roles }],
       args: [
         new Argument({
           example: 'Ashley',
