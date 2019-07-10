@@ -17,7 +17,7 @@
  */
 'use strict';
 const db = require('../../services/database.js');
-const discord = require('../../utilities/discord.js');
+const reg = require('../../services/registry.js');
 const { Precondition, PreconditionResult } = require('patron.js');
 
 module.exports = new class Judges extends Precondition {
@@ -29,11 +29,12 @@ module.exports = new class Judges extends Precondition {
     const {
       judge_role, chief_justice_role
     } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
-    const role = msg.channel.guild.roles.get(judge_role);
     const is_chief = chief_justice_role && msg.member.roles.includes(chief_justice_role);
+    const prec = reg.preconditions.find(x => x.name === 'usable_gov_role');
+    const res = await prec.run(cmd, msg, { roles: ['judge_role'] });
 
-    if (!judge_role || !role || !discord.usable_role(msg.channel.guild, role)) {
-      return PreconditionResult.fromError(cmd, 'the Judge role needs to be set.');
+    if (!res.success) {
+      return PreconditionResult.fromError(cmd, res.errorReason);
     } else if (msg.member.roles.includes(judge_role) || is_chief) {
       return PreconditionResult.fromSuccess();
     }
