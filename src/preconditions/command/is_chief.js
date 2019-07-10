@@ -28,7 +28,7 @@ module.exports = new class IsChief extends Precondition {
     const chief_role = system.chief_role(msg.member);
 
     if (!chief_role) {
-      return PreconditionResult.fromError(cmd, 'This command may only be used be a Chief.');
+      return PreconditionResult.fromError(cmd, 'This command may only be used by a Chief.');
     }
 
     return PreconditionResult.fromSuccess();
