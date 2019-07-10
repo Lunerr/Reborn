@@ -17,29 +17,19 @@ const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const { Precondition, PreconditionResult } = require('patron.js');
 
-module.exports = new class HouseSpeaker extends Precondition {
+module.exports = new class UsableCongress extends Precondition {
   constructor() {
-    super({ name: 'house_speaker' });
+    super({ name: 'usable_congress' });
   }
 
   async run(cmd, msg) {
-    const { house_speaker_role } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
-    const role = msg.channel.guild.roles.get(house_speaker_role);
+    const { congress_role } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+    const role = msg.channel.guild.roles.get(congress_role);
 
-    if (!house_speaker_role) {
-      return PreconditionResult.fromError(cmd, 'the Speaker of House role needs to be set.');
-    } else if (!role) {
-      return PreconditionResult.fromError(
-        cmd, 'the Speaker of House role was deleted and needs to be set.'
-      );
+    if (!congress_role || !role) {
+      return PreconditionResult.fromError(cmd, 'The Congress role needs to be set.');
     } else if (!discord.usable_role(msg.channel.guild, role)) {
-      return PreconditionResult.fromError(
-        cmd, 'the Speaker of House role needs to be lower than me in hierarchy.'
-      );
-    } else if (!msg.member.roles.includes(house_speaker_role)) {
-      return PreconditionResult.fromError(
-        cmd, 'Only the Speaker of House may use this command'
-      );
+      return PreconditionResult.fromError(cmd, 'The Congress role is higher than me in hierarchy.');
     }
 
     return PreconditionResult.fromSuccess();

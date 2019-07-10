@@ -44,12 +44,7 @@ function edit_case(guild, warrant) {
 function get_judges(guild, role, chief) {
   const g_role = guild.roles.get(role);
 
-  if (!g_role) {
-    return null;
-  }
-
-  return guild.members.filter(x => (x.roles.includes(role) || x.roles.includes(chief))
-    && (x.status === 'online' || x.status === 'dnd'));
+  return g_role ? system.get_branch_members(guild, role, chief) : [];
 }
 
 async function dm(warrant, time_left, officer, judges, guild) {
@@ -73,7 +68,7 @@ async function dm(warrant, time_left, officer, judges, guild) {
     }
 
     if (officer) {
-      const judge_append = judges && judges.length ? `You may DM one of the following judges to \
+      const judge_append = judges.length ? `You may DM one of the following judges to \
 request that they grant your warrant: ${string.list(judges.map(x => x.user.mention))}` : '';
 
       await discord.dm(officer.user, `You will be automatically impeached if you do not get a \

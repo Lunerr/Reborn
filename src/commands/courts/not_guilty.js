@@ -23,7 +23,7 @@ const system = require('../../utilities/system.js');
 module.exports = new class NotGuilty extends Command {
   constructor() {
     super({
-      preconditions: ['court_only', 'can_trial', 'judge_creator'],
+      preconditions: ['court_only', 'court_case', 'can_trial', 'judge_creator'],
       args: [
         new Argument({
           example: 'Set this man free!',
@@ -41,11 +41,6 @@ module.exports = new class NotGuilty extends Command {
 
   async run(msg, args) {
     let c_case = db.get_channel_case(msg.channel.id);
-
-    if (!c_case) {
-      return CommandResult.fromError('This channel is not a court case.');
-    }
-
     const { defendant_id, id: case_id } = c_case;
     const defendant = msg.channel.guild.members.get(defendant_id);
     const res = system.case_finished(case_id);

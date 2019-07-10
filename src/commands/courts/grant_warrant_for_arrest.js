@@ -38,7 +38,8 @@ module.exports = new class GrantWarrantForArrest extends Command {
           example: 'Nͥatͣeͫ763#0554',
           key: 'member',
           name: 'member',
-          type: 'member'
+          type: 'member',
+          preconditions: ['no_bot']
         }),
         new Argument({
           example: 'Murder',
@@ -67,12 +68,10 @@ module.exports = new class GrantWarrantForArrest extends Command {
       return CommandResult.fromError('You must provide evidence in an image or link.');
     }
 
-    const verified = await discord.verify_msg(
-      msg, `${discord.tag(msg.author).boldified}, ${content}`, null, 'yes'
-    );
+    const res = await discord.verify(msg, content);
 
-    if (!verified) {
-      return CommandResult.fromError('The command has been cancelled.');
+    if (!res.success) {
+      return res;
     }
 
     let evidence;

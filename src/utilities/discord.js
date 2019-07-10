@@ -13,6 +13,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 'use strict';
+const { CommandResult } = require('patron.js');
 const catch_discord = require('./catch_discord.js');
 const client = require('../services/client.js');
 const { config, constants } = require('../services/data.js');
@@ -94,6 +95,10 @@ module.exports = {
     }
   },
 
+  is_online(mem) {
+    return mem.status === 'online' || mem.status === 'dnd';
+  },
+
   async fetch_msgs(channel, limit = null) {
     const msgs = [];
     let count = 0;
@@ -156,6 +161,18 @@ module.exports = {
       .reduce(
         (a, b) => a.replace(b, `\u200b${b}`), content.replace(/@(everyone|here)/g, '@\u200b$1')
       );
+  },
+
+  async verify(msg, content) {
+    const verified = await this.verify_msg(
+      msg, `${this.tag(msg.author).boldified}, ${content}`, null, 'yes'
+    );
+
+    if (!verified) {
+      return CommandResult.fromError('The command has been cancelled.');
+    }
+
+    return { success: true };
   },
 
   async verify_msg(msg, content, file, verify = 'I\'m sure') {

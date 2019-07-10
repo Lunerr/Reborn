@@ -4,16 +4,51 @@ const client = require('../services/client.js');
 const discord = require('./discord.js');
 const db = require('../services/database.js');
 const verdict = require('../enums/verdict.js');
+const branch = require('../enums/branch.js');
 const number = require('./number.js');
 const catch_discord = require('../utilities/catch_discord.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 
 module.exports = {
+  chief_roles: ['chief_justice_role', 'chief_officer_role', 'house_speaker_role'],
+  jailed_roles: ['imprisoned_role', 'jailed_role', 'trial_role'],
+  gov_roles: ['officer_role', 'judge_role', 'congress_role'],
   day_hours: 24,
   max_evidence: 16e2,
   max_warrants: 25,
   bitfield: 2048,
   mutex: new MultiMutex(),
+
+  get_branch_members(guild, role, chief) {
+    return guild.members.filter(x => (x.roles.includes(role) || x.roles.includes(chief))
+      && discord.is_online(x));
+  },
+
+  chief_role(member) {
+    const res = db.fetch('guilds', { guild_id: member.guild.id });
+
+    return Object.keys(res).find(
+      x => this.chief_roles.includes(x) && member.roles.includes(res[x])
+    ) || null;
+  },
+
+  branch_role_from_chief(member) {
+    const chief_role = this.chief_role(member);
+
+    return branch[chief_role] || null;
+  },
+
+  async update_guild_case(id, guild) {
+    const new_case = db.get_case(id);
+    const { case_channel } = db.fetch('guilds', { guild_id: guild.id });
+    const c_channel = guild.channels.get(case_channel);
+
+    if (c_channel) {
+      return this.edit_case(c_channel, new_case);
+    }
+
+    return null;
+  },
 
   async free_from_court(guild_id, defendant_id, roles) {
     const cases = db.fetch_cases(guild_id);
@@ -112,6 +147,16 @@ module.exports = {
     }
 
     return res;
+  },
+
+  parse_id(msg) {
+    const [embed] = msg.embeds;
+
+    if (!embed.description) {
+      return null;
+    }
+
+    return Number(embed.description.split('**ID:** ')[1].split('\n')[0]);
   },
 
   async should_prune(channel, arr, fn) {
@@ -220,11 +265,7 @@ module.exports = {
     return this.mutex.sync(`${channel.guild.id}-warrants`, async () => {
       const msgs = await discord.fetch_msgs(channel);
       const { id, executed } = warrant;
-      const found = msgs.find(x => {
-        const [old_id] = x.embeds[0].description.split('**ID:** ')[1].split('\n');
-
-        return Number(old_id) === id;
-      });
+      const found = msgs.find(x => this.parse_id(x) === id);
 
       if (found) {
         const obj = discord.embed(await this.format_warrant(channel.guild, warrant, id, executed));
@@ -249,7 +290,7 @@ module.exports = {
     return this.mutex.sync(`${channel.guild.id}-warrants`, async () => {
       const msgs = await discord.fetch_msgs(channel);
       const [most_recent] = msgs;
-      const id = Number(most_recent.embeds[0].description.split('**ID:** ')[1].split('\n')[0]);
+      const id = this.parse_id(most_recent);
       const index = warrants.findIndex(x => x.id === id);
 
       if (index !== -1) {
@@ -295,11 +336,7 @@ module.exports = {
   async edit_case(channel, c_case) {
     return this.mutex.sync(`${channel.guild.id}-cases`, async () => {
       const msgs = await discord.fetch_msgs(channel);
-      const found = msgs.find(x => {
-        const [old_id] = x.embeds[0].description.split('**ID:** ')[1].split('\n');
-
-        return Number(old_id) === c_case.id;
-      });
+      const found = msgs.find(x => this.parse_id(x) === c_case.id);
 
       if (found) {
         const obj = discord.embed(await this.format_case(channel.guild, c_case));
@@ -323,7 +360,7 @@ module.exports = {
     return this.mutex.sync(`${channel.guild.id}-cases`, async () => {
       const msgs = await discord.fetch_msgs(channel);
       const [most_recent] = msgs;
-      const id = Number(most_recent.embeds[0].description.split('**ID:** ')[1].split('\n')[0]);
+      const id = this.parse_id(most_recent);
       const index = cases.findIndex(x => x.id === id);
 
       if (index !== -1) {

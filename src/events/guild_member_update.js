@@ -68,16 +68,6 @@ async function remove_extra_roles(guild, member, jobs) {
   }
 }
 
-async function edit_case(guild, id) {
-  const new_case = db.get_case(id);
-  const { case_channel } = db.fetch('guilds', { guild_id: guild.id });
-  const c_channel = guild.channels.get(case_channel);
-
-  if (c_channel) {
-    await system.edit_case(c_channel, new_case);
-  }
-}
-
 async function free(guild, defendant, trial_role, jailed_role) {
   const t_role = guild.roles.get(trial_role);
   const j_role = guild.roles.get(jailed_role);
@@ -132,7 +122,7 @@ This case has been marked as a mistrial due to the judge losing their judge role
 
     await free(member.guild, def, trial_role, jailed_role);
     await system.close_case(msg, channel);
-    await edit_case(member.guild, id);
+    await system.update_guild_case(id, member.guild);
   }
 }
 
@@ -141,26 +131,22 @@ client.on('guildMemberUpdate', async (guild, new_member, old_member) => {
     return;
   }
 
-  const {
-    officer_role: officer, judge_role: judge, congress_role: congress, impeachment_time,
-    chief_justice_role: chief_justice, chief_officer_role: chief_cop, house_speaker_role: house
-  } = db.fetch('guilds', { guild_id: guild.id });
-  const g_judge = guild.roles.get(judge);
+  const res = db.fetch('guilds', { guild_id: guild.id });
 
-  if (g_judge && old_member.roles.includes(judge) && !new_member.roles.includes(judge)) {
-    await lost_judge(new_member, g_judge);
+  if (old_member.roles.includes(res.judge) && !new_member.roles.includes(res.judge)) {
+    await lost_judge(new_member);
   }
 
-  const g_officer = guild.roles.get(officer);
+  const jobs = system.gov_roles.concat(system.chief_roles)
+    .filter(x => res[x])
+    .reduce((a, b) => {
+      const value = res[b];
 
-  if (!officer || !g_officer || !g_judge || !g_officer) {
-    return;
-  }
+      a[b] = value;
 
-  const jobs = {
-    congress, officer, judge, chief_justice, chief_cop, house
-  };
+      return a;
+    }, {});
 
-  // await impeached(guild, new_member, jobs, impeachment_time);
+  // await impeached(guild, new_member, jobs, res.impeachment_time);
   await remove_extra_roles(guild, new_member, jobs);
 });

@@ -13,33 +13,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 'use strict';
-const { Argument, Command } = require('patron.js');
-const discord = require('../../utilities/discord.js');
+const { ArgumentPrecondition, PreconditionResult } = require('patron.js');
+const { Member } = require('eris');
 
-module.exports = new class KickFromCourt extends Command {
+module.exports = new class NoBot extends ArgumentPrecondition {
   constructor() {
-    super({
-      preconditions: ['court_only', 'court_case', 'judge_creator'],
-      args: [
-        new Argument({
-          example: 'Joeychin01',
-          key: 'member',
-          name: 'member',
-          type: 'member',
-          remainder: true
-        })
-      ],
-      description: 'Kicks a citizen from speaking at a hearing.',
-      groupName: 'courts',
-      names: ['kick_from_court']
-    });
+    super({ name: 'no_bot' });
   }
 
-  async run(msg, args) {
-    await msg.channel.deletePermission(args.member.id);
-    await discord.create_msg(
-      msg.channel,
-      `${discord.tag(msg.author).boldified}, ${args.member.mention} has been kicked from court.`
-    );
+  async run(cmd, msg, arg, args, val) {
+    let user = val;
+
+    if (user instanceof Member) {
+      ({ user } = user);
+    }
+
+    if (val.bot) {
+      return PreconditionResult.fromError(cmd, 'This command cannot be used on bots.');
+    }
+
+    return PreconditionResult.fromSuccess();
   }
 }();

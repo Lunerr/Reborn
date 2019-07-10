@@ -16,6 +16,16 @@
 const minAmount = 3;
 
 module.exports = {
+  to_uppercase(str, force_lower = false) {
+    let rest = str.slice(1);
+
+    if (force_lower) {
+      rest = rest.toLowerCase();
+    }
+
+    return `${str[0].toUpperCase()}${rest}`;
+  },
+
   format(str, ...args) {
     return str.replace(/{(\d+)}/g, (_, a) => args[a]);
   },

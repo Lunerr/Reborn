@@ -58,12 +58,10 @@ module.exports = new class ApproveDetainment extends Command {
         return CommandResult.fromError('This detainment has already been approved.');
       }
 
-      const verified = await discord.verify_msg(
-        msg, `${discord.tag(msg.author).boldified}, ${content}`, null, 'yes'
-      );
+      const res = await discord.verify(msg, content);
 
-      if (!verified) {
-        return CommandResult.fromError('The command has been cancelled.');
+      if (!res.success) {
+        return res;
       }
 
       db.approve_warrant(warrant.id, msg.author.id);

@@ -13,33 +13,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 'use strict';
+const { Precondition, PreconditionResult } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
-const { Precondition, PreconditionResult } = require('patron.js');
+const system = require('../../utilities/system.js');
+const str = require('../../utilities/string.js');
 
-module.exports = new class ChiefOfficer extends Precondition {
+module.exports = new class ChiefRolesSet extends Precondition {
   constructor() {
-    super({ name: 'chief_officer' });
+    super({ name: 'chief_roles_set' });
   }
 
   async run(cmd, msg) {
-    const { chief_officer_role } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
-    const role = msg.channel.guild.roles.get(chief_officer_role);
+    const res = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+    const roles = Object.keys(res).filter(x => system.chief_roles.includes(x));
 
-    if (!chief_officer_role) {
-      return PreconditionResult.fromError(cmd, 'the Chief Officer role needs to be set.');
-    } else if (!role) {
-      return PreconditionResult.fromError(
-        cmd, 'the Chief Officer role was deleted and needs to be set.'
-      );
-    } else if (!discord.usable_role(msg.channel.guild, role)) {
-      return PreconditionResult.fromError(
-        cmd, 'the Chief Officer role needs to be lower than me in hierarchy.'
-      );
-    } else if (!msg.member.roles.includes(chief_officer_role)) {
-      return PreconditionResult.fromError(
-        cmd, 'Only the Chief Officer may use this command'
-      );
+    for (let i = 0; i < roles.length; i++) {
+      const id = res[roles[i]];
+      const role = msg.channel.guild.roles.get(id);
+      const name = roles[i]
+        .split('_')
+        .slice(0, -1)
+        .map(str.to_uppercase)
+        .join(' ');
+
+      if (!id || !role) {
+        return PreconditionResult.fromError(cmd, `The ${name} role needs to be set.`);
+      } else if (!discord.usable_role(msg.channel.guild, role)) {
+        return PreconditionResult.fromError(
+          cmd, `The ${name} role is higher in hierarchy than me.`
+        );
+      }
     }
 
     return PreconditionResult.fromSuccess();

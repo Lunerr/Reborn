@@ -37,6 +37,7 @@ module.exports = new class Detain extends Command {
           key: 'user',
           name: 'user',
           type: 'user',
+          preconditions: ['no_bot'],
           remainder: true
         })
       ],
@@ -96,20 +97,24 @@ Type \`cancel\` to cancel the command.`, args.user, filtered);
   async prerequisites(msg, user, jailed_role) {
     const msgs = await msg.channel.getMessages(fetch_limit);
     const filtered = msgs.filter(x => x && x.author.id === user.id).slice(0, max_evidence);
+    let remove = true;
+    let res = filtered;
 
     if (!filtered.length) {
-      await remove_role(msg.channel.guild.id, user.id, jailed_role);
-
-      return CommandResult.fromError(`There were no recent messages sent \
+      remove = true;
+      res = CommandResult.fromError(`There were no recent messages sent \
 by ${user.mention}.`);
     } else if (Date.now() - filtered[0].timestamp > recent) {
-      await remove_role(msg.channel.guild.id, user.id, jailed_role);
-
-      return CommandResult.fromError(`The most recent message sent by ${user.mention} is \
+      remove = true;
+      res = CommandResult.fromError(`The most recent message sent by ${user.mention} is \
 older than 5 minutes, consider getting a judge to grant a warrant for this user.`);
     }
 
-    return filtered;
+    if (remove) {
+      await remove_role(msg.channel.guild.id, user.id, jailed_role);
+    }
+
+    return res;
   }
 
   async verify(msg, member, content, to_detain, fetched) {
@@ -188,13 +193,6 @@ or else you will get impeached.`
   get_judges(guild, role, chief) {
     const g_role = guild.roles.get(role);
 
-    if (!g_role) {
-      return 0;
-    }
-
-    const members = guild.members.filter(x => (x.roles.includes(role) || x.roles.includes(chief))
-      && (x.status === 'online' || x.status === 'dnd'));
-
-    return members.length;
+    return g_role ? system.get_branch_members(guild, role, chief).length : 0;
   }
 }();

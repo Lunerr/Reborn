@@ -13,33 +13,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 'use strict';
-const { Argument, Command } = require('patron.js');
-const discord = require('../../utilities/discord.js');
+const { Precondition, PreconditionResult } = require('patron.js');
+const system = require('../../utilities/system.js');
 
-module.exports = new class KickFromCourt extends Command {
+module.exports = new class IsChief extends Precondition {
   constructor() {
-    super({
-      preconditions: ['court_only', 'court_case', 'judge_creator'],
-      args: [
-        new Argument({
-          example: 'Joeychin01',
-          key: 'member',
-          name: 'member',
-          type: 'member',
-          remainder: true
-        })
-      ],
-      description: 'Kicks a citizen from speaking at a hearing.',
-      groupName: 'courts',
-      names: ['kick_from_court']
-    });
+    super({ name: 'is_chief' });
   }
 
-  async run(msg, args) {
-    await msg.channel.deletePermission(args.member.id);
-    await discord.create_msg(
-      msg.channel,
-      `${discord.tag(msg.author).boldified}, ${args.member.mention} has been kicked from court.`
-    );
+  async run(cmd, msg) {
+    const chief_role = system.chief_role(msg.member);
+
+    if (!chief_role) {
+      return PreconditionResult.fromError(cmd, 'This command may only be used be a Chief.');
+    }
+
+    return PreconditionResult.fromSuccess();
   }
 }();

@@ -28,16 +28,6 @@ inactive due to the lack of recent activity shown towards the case.\n\
 You have been impeached for failing to fulfill your duties as a judge.\n\n\
 No verdict has been delivered and the prosecuted may be prosecuted again.';
 
-async function edit_case(guild, id) {
-  const new_case = db.get_case(id);
-  const { case_channel } = db.fetch('guilds', { guild_id: guild.id });
-  const c_channel = guild.channels.get(case_channel);
-
-  if (c_channel) {
-    await system.edit_case(c_channel, new_case);
-  }
-}
-
 async function impeach(guild, judge_id, defendant_id, judge_role, trial_role, jailed) {
   const j_role = guild.roles.get(judge_role);
   const t_role = guild.roles.get(trial_role);
@@ -85,7 +75,7 @@ async function close(c_case, guild, channel) {
       await system.close_case(msg, channel);
     }
 
-    await edit_case(guild, id);
+    await system.update_guild_case(id, guild);
   } else {
     const defendant = guild.members.get(defendant_id) || await client.getRESTUser(defendant_id);
     const cop = guild.members.get(plaintiff_id) || await client.getRESTUser(plaintiff_id);

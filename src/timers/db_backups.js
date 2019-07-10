@@ -21,32 +21,34 @@ const path = require('path');
 const mk_dir = util.promisify(fs.mkdir);
 const copy_file = util.promisify(fs.copyFile);
 const dir = path.join(__dirname, '../../', config.db_backup_dir);
+const files = [config.database, `${config.database}-shm`, `${config.database}-wal`];
 
-Timer(async () => {
-  await mk_dir(dir).catch(err => {
+function copy(name, dest) {
+  const src = path.join(__dirname, '../', name);
+  const out = path.join(dest, name);
+
+  return copy_file(src, out);
+}
+
+function create_dir(dest) {
+  return mk_dir(dest).catch(err => {
     if (err.code !== 'EEXIST') {
       throw err;
     }
   });
+}
+
+Timer(async () => {
+  await create_dir(dir);
 
   const format = new Date().toLocaleString().replace(/(\/|,|\s|:)+/g, '_');
   const backup_folder = path.join(dir, format);
 
-  await mk_dir(backup_folder).catch(err => {
-    if (err.code !== 'EEXIST') {
-      throw err;
-    }
-  });
-  await copy_file(
-    path.join(__dirname, '../', config.database),
-    path.join(backup_folder, config.database)
-  );
-  await copy_file(
-    path.join(__dirname, '../', `${config.database}-shm`),
-    path.join(backup_folder, `${config.database}-shm`)
-  );
-  await copy_file(
-    path.join(__dirname, '../', `${config.database}-wal`),
-    path.join(backup_folder, `${config.database}-wal`)
-  );
+  await create_dir(backup_folder);
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+
+    await copy(file, backup_folder);
+  }
 }, config.db_backup_time);

@@ -1,5 +1,5 @@
 module.exports = {
-  house: 0,
+  congress: 0,
   judge: 1,
   officer: 2
 };

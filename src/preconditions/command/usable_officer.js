@@ -26,12 +26,8 @@ module.exports = new class UsableOfficer extends Precondition {
     const { officer_role } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const role = msg.channel.guild.roles.get(officer_role);
 
-    if (!officer_role) {
+    if (!officer_role || !role) {
       return PreconditionResult.fromError(cmd, 'The Officer role needs to be set.');
-    } else if (!role) {
-      return PreconditionResult.fromError(
-        cmd, 'The Officer role was deleted and needs to be set again.'
-      );
     } else if (!discord.usable_role(msg.channel.guild, role)) {
       return PreconditionResult.fromError(cmd, 'The Officer role is higher than me in hierarchy.');
     }

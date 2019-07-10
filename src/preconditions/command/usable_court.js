@@ -25,12 +25,8 @@ module.exports = new class UsableCourt extends Precondition {
     const { court_category } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const channel = msg.channel.guild.channels.get(court_category);
 
-    if (!court_category) {
+    if (!court_category || !channel) {
       return PreconditionResult.fromError(cmd, 'The Court category channel needs to be set.');
-    } else if (!channel) {
-      return PreconditionResult.fromError(
-        cmd, 'The Court category channel was deleted and needs to be set again.'
-      );
     }
 
     return PreconditionResult.fromSuccess();

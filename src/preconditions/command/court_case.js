@@ -14,32 +14,18 @@
  */
 'use strict';
 const db = require('../../services/database.js');
-const discord = require('../../utilities/discord.js');
 const { Precondition, PreconditionResult } = require('patron.js');
 
-module.exports = new class ChiefJustice extends Precondition {
+module.exports = new class CourtCase extends Precondition {
   constructor() {
-    super({ name: 'chief_justice' });
+    super({ name: 'court_case' });
   }
 
   async run(cmd, msg) {
-    const { chief_justice_role } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
-    const role = msg.channel.guild.roles.get(chief_justice_role);
+    const c_case = db.get_channel_case(msg.channel.id);
 
-    if (!chief_justice_role) {
-      return PreconditionResult.fromError(cmd, 'the Chief Justice role needs to be set.');
-    } else if (!role) {
-      return PreconditionResult.fromError(
-        cmd, 'the Chief Justice role was deleted and needs to be set.'
-      );
-    } else if (!discord.usable_role(msg.channel.guild, role)) {
-      return PreconditionResult.fromError(
-        cmd, 'the Chief Justice role needs to be lower than me in hierarchy.'
-      );
-    } else if (!msg.member.roles.includes(chief_justice_role)) {
-      return PreconditionResult.fromError(
-        cmd, 'Only the Chief Justice may use this command'
-      );
+    if (!c_case) {
+      return PreconditionResult.fromError('This channel is not a court case.');
     }
 
     return PreconditionResult.fromSuccess();
