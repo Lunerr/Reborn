@@ -26,7 +26,7 @@ const create_message = catch_discord((...args) => client.createMessage(...args))
 const fetch = require('node-fetch');
 const delay = 2e3;
 const max_fetch = 100;
-const rl = 5;
+const rl = 4;
 
 module.exports = {
   get_main_channel(guild_id) {
