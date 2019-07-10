@@ -50,9 +50,9 @@ function format_time(time) {
   let format;
 
   if (total_hours) {
-    format = `${total_hours} hours`;
+    format = ` within ${total_hours} hours`;
   } else if (minutes) {
-    format = `${minutes} minutes`;
+    format = `within ${minutes} minutes`;
   } else {
     format = 'soon';
   }
@@ -89,11 +89,11 @@ async function dm(chief, guild, count) {
 
     if (!notification || elapsed) {
       const first = !notification
-        || !notification.last_notified ? '48 hours since this message' : format_time(left);
+        || !notification.last_notified ? ' within 48 hours since this message' : format_time(left);
 
       await discord.dm_fallback(mem.user, `Due to the lack of having at least ${min_online} \
 members of your branch online consistently, you will have to nominate ${min_nominations} or more \
-people using the \`!nominate\` command or you will be impeached within ${first}.`, guild);
+people using the \`!nominate\` command or you will be impeached ${first}.`, guild);
 
       if (notification) {
         db.set_last_dm(mem.id, guild.id, notifications.nominations, now);
