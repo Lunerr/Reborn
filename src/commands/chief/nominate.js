@@ -76,13 +76,9 @@ module.exports = new class Nominate extends Command {
         return CommandResult.fromError(str.format(has, branch_format));
       }
 
-      const role_name = has_gov
-        .split('_')
-        .slice(0, -1)
-        .map(str.to_uppercase)
-        .join(' ');
+      const role_name = has_gov.split('_').slice(0, -1).map(str.to_uppercase);
 
-      return CommandResult.fromError(str.format(reply, branch_format, role_name));
+      return CommandResult.fromError(str.format(reply, branch_format, role_name.join(' ')));
     }
 
     await this.add_role(msg.author, args.member, branch, branch_format, res);

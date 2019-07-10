@@ -34,17 +34,13 @@ module.exports = new class ChiefRolesSet extends Precondition {
     for (let i = 0; i < roles.length; i++) {
       const id = res[roles[i]];
       const role = msg.channel.guild.roles.get(id);
-      const name = roles[i]
-        .split('_')
-        .slice(0, -1)
-        .map(str.to_uppercase)
-        .join(' ');
+      const name = roles[i].split('_').slice(0, -1).map(str.to_uppercase);
 
       if (!id || !role) {
-        return PreconditionResult.fromError(cmd, `The ${name} role needs to be set.`);
+        return PreconditionResult.fromError(cmd, `The ${name.join(' ')} role needs to be set.`);
       } else if (!discord.usable_role(msg.channel.guild, role)) {
         return PreconditionResult.fromError(
-          cmd, `The ${name} role is higher in hierarchy than me.`
+          cmd, `The ${name.join(' ')} role is higher in hierarchy than me.`
         );
       }
     }
