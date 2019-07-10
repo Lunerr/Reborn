@@ -18,21 +18,37 @@
 'use strict';
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
+const system = require('../../utilities/system.js');
+const str = require('../../utilities/string.js');
 const { Precondition, PreconditionResult } = require('patron.js');
 
-module.exports = new class UsableCongress extends Precondition {
+module.exports = new class UsableGovRole extends Precondition {
   constructor() {
-    super({ name: 'usable_congress' });
+    super({ name: 'usable_gov_role' });
   }
 
-  async run(cmd, msg) {
-    const { congress_role } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
-    const role = msg.channel.guild.roles.get(congress_role);
+  async run(cmd, msg, options) {
+    const res = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+    let { roles } = options || {};
 
-    if (!congress_role || !role) {
-      return PreconditionResult.fromError(cmd, 'The Congress role needs to be set.');
-    } else if (!discord.usable_role(msg.channel.guild, role)) {
-      return PreconditionResult.fromError(cmd, 'The Congress role is higher than me in hierarchy.');
+    if (!roles) {
+      roles = system.gov_roles;
+    }
+
+    for (let i = 0; i < roles.length; i++) {
+      const id = res[roles[i]];
+      const role = msg.channel.guild.roles.get(id);
+      const name = roles[i].split('_').slice(0, -1).map(str.to_uppercase);
+
+      if (!id || !role) {
+        return PreconditionResult.fromError(
+          cmd, `The ${name.join(' ')} role needs to be set.`
+        );
+      } else if (!discord.usable_role(msg.channel.guild, role)) {
+        return PreconditionResult.fromError(
+          cmd, `The ${name.join(' ')} role is higher than me in hierarchy.`
+        );
+      }
     }
 
     return PreconditionResult.fromSuccess();

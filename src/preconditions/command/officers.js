@@ -33,13 +33,13 @@ module.exports = new class Officers extends Precondition {
     const is_chief = chief_officer_role && msg.member.roles.includes(chief_officer_role);
 
     if (!officer_role || !role || !discord.usable_role(msg.channel.guild, role)) {
-      return PreconditionResult.fromError(cmd, 'the Officer role needs to be set.');
+      return PreconditionResult.fromError(cmd, 'The Officer role needs to be set.');
     } else if (msg.member.roles.includes(officer_role) || is_chief) {
       return PreconditionResult.fromSuccess();
     }
 
     return PreconditionResult.fromError(
-      cmd, 'only Officers can use this command.'
+      cmd, 'Only Officers can use this command.'
     );
   }
 }();

@@ -34,13 +34,7 @@ const nominated = '{0}, You have nominated {1} to the {2} role.';
 module.exports = new class Nominate extends Command {
   constructor() {
     super({
-      preconditions: [
-        'usable_judge',
-        'usable_officer',
-        'usable_congress',
-        'chief_roles_set',
-        'is_chief'
-      ],
+      preconditions: ['usable_gov_role', 'chief_roles_set', 'is_chief'],
       args: [
         new Argument({
           example: 'Ashley',

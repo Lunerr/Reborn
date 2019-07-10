@@ -45,7 +45,8 @@ const dots = '...';
 module.exports = new class Arrest extends Command {
   constructor() {
     super({
-      preconditions: ['can_trial', 'usable_officer', 'usable_court'],
+      preconditions: ['can_trial', 'usable_gov_role', 'usable_court'],
+      preconditionOptions: [{}, { roles: ['officer_role'] }],
       args: [
         new Argument({
           example: '845',

@@ -30,7 +30,7 @@ module.exports = new class CanJail extends Precondition {
     const role = msg.channel.guild.roles.get(jailed_role);
 
     if (!jailed_role || !role || !discord.usable_role(msg.channel.guild, role)) {
-      return PreconditionResult.fromError(cmd, 'the Jailed role needs to be set.');
+      return PreconditionResult.fromError(cmd, 'The Jailed role needs to be set.');
     }
 
     return PreconditionResult.fromSuccess();

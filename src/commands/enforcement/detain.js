@@ -33,7 +33,8 @@ const recent = 3e5;
 module.exports = new class Detain extends Command {
   constructor() {
     super({
-      preconditions: ['can_jail', 'usable_court', 'usable_officer', 'usable_judge'],
+      preconditions: ['can_jail', 'usable_court', 'usable_gov_role'],
+      preconditionOptions: [{}, {}, { roles: ['officer_role', 'judge_role'] }],
       args: [
         new Argument({
           example: 'Serena',
