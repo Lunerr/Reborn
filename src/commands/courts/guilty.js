@@ -83,7 +83,7 @@ module.exports = new class Guilty extends Command {
         return CommandResult.fromError('A sentence must be given.');
       } else if (args.sentence !== empty_argument && !mute) {
         return CommandResult.fromError('The accused must be convicted of at least three \
-  misdemeanors of this crime before a prison sentence is permissible.');
+misdemeanors of this crime before a prison sentence is permissible.');
       }
 
       const prefix = `${discord.tag(msg.author).boldified}, `;
