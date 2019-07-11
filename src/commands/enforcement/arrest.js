@@ -88,6 +88,10 @@ module.exports = new class Arrest extends Command {
       } = res;
       const judge = this.get_judge(msg.channel.guild, args.warrant, judge_role, chief);
 
+      if (!judge) {
+        return CommandResult.fromError('There is no judge to serve the case.');
+      }
+
       await this.set_up({
         guild: msg.channel.guild, defendant, judge, officer: msg.author, trial_role,
         warrant: args.warrant, category: court_category, jailed: jailed_role
@@ -252,7 +256,7 @@ the prosecutor and defendant have the right to request a qualified and earnest a
     let judge = guild.members
       .filter(mbr => mbr.roles.includes(judge_role) || mbr.roles.includes(chief));
 
-    if (judge.length > 1) {
+    if (judge.length >= 1) {
       judge.splice(judge.findIndex(mbr => mbr.id === warrant.judge_id), 1);
 
       const defendant = judge.findIndex(x => x.id === warrant.defendant_id);
@@ -276,6 +280,6 @@ the prosecutor and defendant have the right to request a qualified and earnest a
 
     judge = judge[Math.floor(Math.random() * judge.length)];
 
-    return judge;
+    return judge || null;
   }
 }();
