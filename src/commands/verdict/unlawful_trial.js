@@ -37,8 +37,9 @@ module.exports = new class UnlawfulTrial extends Command {
           remainder: true
         })
       ],
-      description: 'The case gets marked as an unlawful mistrial. The prosector and the approving \
-judge gets impeached. This does not prevent the defendant from being prosecuted again.',
+      description: 'The case gets marked as an unlawful trial. As a result of this, the prosector \
+and the approving judge gets impeached. This does not prevent the defendant from being prosecuted \
+again.',
       groupName: 'verdicts',
       names: ['unlawful_trial', 'unjust_trial']
     });
