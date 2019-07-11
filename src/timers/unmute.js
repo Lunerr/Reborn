@@ -69,7 +69,7 @@ Timer(async () => {
 
       if (defendant && imprisoned_role && defendant.roles.includes(imprisoned_role)) {
         await remove_role(guild.id, defendant.id, imprisoned_role, 'Auto unmute');
-      } else {
+      } else if (!defendant) {
         await unban(verdicts[i].guild_id, verdicts[i].defendant_id, 'Auto unmute');
       }
 
