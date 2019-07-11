@@ -76,6 +76,6 @@ module.exports = new class AddLaw extends Command {
     const { law_channel } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const channel = msg.channel.guild.channels.get(law_channel);
 
-    return system.add_law(channel, law);
+    return system.update_laws(channel, laws.concat(law));
   }
 }();
