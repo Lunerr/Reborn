@@ -27,7 +27,7 @@ module.exports = new class Update extends Command {
   constructor() {
     super({
       description: 'Updates and restarts the bot.',
-      groupName: 'owners',
+      groupName: 'bot_owners',
       names: ['update', 'reboot', 'restart']
     });
   }
