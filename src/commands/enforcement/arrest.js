@@ -125,8 +125,8 @@ module.exports = new class Arrest extends Command {
   }
 
   async set_up({ guild, defendant, judge, officer, warrant, trial_role, jailed, category }) {
-    const channel_name_cop = discord.formatUsername(officer.username).trim() || officer.id;
-    const channel_name_def = discord.formatUsername(defendant.username).trim() || defendant.id;
+    const channel_name_cop = discord.formatUsername(officer.username).trim() || 'reborn';
+    const channel_name_def = discord.formatUsername(defendant.username).trim() || 'the_people';
     const channel = await create_channel(
       guild.id,
       `${channel_name_cop}-VS-${channel_name_def}`,
