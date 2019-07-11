@@ -41,7 +41,7 @@ detain_approved: 3e4
 auto_dm_nominations: 6e4
 
 # Time until verification is denied in ms.
-verify_timeout: 3e5
+verify_timeout: 6e4
 
 # Time units
 time_units: {
