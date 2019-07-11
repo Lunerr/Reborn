@@ -23,14 +23,14 @@ const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
 const verdict = require('../enums/verdict.js');
 
-async function dm(member, judge_id) {
-  const judge = member.guild.members.get(judge_id) || await client.getRESTUser(judge_id);
+async function dm(guild, user, judge_id) {
+  const judge = guild.members.get(judge_id) || await client.getRESTUser(judge_id);
 
   return discord.dm(
-    member.user,
+    user,
     `You have served your sentence, delivered by ${judge.mention}, \
-and you have been freed in ${member.guild.name}.`,
-    member.guild
+and you have been freed in ${guild.name}.`,
+    guild
   );
 }
 
@@ -61,13 +61,13 @@ Timer(async () => {
         continue;
       }
 
-      const defendant = guild.members.get(verdicts[i].defendant_id);
+      const user = await client.getRESTUser(verdicts[i].defendant_id);
 
       await client.unbanGuildMember(verdicts[i].guild_id, verdicts[i].defendant_id, 'Auto unmute');
 
       const c_case = db.get_case(verdicts[i].case_id);
 
-      await dm(defendant, c_case ? c_case.judge_id : '');
+      await dm(guild, user, c_case ? c_case.judge_id : '');
     }
   }
 }, config.auto_unmute);

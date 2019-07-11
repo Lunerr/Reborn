@@ -150,10 +150,6 @@ charged with committing a misdemeanor'}.`;
     }
 
     const add_sentence = law.mandatory_felony || (!law.mandatory_felony && mute);
-    const {
-      trial_role, jailed_role
-    } = db.fetch('guilds', { guild_id: ids.guild });
-    const in_server = guild.members.has(ids.defendant);
 
     if (add_sentence && sentence !== empty_argument) {
       update.sentence = sentence;
@@ -161,17 +157,12 @@ charged with committing a misdemeanor'}.`;
       const time = this.get_time(sentence, true);
       const invite = await discord.get_infinite_invite(client.guilds.get(ids.guild));
 
-      await discord.dm(client.getRESTUser(ids.defendant), `You have been found guilty and will be \
-able to join back in ${time}.\n\nhttps://discord.gg/${invite.code}`);
-      await client.banGuildMember(ids.guild, ids.defendant, 0, 'Found guilty');
+      await discord.dm(await client.getRESTUser(ids.defendant), `You have been found guilty in \
+${guild.name} and will be able to join back in ${time}.\n\nhttps://discord.gg/${invite.code}`);
+      await client.banGuildMember(ids.guild, ids.defendant, 0, `Found guilty (${time})`);
     }
 
     const { lastInsertRowid: id } = db.insert('verdicts', update);
-
-    if (in_server) {
-      await system.free_from_court(ids.guild, ids.defendant, [trial_role, jailed_role]);
-    }
-
     const c_case = db.get_case(id);
     const { case_channel } = db.fetch('guilds', { guild_id: ids.guild });
     const c_channel = client.guilds.get(ids.guild).channels.get(case_channel);
