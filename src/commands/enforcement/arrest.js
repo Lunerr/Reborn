@@ -22,6 +22,7 @@ const client = require('../../services/client.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
+const reg = require('../../services/registry.js');
 const create_channel = catch_discord(client.createChannel.bind(client));
 const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
@@ -37,8 +38,8 @@ Furthermore, if you perform this arrest, **you will need to prosecute it in cour
 This may take days. This will be time consuming. If you fail to properly prosecute the case, \
 you will be impeached.
 
-If you are sure you wish to proceed with the arrest given the aforementioned terms, please \
-type \`yes\`.`;
+If you are sure you wish to proceed with the arrest given the aforementioned terms \
+and have reviewed the necessary information, please type \`yes\`.`;
 const max_len = 15e2;
 const dots = '...';
 
@@ -162,8 +163,22 @@ the prosecutor and defendant have the right to request a qualified and earnest a
       }
     }
 
+    await this.send_cmds(channel);
     await sent.pin();
     await this.close(channel, warrant, defendant.id, judge.id, officer.id, trial_role, jailed);
+  }
+
+  send_cmds(channel) {
+    const group = reg.groups.find(x => x.name === 'verdicts');
+    let str = 'The Verdict Commands\n';
+
+    for (let i = 0; i < group.commands.length; i++) {
+      const cmd = group.commands[i];
+
+      str += `${cmd.names[0]}: ${cmd.description}\n`;
+    }
+
+    return channel.createMessage(str);
   }
 
   get_index(string, char, max) {

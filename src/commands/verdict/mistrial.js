@@ -22,12 +22,12 @@ const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
 
-module.exports = new class Guilty extends Command {
+module.exports = new class Mistrial extends Command {
   constructor() {
     super({
-      preconditions: ['court_only', 'can_trial', 'can_imprison', 'judge_creator'],
-      description: 'Impeaches the prosecutor.',
-      groupName: 'courts',
+      description: 'The case gets marked as a mistrial. This does not prevent the prosecutor \
+from prosecuting the defendant again.',
+      groupName: 'verdicts',
       names: ['mistrial']
     });
   }

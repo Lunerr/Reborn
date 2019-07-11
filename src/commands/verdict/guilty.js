@@ -35,12 +35,11 @@ If you have **ANY DOUBTS WHATSOEVER ABOUT THIS CASE**, render a not guilty verdi
 __IGNORANCE IS NOT A DEFENSE.__
 
 If you are sure about declaring the defendant guilty given the aforementioned \
-terms, please type \`yes\`.`;
+terms and have reviewed the necessary information, please type \`yes\`.`;
 
 module.exports = new class Guilty extends Command {
   constructor() {
     super({
-      preconditions: ['court_only', 'can_trial', 'can_imprison', 'judge_creator'],
       args: [
         new Argument({
           example: '"Criminal scum!"',
@@ -56,8 +55,8 @@ module.exports = new class Guilty extends Command {
           defaultValue: empty_argument
         })
       ],
-      description: 'Declares a guilty verdict in court.',
-      groupName: 'courts',
+      description: 'Renders a guilty verdict in the court case.',
+      groupName: 'verdicts',
       names: ['guilty']
     });
     this.mutex = new MultiMutex();

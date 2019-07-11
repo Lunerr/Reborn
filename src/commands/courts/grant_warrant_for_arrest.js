@@ -28,8 +28,8 @@ do not proceed with this warrant.
 
 __IGNORANCE IS NOT A DEFENSE.__
 
-If you are sure you wish to proceed with the warrant given the aforementioned terms, \
-please type \`yes\`.`;
+If you are sure you wish to proceed with the warrant given the aforementioned terms \
+and have reviewed the necessary information, please type \`yes\`.`;
 const empty_argument = Symbol('Empty Argument');
 
 module.exports = new class GrantWarrantForArrest extends Command {

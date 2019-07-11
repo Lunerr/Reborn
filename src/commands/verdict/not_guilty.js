@@ -26,7 +26,6 @@ const system = require('../../utilities/system.js');
 module.exports = new class NotGuilty extends Command {
   constructor() {
     super({
-      preconditions: ['court_only', 'court_case', 'can_trial', 'judge_creator'],
       args: [
         new Argument({
           example: 'Set this man free!',
@@ -36,8 +35,8 @@ module.exports = new class NotGuilty extends Command {
           remainder: true
         })
       ],
-      description: 'Declares an innocent verdict in court.',
-      groupName: 'courts',
+      description: 'Renders a not guilty verdict in the court case.',
+      groupName: 'verdicts',
       names: ['not_guilty']
     });
   }

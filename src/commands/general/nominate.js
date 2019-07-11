@@ -47,7 +47,7 @@ module.exports = new class Nominate extends Command {
         })
       ],
       description: 'Nominates a member to your branch.',
-      groupName: 'chief',
+      groupName: 'general',
       names: ['nominate']
     });
   }

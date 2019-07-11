@@ -30,7 +30,7 @@ do not proceed with this approval.
 __IGNORANCE IS NOT A DEFENSE.__
 
 If you are sure you wish to proceed with the approval this detainment given the aforementioned \
-terms, please type \`yes\`.`;
+terms and have reviewed the necessary information, please type \`yes\`.`;
 
 module.exports = new class ApproveDetainment extends Command {
   constructor() {

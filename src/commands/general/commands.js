@@ -19,6 +19,7 @@
 const { Command } = require('patron.js');
 const registry = require('../../services/registry.js');
 const discord = require('../../utilities/discord.js');
+const str = require('../../utilities/string.js');
 const { config: { prefix } } = require('../../services/data.js');
 
 module.exports = new class Commands extends Command {
@@ -36,30 +37,16 @@ module.exports = new class Commands extends Command {
       title: 'Commands',
       fields: []
     };
+    const sorted = groups.sort((a, b) => a.commands.length - b.commands.length);
 
-    for (let i = 0; i < groups.length; i++) {
-      const group = groups[i];
+    for (let i = 0; i < sorted.length; i++) {
+      const group = sorted[i];
       const g_name = group.name[0].toUpperCase() + group.name.slice(1);
+      const commands = str.list(group.commands.map(x => `\`${prefix}${x.names[0]}\``));
 
       embed.fields.push({
-        name: g_name, value: '', inline: true
+        name: g_name, value: commands, inline: true
       });
-
-      for (let j = 0; j < group.commands.length; j++) {
-        const command = group.commands[j];
-
-        embed.fields[embed.fields.length - 1].value += `\`${prefix}${command.names[0]}\``;
-
-        if (j !== group.commands.length - 1 && group.commands.length - 1 !== 1) {
-          embed.fields[embed.fields.length - 1].value += ',';
-        }
-
-        embed.fields[embed.fields.length - 1].value += ' ';
-
-        if (j + 1 === group.commands.length - 1) {
-          embed.fields[embed.fields.length - 1].value += 'and ';
-        }
-      }
     }
 
     await msg.channel.createMessage(discord.embed(embed));
