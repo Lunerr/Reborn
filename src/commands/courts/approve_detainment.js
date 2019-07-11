@@ -59,6 +59,8 @@ module.exports = new class ApproveDetainment extends Command {
         return CommandResult.fromError('This detainment has already been executed.');
       } else if (warrant.approved === 1) {
         return CommandResult.fromError('This detainment has already been approved.');
+      } else if (warrant.defendant_id === msg.author.id) {
+        return CommandResult.fromError('You cannot approve a detainment that\'s against you.');
       }
 
       const res = await discord.verify(msg, content);
