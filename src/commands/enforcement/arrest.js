@@ -178,7 +178,7 @@ the prosecutor and defendant have the right to request a qualified and earnest a
     for (let i = 0; i < group.commands.length; i++) {
       const cmd = group.commands[i];
 
-      embed.description += `\`${config.prefix}${cmd.names[0]}\`: ${cmd.description}\n`;
+      embed.description += `\`${config.prefix}${cmd.names[0]}\`: \`${cmd.description}\`\n`;
     }
 
     return channel.createMessage(embed);
