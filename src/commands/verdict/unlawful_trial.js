@@ -33,7 +33,8 @@ module.exports = new class UnlawfulTrial extends Command {
           example: 'Corrupt penis man officer',
           name: 'reason',
           key: 'reason',
-          type: 'reason'
+          type: 'string',
+          remainder: true
         })
       ],
       description: 'The case gets marked as an unlawful mistrial. The prosector and the approving \
