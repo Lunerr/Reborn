@@ -189,7 +189,7 @@ module.exports = {
     let main_channel = this.get_main_channel(guild.id);
 
     if (!main_channel) {
-      main_channel = guild.channels.filter(x => x.type === 0);
+      main_channel = guild.channels.find(x => x.type === 0);
     }
 
     return main_channel.createInvite({
