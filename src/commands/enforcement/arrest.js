@@ -18,6 +18,7 @@
 'use strict';
 const { Argument, Command, CommandResult, MultiMutex } = require('patron.js');
 const catch_discord = require('../../utilities/catch_discord.js');
+const { config } = require('../../services/data.js');
 const client = require('../../services/client.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
@@ -170,15 +171,17 @@ the prosecutor and defendant have the right to request a qualified and earnest a
 
   send_cmds(channel) {
     const group = reg.groups.find(x => x.name === 'verdicts');
-    let str = 'The Verdict Commands\n';
+    const embed = discord.embed({
+      title: 'The Verdict Commands', description: ''
+    });
 
     for (let i = 0; i < group.commands.length; i++) {
       const cmd = group.commands[i];
 
-      str += `${cmd.names[0]}: ${cmd.description}\n`;
+      embed.description += `\`${config.prefix}${cmd.names[0]}\`: ${cmd.description}\n`;
     }
 
-    return channel.createMessage(str);
+    return channel.createMessage(embed);
   }
 
   get_index(string, char, max) {
