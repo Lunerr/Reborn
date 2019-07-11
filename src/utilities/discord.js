@@ -178,6 +178,27 @@ module.exports = {
     return { success: true };
   },
 
+  async get_infinite_invite(guild) {
+    const invites = await guild.getInvites();
+    const inf_invite = invites.find(x => x.maxAge === 0 && x.maxUses === 0);
+
+    if (inf_invite) {
+      return inf_invite;
+    }
+
+    let main_channel = this.get_main_channel(guild.id);
+
+    if (!main_channel) {
+      main_channel = guild.channels.filter(x => x.type === 0);
+    }
+
+    return main_channel.createInvite({
+      maxAge: 0,
+      maxUses: 0,
+      temporary: false
+    });
+  },
+
   async verify_msg(msg, content, file, verify = 'I\'m sure') {
     const lower = verify.toLowerCase();
     const fn = m => m.author.id === msg.author.id && m.content.toLowerCase() === lower;

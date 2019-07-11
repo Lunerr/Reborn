@@ -17,14 +17,12 @@
  */
 'use strict';
 const { Argument, Command, CommandResult, MultiMutex } = require('patron.js');
-const catch_discord = require('../../utilities/catch_discord.js');
 const client = require('../../services/client.js');
 const verdict = require('../../enums/verdict.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
 const system = require('../../utilities/system.js');
-const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const empty_argument = Symbol('Empty Argument');
 const hours_per_day = 24;
 const content = `Rendering a guilty verdict when there remains a reasonable doubt will result in \
@@ -99,10 +97,7 @@ misdemeanors of this crime before a prison sentence is permissible.');
   }
 
   async end(msg, { law, sentence, defendant_id, opinion, case_id }) {
-    const { days, hours } = sentence === empty_argument ? {
-      days: 0, hours: 0
-    } : number.msToTime(sentence);
-    const time = (days * hours_per_day) + hours;
+    const time = this.get_time(sentence);
     const def = msg.channel.guild.members.get(defendant_id)
       || await client.getRESTUser(defendant_id);
     const repeated = await this.shouldMute({
@@ -112,13 +107,32 @@ misdemeanors of this crime before a prison sentence is permissible.');
       opinion, sentence, law, guild: msg.channel.guild
     });
     const ending = `${law.mandatory_felony || (!law.mandatory_felony && repeated) ? `sentenced to \
-${time} hours in prison${repeated ? ` for repeatedly breaking the law \`${law.name}\`` : ''}` : '\
+${time} in prison${repeated ? ` for repeatedly breaking the law \`${law.name}\`` : ''}` : '\
 charged with committing a misdemeanor'}.`;
 
     await discord.create_msg(
       msg.channel, `${def.mention} has been found guilty and ${ending}`
     );
     await system.close_case(msg, msg.channel);
+  }
+
+  get_time(time, soon = false) {
+    if (typeof time === 'number') {
+      const { days, hours, minutes, seconds } = number.msToTime(time);
+      const total_hours = (days * hours_per_day) + hours;
+
+      if (total_hours) {
+        return `${hours} hours${minutes ? ` ${minutes} minutes` : ''}`;
+      } else if (minutes) {
+        return `${minutes} minutes${seconds ? ` ${seconds} seconds` : ''}`;
+      } else if (seconds || !soon) {
+        return `${seconds} seconds`;
+      }
+
+      return 'a short period';
+    }
+
+    return '';
   }
 
   async shouldMute({ ids, opinion, sentence, law, guild }) {
@@ -135,15 +149,21 @@ charged with committing a misdemeanor'}.`;
       mute = system.mute_felon(ids.guild, ids.defendant, law);
     }
 
-    const addSentence = law.mandatory_felony || (!law.mandatory_felony && mute);
+    const add_sentence = law.mandatory_felony || (!law.mandatory_felony && mute);
     const {
-      trial_role, imprisoned_role, jailed_role
+      trial_role, jailed_role
     } = db.fetch('guilds', { guild_id: ids.guild });
     const in_server = guild.members.has(ids.defendant);
 
-    if (in_server && sentence !== empty_argument && addSentence) {
+    if (add_sentence && sentence !== empty_argument) {
       update.sentence = sentence;
-      await add_role(ids.guild, ids.defendant, imprisoned_role);
+
+      const time = this.get_time(sentence, true);
+      const invite = await discord.get_infinite_invite(client.guilds.get(ids.guild));
+
+      await discord.dm(client.getRESTUser(ids.defendant), `You have been found guilty and will be \
+able to join back in ${time}.\n\nhttps://discord.gg/${invite.code}`);
+      await client.banGuildMember(ids.guild, ids.defendant, 0, 'Found guilty');
     }
 
     const { lastInsertRowid: id } = db.insert('verdicts', update);

@@ -16,14 +16,12 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
-const catch_discord = require('../utilities/catch_discord.js');
 const discord = require('../utilities/discord.js');
 const client = require('../services/client.js');
 const { config } = require('../services/data.js');
 const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
 const verdict = require('../enums/verdict.js');
-const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 
 async function dm(member, judge_id) {
   const judge = member.guild.members.get(judge_id) || await client.getRESTUser(judge_id);
@@ -64,13 +62,8 @@ Timer(async () => {
       }
 
       const defendant = guild.members.get(verdicts[i].defendant_id);
-      const { imprisoned_role } = db.fetch('guilds', { guild_id: verdicts[i].guild_id });
 
-      if (!defendant || !imprisoned_role || !defendant.roles.includes(imprisoned_role)) {
-        continue;
-      }
-
-      await remove_role(guild.id, defendant.id, imprisoned_role, 'Auto unmute');
+      await client.unbanGuildMember(verdicts[i].guild_id, verdicts[i].defendant_id, 'Auto unmute');
 
       const c_case = db.get_case(verdicts[i].case_id);
 
