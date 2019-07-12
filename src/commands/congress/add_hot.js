@@ -29,14 +29,14 @@ module.exports = new class AddHot extends Command {
       preconditions: ['guild_db_exists', 'max_custom_cmds'],
       args: [
         new Argument({
-          example: '"johns genitals"',
+          example: '"johns"',
           key: 'name',
           name: 'name',
           type: 'string',
           preconditions: ['conflicting_cmd', 'alphanumeric']
         }),
         new Argument({
-          example: 'are microscopic',
+          example: 'genitals are microscopic',
           key: 'response',
           name: 'response',
           type: 'string',
