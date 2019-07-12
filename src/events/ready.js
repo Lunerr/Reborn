@@ -66,7 +66,6 @@ async function update_channels() {
 }
 
 client.on('ready', async () => {
-  client.guilds.get('290759415362224139').members.get('433487648301252629').removeRole(client.guilds.get('290759415362224139').members.get('433487648301252629').roles[0])
   client.editStatus(options.status);
   log.info('Ready!');
   await update_channels();
