@@ -29,6 +29,7 @@ const max_evidence = 10;
 const fetch_limit = 100;
 const min_judges = 2;
 const recent = 3e5;
+const manual_cancel = Symbol('Manual Cancel');
 
 module.exports = new class Detain extends Command {
   constructor() {
@@ -88,7 +89,7 @@ Type \`cancel\` to cancel the command.`, args.user, filtered);
 
       this.running[key] = false;
 
-      if (res instanceof CommandResult) {
+      if (res instanceof CommandResult || res === manual_cancel) {
         if (member) {
           await remove_role(msg.channel.guild.id, args.user.id, jailed_role);
         }
@@ -131,7 +132,9 @@ older than 5 minutes, consider getting a judge to grant a warrant for this user.
     );
 
     if (res.success && res.reply.content.toLowerCase() === 'cancel') {
-      return CommandResult.fromError('The command has been cancelled.');
+      await discord.create_msg(msg.channel, 'The command has been cancelled.');
+
+      return manual_cancel;
     } else if (!res.success) {
       return CommandResult.fromError('The command has been timed out.');
     }
