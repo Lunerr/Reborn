@@ -132,7 +132,9 @@ older than 5 minutes, consider getting a judge to grant a warrant for this user.
     );
 
     if (res.success && res.reply.content.toLowerCase() === 'cancel') {
-      await discord.create_msg(msg.channel, 'The command has been cancelled.');
+      const prefix = `${discord.tag(msg.author).boldified}, `;
+
+      await discord.create_msg(msg.channel, `${prefix}The command has been cancelled.`);
 
       return manual_cancel;
     } else if (!res.success) {
