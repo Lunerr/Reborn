@@ -60,6 +60,21 @@ function format_time(time) {
   return format;
 }
 
+function upsert_notification(member_id, guild_id, time, exists) {
+  if (exists) {
+    db.set_last_dm(member_id, guild_id, notifications.nominations, time);
+    db.set_last_notified(member_id, guild_id, notifications.nominations, time);
+  } else {
+    db.insert('notifications', {
+      guild_id,
+      member_id,
+      type: notifications.nominations,
+      last_dm: time,
+      last_notified: time
+    });
+  }
+}
+
 async function dm(chief, guild, count) {
   const now = Date.now();
   const to_dm = guild.members.filter(x => x.roles.includes(chief));
@@ -94,19 +109,7 @@ async function dm(chief, guild, count) {
       await discord.dm_fallback(mem.user, `Due to the lack of having at least ${min_online} \
 members of your branch online consistently, you will have to nominate ${min_nominations} or more \
 people using the \`!nominate\` command or you will be impeached ${first}.`, guild);
-
-      if (notification) {
-        db.set_last_dm(mem.id, guild.id, notifications.nominations, now);
-        db.set_last_notified(mem.id, guild.id, notifications.nominations, now);
-      } else {
-        db.insert('notifications', {
-          guild_id: guild.id,
-          member_id: mem.id,
-          type: notifications.nominations,
-          last_dm: now,
-          last_notified: now
-        });
-      }
+      upsert_notification(mem.id, guild.id, now, notification);
     }
   }
 }
