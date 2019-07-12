@@ -257,7 +257,11 @@ the prosecutor and defendant have the right to request a qualified and earnest a
       .filter(mbr => mbr.roles.includes(judge_role) || mbr.roles.includes(chief));
 
     if (judge.length >= 1) {
-      judge.splice(judge.findIndex(mbr => mbr.id === warrant.judge_id), 1);
+      const warrant_judge = judge.findIndex(mbr => mbr.id === warrant.judge_id)
+
+      if (warrant_judge !== -1) {
+        judge.splice(warrant_judge, 1);
+      }
 
       const defendant = judge.findIndex(x => x.id === warrant.defendant_id);
 
