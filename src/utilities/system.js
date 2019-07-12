@@ -174,7 +174,10 @@ module.exports = {
       return null;
     }
 
-    return Number(embed.description.split('**ID:** ')[1].split('\n')[0]);
+    const split = embed.description.split('**ID:** ');
+    const parsed_id = split[1] ? split[1].split('\n') : null;
+
+    return parsed_id && !isNaN(parsed_id[0] ? Number(parsed_id[0]) : null;
   },
 
   async should_prune(channel, arr, fn) {
