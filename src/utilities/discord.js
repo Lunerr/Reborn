@@ -175,7 +175,11 @@ module.exports = {
 
   async get_infinite_invite(guild) {
     const invites = await guild.getInvites();
-    const inf_invite = invites.find(x => x.maxAge === 0 && x.maxUses === 0);
+    const inf_invite = invites.find(
+      x => x.inviter
+        && x.inviter.id === client.user.id
+        && x.maxAge === 0 && x.maxUses === 0
+    );
 
     if (inf_invite) {
       return inf_invite;
@@ -185,6 +189,10 @@ module.exports = {
 
     if (!main_channel) {
       main_channel = guild.channels.find(x => x.type === 0);
+
+      if (!main_channel) {
+        return null;
+      }
     }
 
     return main_channel.createInvite({

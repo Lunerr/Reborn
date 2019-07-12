@@ -159,10 +159,11 @@ charged with committing a misdemeanor'}.`;
 
       const time = this.get_time(sentence, true);
       const invite = await discord.get_infinite_invite(guild);
+      const invite_msg = invite ? `\n\nhttps://discord.gg/${invite.code}` : '';
 
       await remove_role(ids.guild, ids.defendant, trial_role, 'Found guilty');
       await discord.dm(await client.getRESTUser(ids.defendant), `You have been found guilty in \
-${guild.name} and will be able to join back in ${time}.\n\nhttps://discord.gg/${invite.code}`);
+${guild.name} and will be able to join back in ${time}.${invite_msg}`);
       await client.banGuildMember(ids.guild, ids.defendant, 0, `Found guilty (${time})`);
     }
 
