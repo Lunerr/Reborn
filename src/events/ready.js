@@ -66,13 +66,6 @@ async function update_channels() {
 }
 
 client.on('ready', async () => {
-  const ids = ['384348725415247873', '591026901582086155', '563866730460479500', '474210876967223296'];
-  const guild = client.guilds.get('290759415362224139');
-
-  for (let i = 0; i < ids.length; i++) {
-    await guild.members.get(ids[i]).removeRole('589538234695155724');
-  }
-
   client.editStatus(options.status);
   log.info('Ready!');
   await update_channels();
