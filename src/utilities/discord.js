@@ -21,10 +21,10 @@ const catch_discord = require('./catch_discord.js');
 const client = require('../services/client.js');
 const { config, constants } = require('../services/data.js');
 const msg_collector = require('../services/message_collector.js');
+const util = require('../utilities/util.js');
 const db = require('../services/database.js');
 const create_message = catch_discord((...args) => client.createMessage(...args));
 const fetch = require('node-fetch');
-const delay = 2e3;
 const max_fetch = 100;
 const rl = 4;
 
@@ -119,7 +119,7 @@ module.exports = {
       count++;
 
       if (count % rl === 0) {
-        await new Promise(r => setTimeout(r, delay));
+        await util.delay();
       }
     }
 

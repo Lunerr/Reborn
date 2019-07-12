@@ -23,6 +23,7 @@ const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
 const discord = require('../utilities/discord.js');
 const log = require('../utilities/logger.js');
+const util = require('../utilities/util.js');
 const expiration = 18e5;
 const mutex = new MultiMutex();
 const chunk_size = 100;
@@ -71,6 +72,7 @@ const bad_words = [
 ];
 const reg = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g;
 const msg_limit = 2e3;
+const rl = 4;
 
 function chunk(arr, size) {
   const chunked = [];
@@ -100,10 +102,18 @@ async function purify(channel) {
 
     for (let i = 0; i < chunked.length; i++) {
       await channel.deleteMessages(chunked[i]).catch(() => null);
+
+      if (i % rl === 0) {
+        await util.delay();
+      }
     }
 
     for (let i = 0; i < single_del.length; i++) {
       await channel.deleteMessage(single_del[i].id, 'Contained profane content').catch(() => null);
+
+      if (i % rl === 0) {
+        await util.delay();
+      }
     }
 
     if (bulk_del.length || single_del.length) {
