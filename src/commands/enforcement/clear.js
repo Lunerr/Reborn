@@ -60,7 +60,7 @@ module.exports = new class Clear extends Command {
 
       if (!roles.some(x => x === trial_role || x === jailed_role || x === imprisoned_role)) {
         return CommandResult.fromError('You can only clear a user\'s messages if they have the \
-  Trial role, Jailed role, or Imprisoned role.');
+Trial role, Jailed role, or Imprisoned role.');
       }
     }
 
