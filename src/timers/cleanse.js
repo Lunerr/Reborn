@@ -140,6 +140,7 @@ Timer(async () => {
 
     const public_channels = db.fetch_channels(guild.id);
     const channels = public_channels
+      .filter(x => x.active === 1)
       .map(x => guild.channels.get(x.channel_id))
       .filter(
         x => x
