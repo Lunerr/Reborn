@@ -24,7 +24,7 @@ const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
 const system = require('../../utilities/system.js');
 const catch_discord = require('../../utilities/catch_discord.js');
-const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
+const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const empty_argument = Symbol('Empty Argument');
 const hours_per_day = 24;
 const content = `Rendering a guilty verdict when there remains a reasonable doubt will result in \
@@ -152,25 +152,19 @@ charged with committing a misdemeanor'}.`;
     }
 
     const add_sentence = law.mandatory_felony || (!law.mandatory_felony && mute);
-    const { jailed_role, trial_role, case_channel } = db.fetch('guilds', { guild_id: ids.guild });
+    const {
+      jailed_role, trial_role, imprisoned_role, case_channel
+    } = db.fetch('guilds', { guild_id: ids.guild });
+    const in_server = guild.members.has(ids.defendant);
 
-    if (add_sentence && sentence !== empty_argument) {
+    if (in_server && add_sentence && sentence !== empty_argument) {
       update.sentence = sentence;
-
-      const time = this.get_time(sentence, true);
-      const invite = await discord.get_infinite_invite(guild);
-      const invite_msg = invite ? `\n\nhttps://discord.gg/${invite.code}` : '';
-
-      await remove_role(ids.guild, ids.defendant, trial_role, 'Found guilty');
-      await discord.dm(await client.getRESTUser(ids.defendant), `You have been found guilty in \
-${guild.name} and will be able to join back in ${time}.${invite_msg}`);
-      await client.banGuildMember(ids.guild, ids.defendant, 0, `Found guilty (${time})`);
+      await add_role(ids.guild, ids.defendant, imprisoned_role);
     }
 
     const { lastInsertRowid: id } = db.insert('verdicts', update);
-    const in_server = guild.members.has(ids.defendant);
 
-    if (in_server && !add_sentence) {
+    if (in_server) {
       await system.free_from_court(ids.guild, ids.defendant, [trial_role, jailed_role]);
     }
 

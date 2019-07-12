@@ -24,7 +24,6 @@ const Timer = require('../utilities/timer.js');
 const verdict = require('../enums/verdict.js');
 const catch_discord = require('../utilities/catch_discord.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
-const unban = catch_discord(client.unbanGuildMember.bind(client));
 
 async function dm(guild, user, judge_id) {
   const judge = guild.members.get(judge_id) || await client.getRESTUser(judge_id);
@@ -67,14 +66,15 @@ Timer(async () => {
       const defendant = guild.members.get(verdicts[i].defendant_id);
       const { imprisoned_role } = db.fetch('guilds', { guild_id: verdicts[i].guild_id });
 
-      if (defendant && imprisoned_role && defendant.roles.includes(imprisoned_role)) {
-        await remove_role(guild.id, defendant.id, imprisoned_role, 'Auto unmute');
-      } else if (!defendant) {
-        await unban(guild.id, verdicts[i].defendant_id, 'Auto unmute');
+      if (!defendant || !imprisoned_role || !defendant.roles.includes(imprisoned_role)) {
+        continue;
       }
 
+      await remove_role(guild.id, defendant.id, imprisoned_role, 'Auto unmute');
+
       const c_case = db.get_case(verdicts[i].case_id);
-      const user = await client.getRESTUser(verdicts[i].defendant_id);
+      const user = client.users.get(verdicts[i].defendant_id)
+        || await client.getRESTUser(verdicts[i].defendant_id);
 
       await dm(guild, user, c_case ? c_case.judge_id : '');
     }
