@@ -23,6 +23,8 @@ const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
 const system = require('../../utilities/system.js');
+const catch_discord = require('../../utilities/catch_discord.js');
+const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const empty_argument = Symbol('Empty Argument');
 const hours_per_day = 24;
 const content = `Rendering a guilty verdict when there remains a reasonable doubt will result in \
@@ -150,6 +152,7 @@ charged with committing a misdemeanor'}.`;
     }
 
     const add_sentence = law.mandatory_felony || (!law.mandatory_felony && mute);
+    const { jailed_role, trial_role, case_channel } = db.fetch('guilds', { guild_id: ids.guild });
 
     if (add_sentence && sentence !== empty_argument) {
       update.sentence = sentence;
@@ -157,13 +160,13 @@ charged with committing a misdemeanor'}.`;
       const time = this.get_time(sentence, true);
       const invite = await discord.get_infinite_invite(guild);
 
+      await remove_role(ids.guild, ids.defendant, trial_role, 'Found guilty');
       await discord.dm(await client.getRESTUser(ids.defendant), `You have been found guilty in \
 ${guild.name} and will be able to join back in ${time}.\n\nhttps://discord.gg/${invite.code}`);
       await client.banGuildMember(ids.guild, ids.defendant, 0, `Found guilty (${time})`);
     }
 
     const { lastInsertRowid: id } = db.insert('verdicts', update);
-    const { jailed_role, trial_role, case_channel } = db.fetch('guilds', { guild_id: ids.guild });
     const in_server = guild.members.has(ids.defendant);
 
     if (in_server && !add_sentence) {
