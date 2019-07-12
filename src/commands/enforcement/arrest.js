@@ -257,22 +257,10 @@ the prosecutor and defendant have the right to request a qualified and earnest a
       .filter(mbr => mbr.roles.includes(judge_role) || mbr.roles.includes(chief));
 
     if (judge.length >= 1) {
-      const warrant_judge = judge.findIndex(mbr => mbr.id === warrant.judge_id)
+      const ids = [warrant.judge_id, warrant.defendant_id, warrant.officer_id];
 
-      if (warrant_judge !== -1) {
-        judge.splice(warrant_judge, 1);
-      }
-
-      const defendant = judge.findIndex(x => x.id === warrant.defendant_id);
-
-      if (defendant !== -1) {
-        judge.splice(defendant, 1);
-      }
-
-      const prosecutor = judge.findIndex(x => x.id === warrant.officer_id);
-
-      if (prosecutor !== -1) {
-        judge.splice(prosecutor, 1);
+      for (let i = 0; i < ids.length; i++) {
+        this.remove_from_array(judge, x => x.id === ids[i]);
       }
 
       const active = judge.filter(discord.is_online);
@@ -285,5 +273,13 @@ the prosecutor and defendant have the right to request a qualified and earnest a
     judge = judge[Math.floor(Math.random() * judge.length)];
 
     return judge || null;
+  }
+
+  remove_from_array(arr, fn) {
+    const index = arr.findIndex(fn);
+
+    if (index !== -1) {
+      arr.splice(index, 1);
+    }
   }
 }();
