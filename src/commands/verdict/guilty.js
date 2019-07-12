@@ -76,7 +76,6 @@ module.exports = new class Guilty extends Command {
       const mute = law.mandatory_felony
         || (!law.mandatory_felony && system.mute_felon(msg.channel.guild.id, defendant_id, law));
 
-      console.log(law, mute);
       if (res.finished) {
         return CommandResult.fromError(res.reason);
       } else if (args.sentence === empty_argument && mute) {
