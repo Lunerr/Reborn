@@ -178,7 +178,7 @@ Type \`cancel\` to cancel the command.`;
       law_id: law.id,
       defendant_id: member.id,
       officer_id: msg.author.id,
-      evidence: `\n${discord.sanitize_mentions(msg, evidence)}`,
+      evidence: `\n${discord.sanitize_mentions(evidence)}`,
       request: 1,
       extended_time: online < min_judges ? 1 : 0
     };

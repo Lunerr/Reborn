@@ -157,13 +157,8 @@ module.exports = {
     return create_message(channel.id, result, file);
   },
 
-  sanitize_mentions(msg, content) {
-    return msg.mentions
-      .map(x => x.id)
-      .concat(msg.roleMentions)
-      .reduce(
-        (a, b) => a.replace(b, `\u200b${b}`), content.replace(/@(everyone|here)/g, '@\u200b$1')
-      );
+  sanitize_mentions(content) {
+    return content.replace(/@(everyone|here|(!|&)?\d{17,19})/g, '@\u200b$1');
   },
 
   async verify(msg, content) {

@@ -80,7 +80,7 @@ module.exports = new class AddHot extends Command {
         );
       }
 
-      update.response = discord.sanitize_mentions(msg, args.response);
+      update.response = discord.sanitize_mentions(args.response);
     }
 
     if (attachments.length) {
