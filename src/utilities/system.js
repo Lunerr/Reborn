@@ -170,14 +170,14 @@ module.exports = {
   parse_id(msg) {
     const [embed] = msg.embeds;
 
-    if (!embed.description) {
+    if (!embed || !embed.description) {
       return null;
     }
 
     const split = embed.description.split('**ID:** ');
     const parsed_id = split[1] ? split[1].split('\n') : null;
 
-    return parsed_id && !isNaN(parsed_id[0] ? Number(parsed_id[0]) : null;
+    return parsed_id && !isNaN(parsed_id[0]) ? Number(parsed_id[0]) : null;
   },
 
   async should_prune(channel, arr, fn) {
@@ -311,22 +311,12 @@ module.exports = {
     return this.mutex.sync(`${channel.guild.id}-warrants`, async () => {
       const msgs = await discord.fetch_msgs(channel);
       const [most_recent] = msgs;
-      const id = this.parse_id(most_recent);
+      const id = this.parse_id(most_recent || { embeds: [] });
       const index = warrants.findIndex(x => x.id === id);
 
-      if (index !== -1) {
-        const sliced = warrants.slice(index + 1);
-
-        for (let i = 0; i < sliced.length; i++) {
-          const obj = discord.embed(await this.format_warrant(
-            channel.guild, sliced[i], sliced[i].id, sliced[i].executed
-          ));
-
-          await channel.createMessage(obj);
-        }
-      }
-
-      return warrants;
+      return this.send_objects(msgs, index, warrants, channel, x => this.format_warrant(
+        channel.guild, x, x.id, x.executed
+      ));
     });
   },
 
@@ -381,20 +371,29 @@ module.exports = {
     return this.mutex.sync(`${channel.guild.id}-cases`, async () => {
       const msgs = await discord.fetch_msgs(channel);
       const [most_recent] = msgs;
-      const id = this.parse_id(most_recent);
+      const id = this.parse_id(most_recent || { embeds: [] });
       const index = cases.findIndex(x => x.id === id);
 
-      if (index !== -1) {
-        const sliced = cases.slice(index + 1);
-
-        for (let i = 0; i < sliced.length; i++) {
-          const obj = discord.embed(await this.format_case(channel.guild, sliced[i]));
-
-          await channel.createMessage(obj);
-        }
-      }
-
-      return cases;
+      return this.send_objects(
+        msgs, index, cases, channel, x => this.format_case(channel.guild, x)
+      );
     });
+  },
+
+  async send_objects(msgs, index, arr, channel, object_fn) {
+    if (index === -1 && msgs.length !== 0) {
+      return;
+    }
+
+    const to_slice = msgs.length === 0 ? 0 : index + 1;
+    const sliced = arr.slice(to_slice);
+
+    for (let i = 0; i < sliced.length; i++) {
+      const obj = discord.embed(await object_fn(sliced[i]));
+
+      await channel.createMessage(obj);
+    }
+
+    return sliced;
   }
 };
