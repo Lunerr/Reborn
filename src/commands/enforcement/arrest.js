@@ -200,7 +200,7 @@ the prosecutor and defendant have the right to request a qualified and earnest a
     let index = this.get_index(evidence, '\n', max_len);
 
     if (index === -1) {
-      index = this.get_index(' ');
+      index = this.get_index(evidence, ' ', max_len);
     }
 
     if (index !== -1) {
