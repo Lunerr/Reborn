@@ -126,7 +126,7 @@ charged with committing a misdemeanor'}.`;
       const total_hours = (days * hours_per_day) + hours;
 
       if (total_hours) {
-        return `${hours} hours${minutes ? ` ${minutes} minutes` : ''}`;
+        return `${total_hours} hours${minutes ? ` ${minutes} minutes` : ''}`;
       } else if (minutes) {
         return `${minutes} minutes${seconds ? ` ${seconds} seconds` : ''}`;
       } else if (seconds || !soon) {
