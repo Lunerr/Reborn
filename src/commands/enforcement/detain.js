@@ -102,7 +102,7 @@ Type \`cancel\` to cancel the command.`, args.user, filtered);
   async prerequisites(msg, user, jailed_role) {
     const msgs = await msg.channel.getMessages(fetch_limit);
     const filtered = msgs.filter(x => x && x.author.id === user.id).slice(0, max_evidence);
-    let remove = true;
+    let remove = false;
     let res = filtered;
 
     if (!filtered.length) {
