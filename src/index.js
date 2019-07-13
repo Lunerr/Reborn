@@ -58,6 +58,7 @@ function requireAll(dir) {
   await registry.registerLibraryTypeReaders();
   await registry.registerGlobalTypeReaders();
   registry
+    .registerPostconditions(await requireAll('./postconditions'))
     .registerArgumentPreconditions(await requireAll('./preconditions/argument/'))
     .registerPreconditions(await requireAll('./preconditions/command/'))
     .registerTypeReaders(await requireAll('./readers/'))

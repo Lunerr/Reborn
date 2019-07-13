@@ -20,6 +20,7 @@ const { config, queries } = require('./data.js');
 const Database = require('better-sqlite3');
 const path = require('path');
 const str = require('../utilities/string.js');
+const to_cents = 100;
 
 module.exports = {
   load() {
@@ -156,6 +157,24 @@ module.exports = {
     }
 
     return mem;
+  },
+
+  get_cash(member_id, guild_id, to_cash = true) {
+    const member = this.get_member(member_id, guild_id);
+
+    return to_cash ? member.cash / to_cents : member.cash;
+  },
+
+  set_cash(member_id, guild_id, amount, convert = true) {
+    const value = convert ? amount * to_cents : amount;
+
+    return queries.set_cash.run(value, member_id, guild_id);
+  },
+
+  add_cash(member_id, guild_id, amount, convert = true) {
+    const value = convert ? amount * to_cents : amount;
+
+    return queries.add_cash.run(value, member_id, guild_id);
   },
 
   get_channel_case(channel_id) {

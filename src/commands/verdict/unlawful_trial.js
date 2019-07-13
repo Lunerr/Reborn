@@ -92,6 +92,8 @@ again.',
 unjust trial.\nBoth ${cop.mention} and ${judge.mention} have been impeached for partaking in this \
 unjust trial.\n\nNo verdict has been delivered and the accused may be prosecuted again.`);
     await system.close_case(msg, msg.channel);
+
+    return c_case;
   }
 
   async impeach(judge, cop, guild, roles) {

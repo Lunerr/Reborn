@@ -95,6 +95,8 @@ misdemeanors of this crime before a prison sentence is permissible.');
       await this.end(msg, {
         law, sentence: args.sentence, opinion: args.opinion, defendant_id, case_id
       });
+
+      return c_case;
     });
   }
 

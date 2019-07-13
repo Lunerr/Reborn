@@ -77,6 +77,8 @@ module.exports = new class NotGuilty extends Command {
 ${(defendant || await client.getRESTUser(defendant_id)).mention} not guilty.`
     );
     await system.close_case(msg, msg.channel);
+
+    return c_case;
   }
 
   async free(guild, defendant) {

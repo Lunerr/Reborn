@@ -26,6 +26,7 @@ const discord = require('../utilities/discord.js');
 const handler = require('../services/handler.js');
 const log = require('../utilities/logger.js');
 const db = require('../services/database.js');
+const chat = require('../services/chat.js');
 const msg_collector = require('../services/message_collector.js');
 const max_len = 2e3;
 
@@ -132,6 +133,10 @@ client.on('messageCreate', catch_discord(async msg => {
 
   if (!msg.author || msg.author.bot) {
     return;
+  }
+
+  if (!msg.content.startsWith(prefix)) {
+    await chat.add_cash(msg);
   }
 
   const isCommand = await handler.parseCommand(msg, prefix.length);

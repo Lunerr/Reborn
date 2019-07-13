@@ -37,6 +37,18 @@ module.exports = {
   bitfield: 2048,
   mutex: new MultiMutex(),
 
+  dm_cash(user, guild, amount, reason) {
+    const outcome = amount < 0 ? 'lost' : 'been rewarded with';
+    const value = amount < 0 ? Math.abs(amount) : amount;
+    const format = number.format(value);
+
+    return discord.dm(
+      user,
+      `You have ${outcome} ${format} for ${reason} in ${guild.name}.`,
+      guild
+    );
+  },
+
   get_branch_members(guild, role, chief) {
     return guild.members.filter(x => (x.roles.includes(role) || x.roles.includes(chief))
       && discord.is_online(x));

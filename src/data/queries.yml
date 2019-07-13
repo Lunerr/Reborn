@@ -131,6 +131,7 @@ members_table: |-
     member_id TEXT NOT NULL,
     created_at INTEGER NOT NULL,
     last_modified_at INTEGER NOT NULL,
+    cash INTEGER NOT NULL DEFAULT 0,
     jailed TINYINT NOT NULL DEFAULT 0,
     on_trial TINYINT NOT NULL DEFAULT 0
   )
@@ -151,6 +152,10 @@ select: SELECT * FROM {0} WHERE guild_id = ?
 insert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT DO NOTHING
 
 upsert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT(guild_id) DO UPDATE SET {3}
+
+add_cash: UPDATE members SET cash = cash + ? WHERE member_id = ? AND guild_id = ?
+
+set_cash: UPDATE members SET cash = ? WHERE member_id = ? AND guild_id = ?
 
 set_last_notified: UPDATE notifications SET last_notified = ? WHERE member_id = ? AND guild_id = ? AND type = ?
 

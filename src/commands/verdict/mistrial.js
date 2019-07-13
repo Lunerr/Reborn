@@ -70,6 +70,8 @@ from prosecuting the defendant again.',
 mistrial.\n\n\
 No verdict has been delivered and the accused may be prosecuted again.`);
     await system.close_case(msg, msg.channel);
+
+    return c_case;
   }
 
   async prerequisites(c_case) {

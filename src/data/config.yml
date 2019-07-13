@@ -52,3 +52,22 @@ time_units: {
 }
 
 restart: git pull && pm2 restart 0
+
+# Cash
+judge_case: 1e3
+
+guilty_granted_warrant: 250
+
+guilty_arrest: 250
+
+not_guilty_granted_warrant: -500
+
+not_guilty_arrest: -500
+
+impeached: 2e3
+
+cash_per_msg: 0.25
+
+msg_cooldown: 3e4
+
+min_msg_length: 7

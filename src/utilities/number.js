@@ -16,8 +16,17 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
+const formatter = Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  minimumFractionDigits: 2
+});
 
 module.exports = {
+  format(input) {
+    return formatter.format(input);
+  },
+
   msToTime(input) {
     /* eslint-disable no-magic-numbers */
     return {
