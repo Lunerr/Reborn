@@ -27,16 +27,6 @@ client.on('guildMemberRemove', async (guild, member) => {
   const { trial_role, jailed_role } = db.fetch('guilds', { guild_id: guild.id });
   const t_role = guild.roles.get(trial_role);
   const j_role = guild.roles.get(jailed_role);
-  const db_member = db.get_member(member.id, guild.id);
-
-  if (!db_member) {
-    return db.insert('members', {
-      guild_id: guild.id,
-      member_id: member.id,
-      jailed: member.roles.includes(jailed_role) && t_role ? 1 : 0,
-      on_trial: member.roles.includes(trial_role) && j_role ? 1 : 0
-    });
-  }
 
   if (t_role) {
     db.set_trial(member.roles.includes(trial_role) ? 1 : 0, guild.id, member.id);

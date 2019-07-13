@@ -145,7 +145,17 @@ module.exports = {
   },
 
   get_member(member_id, guild_id) {
-    return queries.get_member.get(member_id, guild_id);
+    let mem = queries.get_member.get(member_id, guild_id);
+
+    if (!mem) {
+      this.insert('members', {
+        guild_id,
+        member_id
+      });
+      mem = queries.get_member.get(member_id, guild_id);
+    }
+
+    return mem;
   },
 
   get_channel_case(channel_id) {
