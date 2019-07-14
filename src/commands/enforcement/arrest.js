@@ -42,7 +42,7 @@ This may take days. This will be time consuming. If you fail to properly prosecu
 you will be impeached.
 
 If this case proceeds to go to court and the defendant is found not guilty, \
-you will be fined ${number.format(Math.abs('{0}'))}.
+you will be fined ${number.format('{0}')}.
 
 If you are sure you wish to proceed with the arrest given the aforementioned terms \
 and have reviewed the necessary information, please type \`yes\`.`;
@@ -129,7 +129,7 @@ module.exports = new class Arrest extends Command {
     }
 
     const verified = await discord.verify_msg(
-      msg, `${str.format(arrest_message, config.not_guilty_arrest)}`, null, 'yes'
+      msg, `${str.format(arrest_message, Math.abs(config.not_guilty_arrest))}`, null, 'yes'
     );
 
     if (!verified) {

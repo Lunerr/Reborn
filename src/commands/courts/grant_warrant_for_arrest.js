@@ -32,7 +32,7 @@ do not proceed with this warrant.
 __IGNORANCE IS NOT A DEFENSE.__
 
 If this case proceeds to go to court and the defendant is found not guilty, \
-you will be fined ${number.format(Math.abs('{0}'))}.
+you will be fined ${number.format('{0}')}.
 
 If you are sure you wish to proceed with the warrant given the aforementioned terms \
 and have reviewed the necessary information, please type \`yes\`.`;
@@ -77,7 +77,9 @@ module.exports = new class GrantWarrantForArrest extends Command {
       return CommandResult.fromError('You must provide evidence in an image or link.');
     }
 
-    const res = await discord.verify(msg, str.format(content, config.not_guilty_granted_warrant));
+    const res = await discord.verify(
+      msg, str.format(content, Math.abs(config.not_guilty_granted_warrant))
+    );
 
     if (!res.success) {
       return res;
