@@ -54,8 +54,8 @@ module.exports = new class AddLaw extends Command {
 
   async run(msg, args) {
     const name = args.name.toLowerCase();
-    const laws = db.fetch_laws(msg.channel.guild.id);
-    const existingLaw = laws.some(x => x.name.toLowerCase() === name && x.active === 1);
+    const laws = db.fetch_laws(msg.channel.guild.id).filter(x => x.active === 1);
+    const existingLaw = laws.some(x => x.name.toLowerCase() === name);
 
     if (existingLaw) {
       return CommandResult.fromError('An active law by this name already exists.');
