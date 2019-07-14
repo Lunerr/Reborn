@@ -46,7 +46,7 @@ module.exports = new class Commands extends Command {
       const commands = str.list(group.commands.map(x => `\`${prefix}${x.names[0]}\``));
 
       embed.fields.push({
-        name: g_name, value: commands, inline: true
+        name: g_name, value: commands, inline: false
       });
     }
 
