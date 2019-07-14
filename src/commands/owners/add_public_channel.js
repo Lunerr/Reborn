@@ -19,6 +19,7 @@
 const { Argument, Command, CommandResult } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
+const system = require('../../utilities/system.js');
 const send_bitfield = 2048;
 
 module.exports = new class AddPublicChannel extends Command {
@@ -62,16 +63,13 @@ been added as a public channel.`
   }
 
   async add_overwrites(guild, channel) {
-    const {
-      trial_role, jailed_role, imprisoned_role
-    } = db.fetch('guilds', { guild_id: guild.id });
-    const roles = [trial_role, jailed_role, imprisoned_role]
-      .filter(x => guild.roles.has(x));
+    const res = db.fetch('guilds', { guild_id: guild.id });
+    const jailed = system.jailed_roles.filter(x => res[x] && guild.roles.has(res[x]));
 
-    for (let i = 0; i < roles.length; i++) {
-      const role = roles[i];
+    for (let i = 0; i < jailed.length; i++) {
+      const role = jailed[i];
 
-      await channel.editPermission(role, 0, send_bitfield, 'role');
+      await channel.editPermission(res[role], 0, send_bitfield, 'Overwrites for public channel');
     }
   }
 }();

@@ -150,15 +150,17 @@ module.exports = new class Arrest extends Command {
       guild.id,
       `${channel_name_cop}-VS-${channel_name_def}`,
       0,
-      null,
+      `Case for ${channel_name_cop}-VS-${channel_name_def}`,
       category
     );
     const edits = [judge.id, officer.id, defendant.id, guild.shard.client.user.id];
 
-    await Promise.all(edits.map(
-      x => channel.editPermission(x, this.bitfield, 0, 'member').catch(() => Promise.resolve({}))
-    ));
-    await channel.edit({ nsfw: true });
+    await Promise.all(edits.map(x => channel.editPermission(
+      x, this.bitfield, 0, 'member', 'Adding members to the court case'
+    ).catch(() => null)));
+    await channel.edit({
+      nsfw: true, reason: 'Case channel needs to be NSFW'
+    });
 
     const law = db.get_law(warrant.law_id);
     const format = this.format_evidence(warrant.evidence);
@@ -244,8 +246,8 @@ the prosecutor and defendant have the right to request a qualified and earnest a
     c_case.id = id;
 
     if (channel.guild.members.has(defendant_id)) {
-      await remove_role(channel.guild.id, defendant_id, jailed);
-      await add_role(channel.guild.id, defendant_id, role);
+      await remove_role(channel.guild.id, defendant_id, jailed, 'Defendant is on trial');
+      await add_role(channel.guild.id, defendant_id, role, 'Defendant is on trial');
     }
 
     db.close_warrant(warrant.id);
@@ -270,7 +272,7 @@ the prosecutor and defendant have the right to request a qualified and earnest a
     let judge = guild.members.filter(
       mbr => !system.member_in_debt(mbr, guild)
         && (mbr.roles.includes(judge_role)
-        || mbr.roles.includes(chief))
+          || mbr.roles.includes(chief))
     );
 
     if (judge.length >= 1) {

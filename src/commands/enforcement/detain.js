@@ -78,7 +78,7 @@ module.exports = new class Detain extends Command {
       if (member && member.roles.includes(imprisoned_role)) {
         return CommandResult.fromError('This user is already muted.');
       } else if (member) {
-        await add_role(msg.channel.guild.id, args.user.id, jailed_role);
+        await add_role(msg.channel.guild.id, args.user.id, jailed_role, 'Was detained');
       }
 
       const filtered = await this.prerequisites(msg, args.user, jailed_role);
@@ -99,7 +99,7 @@ Type \`cancel\` to cancel the command.`, args.user, filtered
 
       if (res instanceof CommandResult || res === manual_cancel) {
         if (member) {
-          await remove_role(msg.channel.guild.id, args.user.id, jailed_role);
+          await remove_role(msg.channel.guild.id, args.user.id, jailed_role, 'Incomplete detain');
         }
 
         return res;
@@ -124,7 +124,7 @@ older than 5 minutes, consider getting a judge to grant a warrant for this user.
     }
 
     if (remove) {
-      await remove_role(msg.channel.guild.id, user.id, jailed_role);
+      await remove_role(msg.channel.guild.id, user.id, jailed_role, 'Invalid detain');
     }
 
     return res;

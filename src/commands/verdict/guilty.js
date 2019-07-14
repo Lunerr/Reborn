@@ -163,7 +163,10 @@ you have been rewarded with ${number.format(config.judge_case)} for delivering t
 
     if (in_server && add_sentence && sentence !== empty_argument) {
       update.sentence = sentence;
-      await add_role(ids.guild, ids.defendant, imprisoned_role);
+
+      const time = this.get_time(sentence);
+
+      await add_role(ids.guild, ids.defendant, imprisoned_role, `Sentenced to ${time}`);
     }
 
     const { lastInsertRowid: id } = db.insert('verdicts', update);
