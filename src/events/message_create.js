@@ -149,6 +149,8 @@ client.on('messageCreate', catch_discord(async msg => {
     if (msg.content && msg.content.trim()) {
       await chat.add_cash(msg);
     }
+
+    return;
   }
 
   const result = await handler.run(msg, prefix.length);
