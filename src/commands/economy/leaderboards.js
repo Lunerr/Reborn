@@ -16,36 +16,51 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
-const { Argument, Command, ArgumentDefault } = require('patron.js');
+const { Command, CommandResult } = require('patron.js');
+const { config } = require('../../services/data.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
+const util = require('../../utilities/util.js');
 
-module.exports = new class Balance extends Command {
+module.exports = new class Leaderboards extends Command {
   constructor() {
     super({
-      args: [
-        new Argument({
-          example: 'steve',
-          type: 'member',
-          name: 'member',
-          key: 'member',
-          remainder: true,
-          defaultValue: ArgumentDefault.Member
-        })
-      ],
-      description: 'View a member\'s balance.',
+      description: 'View the richest members.',
       groupName: 'economy',
-      names: ['balance', 'cash', 'money', 'bal']
+      names: ['leaderboards', 'lb', 'top']
     });
   }
 
-  async run(msg, args) {
-    const cash = db.get_cash(msg.author.id, msg.channel.guild.id);
+  async run(msg) {
+    const members = db
+      .get_guild_members(msg.channel.guild.id)
+      .filter(x => x.cash > 0)
+      .sort((a, b) => b.cash - a.cash);
+
+    if (!members.length) {
+      return CommandResult.fromError('There are no members on the leaderboards.');
+    }
+
     const embed = discord.embed({
-      title: `${discord.tag(args.member.user)}'s Balance`,
-      description: `**Balance:** ${number.format(cash)}`
+      title: 'The Richest Members', description: ''
     });
+
+    for (let i = 0; i < members.length; i++) {
+      const member = msg.channel.guild.members.get(members[i].member_id);
+
+      if (!member) {
+        members.splice(i--, 1);
+        continue;
+      } else if (i + 1 >= config.leaderboard) {
+        break;
+      }
+
+      const cash = number.format(members[i].cash);
+      const user = util.escape_markdown(discord.tag(member.user));
+
+      embed.embed.description += `${i + 1}. **${user}**: ${cash}\n`;
+    }
 
     return msg.channel.createMessage(embed);
   }

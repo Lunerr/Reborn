@@ -180,6 +180,8 @@ set_trial: UPDATE members SET on_trial = ? WHERE member_id = ? AND guild_id = ?
 
 get_member: SELECT * FROM members WHERE member_id = ? AND guild_id = ?
 
+get_guild_members: SELECT * FROM members WHERE guild_id = ?
+
 close_case: UPDATE verdicts SET verdict = 0 WHERE id = ?
 
 close_warrant: UPDATE warrants SET executed = 1 WHERE id = ?

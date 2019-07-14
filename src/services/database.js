@@ -159,6 +159,10 @@ module.exports = {
     return mem;
   },
 
+  get_guild_members(guild_id) {
+    return queries.get_guild_members.all(guild_id);
+  },
+
   get_cash(member_id, guild_id, to_cash = true) {
     const member = this.get_member(member_id, guild_id);
 

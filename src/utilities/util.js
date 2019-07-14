@@ -21,5 +21,9 @@ const default_delay = 2e3;
 module.exports = {
   delay(time = default_delay) {
     return new Promise(r => setTimeout(r, time));
+  },
+
+  escape_markdown(content) {
+    return content.replace(/(\*|~|`|_)+/g, '');
   }
 };
