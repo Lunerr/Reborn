@@ -17,6 +17,7 @@
  */
 'use strict';
 const { Argument, Command, CommandResult } = require('patron.js');
+const { config } = require('../../services/data.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
@@ -53,13 +54,13 @@ module.exports = new class Nominate extends Command {
   }
 
   async run(msg, args) {
-    const res = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const was_impeached = db.get_impeachment(msg.channel.guild.id, args.member.id, false);
 
     if (was_impeached) {
-      return this.impeached_format(was_impeached, res.impeachment_time, args.member);
+      return this.impeached_format(was_impeached, config.impeachment_time, args.member);
     }
 
+    const res = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const keys = Object.keys(res);
     const gov = system.chief_roles.concat(system.gov_roles);
     const has_gov = keys.find(x => gov.includes(x) && args.member.roles.includes(res[x]));

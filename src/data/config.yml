@@ -53,6 +53,9 @@ time_units: {
 
 restart: git pull && pm2 restart 0
 
+# Time in weeks a user cant receive a gov role after being impeached
+impeachment_time: 1
+
 # The minimum amount of cash that is considered not in-debt
 in_debt: 0
 

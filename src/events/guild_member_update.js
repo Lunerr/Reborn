@@ -17,6 +17,7 @@
  */
 'use strict';
 const client = require('../services/client.js');
+const { config } = require('../services/data.js');
 const catch_discord = require('../utilities/catch_discord.js');
 const discord = require('../utilities/discord.js');
 const number = require('../utilities/number.js');
@@ -157,6 +158,6 @@ client.on('guildMemberUpdate', async (guild, new_member, old_member) => {
       return a;
     }, {});
 
-  // await impeached(guild, new_member, jobs, res.impeachment_time);
+  // await impeached(guild, new_member, jobs, config.impeachment_time);
   await remove_extra_roles(guild, new_member, jobs);
 });
