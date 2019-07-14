@@ -53,9 +53,10 @@ again.',
       return res;
     }
 
+    const { guild } = msg.channel;
     const { case_id, defendant_id, plaintiff_id } = res;
     const { lastInsertRowid: id } = db.insert('verdicts', {
-      guild_id: msg.channel.guild.id,
+      guild_id: guild.id,
       case_id,
       defendant_id,
       verdict: verdict.unjust_trial,
@@ -66,23 +67,23 @@ again.',
 
     const {
       trial_role, jailed_role, case_channel, judge_role, officer_role
-    } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
-    const c_channel = msg.channel.guild.channels.get(case_channel);
+    } = db.fetch('guilds', { guild_id: guild.id });
+    const c_channel = guild.channels.get(case_channel);
 
     if (c_channel) {
       await system.edit_case(c_channel, c_case);
     }
 
     if (msg.channel.guild.members.has(defendant_id)) {
-      await system.free_from_court(msg.channel.guild.id, defendant_id, [trial_role, jailed_role]);
+      await system.free_from_court(guild.id, defendant_id, [trial_role, jailed_role]);
     }
 
     const { judge_id } = db.get_warrant(c_case.warrant_id);
-    const cop = msg.guild.members.get(plaintiff_id) || await client.getRESTUser(plaintiff_id);
-    const judge = msg.guild.members.get(judge_id) || await client.getRESTUser(judge_id);
+    const cop = guild.members.get(plaintiff_id) || await client.getRESTUser(plaintiff_id);
+    const judge = guild.members.get(judge_id) || await client.getRESTUser(judge_id);
     const prefix = `${discord.tag(msg.author).boldified}, `;
 
-    await this.impeach(judge, cop, msg.channel.guild, {
+    await this.impeach(judge, cop, guild, {
       judge: judge_role, officer: officer_role
     });
     await discord.create_msg(msg.channel, `${prefix}This court case has been declared as an \
