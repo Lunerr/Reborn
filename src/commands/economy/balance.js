@@ -35,7 +35,7 @@ module.exports = new class Balance extends Command {
         })
       ],
       description: 'View a a member\'s balance.',
-      groupName: 'general',
+      groupName: 'economy',
       names: ['balance', 'cash', 'money', 'bal']
     });
   }
