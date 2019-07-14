@@ -95,7 +95,7 @@ module.exports = new class Nominate extends Command {
       branch: nominiation[branch_format.toLowerCase()]
     });
 
-    return add_role(member.guild.id, member.id, id);
+    return add_role(member.guild.id, member.id, id, 'Nominated');
   }
 
   impeached_format(impeachment, impeachment_time, member) {
