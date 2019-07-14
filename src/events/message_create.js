@@ -135,10 +135,6 @@ client.on('messageCreate', catch_discord(async msg => {
     return;
   }
 
-  if (!msg.content.startsWith(prefix)) {
-    await chat.add_cash(msg);
-  }
-
   const isCommand = await handler.parseCommand(msg, prefix.length);
 
   if (!isCommand.success && msg.channel.guild) {
@@ -150,7 +146,9 @@ client.on('messageCreate', catch_discord(async msg => {
   }
 
   if (!msg.content.startsWith(prefix)) {
-    return;
+    if (msg.content && msg.content.trim()) {
+      await chat.add_cash(msg);
+    }
   }
 
   const result = await handler.run(msg, prefix.length);
