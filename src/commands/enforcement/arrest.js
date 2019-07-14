@@ -46,7 +46,7 @@ you will be fined {0}.
 
 If you are sure you wish to proceed with the arrest given the aforementioned terms \
 and have reviewed the necessary information, please type \`yes\`.`;
-const max_len = 15e2;
+const max_len = 14e2;
 const dots = '...';
 
 module.exports = new class Arrest extends Command {
@@ -165,6 +165,7 @@ module.exports = new class Arrest extends Command {
     const law = db.get_law(warrant.law_id);
     const format = this.format_evidence(warrant.evidence);
     const evidence = Array.isArray(format) ? format[0] : format;
+    const innocence_bias = number.format(config.judge_case * config.innocence_bias);
     const content = `${officer.mention} VS ${defendant.mention}
 
 ${judge.mention} will be presiding over this court proceeding.
@@ -173,9 +174,13 @@ The defense is accused of violating the following law: ${law.name}
 
 ${warrant.evidence ? `${warrant.request === 1 ? 'Messages' : 'Evidence'}: ${evidence}` : ''}
 
-The judge must request a plea from the accused, and must proceed assuming an innocent plea after \
-12 hours without a plea. The defendant has the right to remain silent and both \
-the prosecutor and defendant have the right to request a qualified and earnest attorney.`;
+In order to promote a just and free society, we must be biased towards **INNOCENCE!**
+
+If you find the slightest bit of inconsistent evidence, contradictory testimony, or holes \
+in the prosecution's points, **DO NOT DELIVER A GUILTY VERDICT!**
+
+When rendering **ANY VERDICT** other than a guilty verdict, you will receive an \
+additional ${innocence_bias} in compensation.`;
     const sent = await channel.createMessage(content);
 
     if (Array.isArray(format)) {

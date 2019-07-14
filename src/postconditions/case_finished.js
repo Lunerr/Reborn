@@ -12,9 +12,13 @@ class CaseFinished extends Postcondition {
 
   async run(msg, result) {
     if (result.success !== false) {
-      db.add_cash(msg.author.id, msg.channel.guild.id, config.judge_case);
+      const cmd = msg.content.slice(config.prefix.length).toLowerCase();
+      const bonus = cmd.startsWith('not_guilty') ? 1 + config.innocence_bias : 1;
+      const amount = config.judge_case * bonus;
+
+      db.add_cash(msg.author.id, msg.channel.guild.id, amount);
       await system.dm_cash(
-        msg.author, msg.channel.guild, config.judge_case, `finishing case #${result.id}`
+        msg.author, msg.channel.guild, amount, `finishing case #${result.id}`
       );
 
       const case_verdict = db.get_verdict(result.id);
