@@ -141,7 +141,7 @@ client.on('messageCreate', catch_discord(async msg => {
     const { court_category } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
 
     if (!court_category || (msg.channel.parentID && msg.channel.parentID !== court_category)) {
-      return custom_cmd(msg);
+      await custom_cmd(msg);
     }
   }
 
