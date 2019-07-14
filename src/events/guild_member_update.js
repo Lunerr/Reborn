@@ -30,7 +30,7 @@ const to_hours = 24;
 
 async function impeached(guild, member, jobs, impeachment_time) {
   const { roles: n_roles } = member;
-  const was_impeached = db.get_impeachment(guild.id, member.id);
+  const was_impeached = db.get_impeachment(guild.id, member.id, false);
   const values = Object.values(jobs);
 
   if (was_impeached && values.some(x => n_roles.includes(x))) {

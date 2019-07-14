@@ -201,10 +201,10 @@ module.exports = {
     return queries.select_warrant.get(id);
   },
 
-  get_impeachment(guild_id, member_id) {
+  get_impeachment(guild_id, member_id, insert = true) {
     let impeachment = queries.select_impeachment.get(guild_id, member_id);
 
-    if (!impeachment) {
+    if (!impeachment && insert) {
       this.insert('impeachments', {
         guild_id,
         member_id
