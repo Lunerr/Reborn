@@ -52,7 +52,7 @@ module.exports = new class Leaderboards extends Command {
       if (!member) {
         members.splice(i--, 1);
         continue;
-      } else if (i + 1 >= config.leaderboard) {
+      } else if (i + 1 > config.leaderboard) {
         break;
       }
 
