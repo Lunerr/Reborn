@@ -24,9 +24,7 @@ const notifications = require('../enums/notifications.js');
 const branch = require('../enums/branch.js');
 const discord = require('../utilities/discord.js');
 const number = require('../utilities/number.js');
-const catch_discord = require('../utilities/catch_discord.js');
 const system = require('../utilities/system.js');
-const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const min_online = 4;
 const min_nominations = 5;
 const dm_interval = 144e5;
@@ -34,13 +32,11 @@ const impeached = 1728e5;
 const hours_in_day = 24;
 
 async function impeach(member, chief, min) {
+  await system.impeach(
+    member, member.guild, chief, 'impeached for having an inactive branch'
+  );
   await discord.dm_fallback(member.user, `You have been impeached for failing to nominate \
 ${min} people to your branch within 48 hours since you were first notified.`);
-  await remove_role(member.guild.id, member.id, chief, 'No nominations');
-  db.insert('impeachments', {
-    guild_id: member.guild.id,
-    member_id: member.id
-  });
   db.set_last_notified(member.id, member.guild.id, notifications.nominations, null);
 }
 

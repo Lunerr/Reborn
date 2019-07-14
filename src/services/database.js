@@ -202,7 +202,21 @@ module.exports = {
   },
 
   get_impeachment(guild_id, member_id) {
-    return queries.select_impeachment.get(guild_id, member_id);
+    let impeachment = queries.select_impeachment.get(guild_id, member_id);
+
+    if (!impeachment) {
+      this.insert('impeachments', {
+        guild_id,
+        member_id
+      });
+      impeachment = queries.select_impeachment.get(guild_id, member_id);
+    }
+
+    return impeachment;
+  },
+
+  update_impeachment(guild_id, member_id, time) {
+    return queries.update_impeachment.run(time, guild_id, member_id);
   },
 
   set_last_dm(member_id, guild_id, type, time) {

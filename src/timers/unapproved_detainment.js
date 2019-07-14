@@ -93,18 +93,14 @@ command: \`!approve ${warrant.id}\`.\n\n${judge_append}`, guild);
 }
 
 async function impeach(guild, warrant, defendant, officer, roles) {
-  db.insert('impeachments', {
-    member_id: warrant.officer_id, guild_id: guild.id
-  });
-
-  if (defendant && defendant.roles.includes(roles.jailed_role)) {
+  if (defendant && guild.members.has(defendant.id)) {
     await remove_role(guild.id, warrant.defendant_id, roles.jailed_role, 'Unapproved detain');
   }
 
   if (officer) {
-    if (officer.roles.includes(roles.officer_role)) {
-      await remove_role(guild.id, warrant.officer_id, roles.officer_role, 'Unapproved detain');
-    }
+    await system.impeach(
+      officer, guild, roles.officer_role, 'impeached for failing to get their detainment approved.'
+    );
 
     const not_impeached = new Date(Date.now() + to_week);
 

@@ -34,7 +34,7 @@ async function impeached(guild, member, jobs, impeachment_time) {
   const values = Object.values(jobs);
 
   if (was_impeached && values.some(x => n_roles.includes(x))) {
-    const time_left = was_impeached.created_at + impeachment_time - Date.now();
+    const time_left = was_impeached.last_modified_at + impeachment_time - Date.now();
 
     if (time_left > 0) {
       const { days, hours } = number.msToTime(time_left);

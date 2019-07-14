@@ -216,3 +216,5 @@ select_verdict: SELECT * FROM verdicts WHERE case_id = ?
 select_commands: SELECT * FROM commands WHERE guild_id = ?
 
 select_impeachment: SELECT * FROM impeachments WHERE guild_id = ? AND member_id = ?
+
+update_impeachment: UPDATE impeachments SET last_modified_at = ? WHERE guild_id = ? AND member_id = ?

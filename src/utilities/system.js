@@ -17,6 +17,7 @@
  */
 
 const { MultiMutex } = require('patron.js');
+const { Member } = require('eris');
 const { config } = require('../services/data.js');
 const client = require('../services/client.js');
 const discord = require('./discord.js');
@@ -48,6 +49,24 @@ module.exports = {
       `You have ${outcome} ${format} for ${reason} in ${guild.name}.
 Your current balance is ${number.format(current_balance)}.`,
       guild
+    );
+  },
+
+  async impeach(member, guild, role, reason) {
+    const time = Date.now();
+
+    if (guild.members.has(member.id) && guild.roles.has(role)) {
+      await remove_role(guild.id, member.id, role, reason);
+    }
+
+    db.add_cash(member.id, guild.id, config.impeached);
+    db.get_impeachment(guild.id, member.id);
+    db.update_impeachment(guild.id, member.id, time);
+
+    const user = member instanceof Member ? member.user : member;
+
+    return this.dm_cash(
+      user, guild, config.impeached, `getting ${reason}`
     );
   },
 

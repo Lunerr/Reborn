@@ -32,17 +32,11 @@ You have been impeached for failing to fulfill your duties as a judge.\n\n\
 No verdict has been delivered and the prosecuted may be prosecuted again.';
 
 async function impeach(guild, judge_id, defendant_id, judge_role, trial_role, jailed) {
-  const j_role = guild.roles.get(judge_role);
   const t_role = guild.roles.get(trial_role);
   const jailed_role = guild.roles.get(jailed);
+  const judge = guild.members.get(judge_id) || await client.getRESTUser(judge_id);
 
-  db.insert('impeachments', {
-    member_id: judge_id, guild_id: guild.id
-  });
-
-  if (j_role) {
-    await remove_role(guild.id, judge_id, judge_role, 'Impeached for inactive case.');
-  }
+  await system.impeach(judge, guild, judge_role, 'Impeached for having an inactive case');
 
   if (jailed_role) {
     await remove_role(guild.id, defendant_id, jailed, 'Inactive case.');

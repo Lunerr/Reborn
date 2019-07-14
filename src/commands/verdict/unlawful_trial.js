@@ -22,8 +22,6 @@ const verdict = require('../../enums/verdict.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
-const catch_discord = require('../../utilities/catch_discord.js');
-const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 
 module.exports = new class UnlawfulTrial extends Command {
   constructor() {
@@ -74,8 +72,6 @@ again.',
       await system.edit_case(c_channel, c_case);
     }
 
-    const prefix = `${discord.tag(msg.author).boldified}, `;
-
     if (msg.channel.guild.members.has(defendant_id)) {
       await system.free_from_court(msg.channel.guild.id, defendant_id, [trial_role, jailed_role]);
     }
@@ -83,6 +79,7 @@ again.',
     const { judge_id } = db.get_warrant(c_case.warrant_id);
     const cop = msg.guild.members.get(plaintiff_id) || await client.getRESTUser(plaintiff_id);
     const judge = msg.guild.members.get(judge_id) || await client.getRESTUser(judge_id);
+    const prefix = `${discord.tag(msg.author).boldified}, `;
 
     await this.impeach(judge, cop, msg.channel.guild, {
       judge: judge_role,
@@ -97,22 +94,8 @@ unjust trial.\n\nNo verdict has been delivered and the accused may be prosecuted
   }
 
   async impeach(judge, cop, guild, roles) {
-    if (guild.members.has(judge.id)) {
-      await remove_role(guild.id, judge.id, roles.judge, 'Impeached for an unjust trial.');
-    }
-
-    if (guild.members.has(cop.id)) {
-      await remove_role(guild.id, judge.id, roles.officer, 'Impeached for an unjust trial.');
-    }
-
-    db.insert('impeachments', {
-      guild_id: guild.id,
-      member_id: judge.id
-    });
-    db.insert('impeachments', {
-      guild_id: guild.id,
-      member_id: cop.id
-    });
+    await system.impeach(judge, guild, roles.judge, 'impeached for partaking in an unjust trial');
+    await system.impeach(cop, guild, roles.officer, 'impeached for partaking in an unjust trial');
   }
 
   async prerequisites(c_case) {

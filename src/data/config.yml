@@ -64,7 +64,7 @@ not_guilty_granted_warrant: -500
 
 not_guilty_arrest: -500
 
-impeached: 2e3
+impeached: -2e3
 
 cash_per_msg: 0.25
 
