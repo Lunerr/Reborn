@@ -216,6 +216,8 @@ module.exports = {
   },
 
   update_impeachment(guild_id, member_id, time) {
+    this.get_impeachment(guild_id, member_id);
+
     return queries.update_impeachment.run(time, guild_id, member_id);
   },
 

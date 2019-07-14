@@ -66,7 +66,6 @@ Your current balance is ${number.format(current_balance)}.`,
     }
 
     db.add_cash(member.id, guild.id, config.impeached);
-    db.get_impeachment(guild.id, member.id);
     db.update_impeachment(guild.id, member.id, time);
 
     const user = member instanceof Member ? member.user : member;
