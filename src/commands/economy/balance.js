@@ -41,7 +41,7 @@ module.exports = new class Balance extends Command {
   }
 
   async run(msg, args) {
-    const cash = db.get_cash(msg.author.id, msg.channel.guild.id);
+    const cash = db.get_cash(args.member.id, msg.channel.guild.id);
     const embed = discord.embed({
       title: `${discord.tag(args.member.user)}'s Balance`,
       description: `**Balance:** ${number.format(cash)}`
