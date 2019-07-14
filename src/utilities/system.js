@@ -41,10 +41,12 @@ module.exports = {
     const outcome = amount < 0 ? 'lost' : 'been rewarded with';
     const value = amount < 0 ? Math.abs(amount) : amount;
     const format = number.format(value);
+    const current_balance = db.get_cash(user.id, guild.id);
 
     return discord.dm(
       user,
-      `You have ${outcome} ${format} for ${reason} in ${guild.name}.`,
+      `You have ${outcome} ${format} for ${reason} in ${guild.name}.
+Your current balance is ${number.format(current_balance)}.`,
       guild
     );
   },
