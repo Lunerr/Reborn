@@ -46,7 +46,7 @@ module.exports = {
 
     return discord.dm(
       user,
-      `You have ${outcome} ${format} for ${reason} in ${guild.name}.
+      `You have ${outcome} ${format} for ${reason} in ${guild.name}.\n
 Your current balance is ${number.format(current_balance)}.`,
       guild
     );
@@ -76,8 +76,12 @@ Your current balance is ${number.format(current_balance)}.`,
   },
 
   get_branch_members(guild, role, chief) {
-    return guild.members.filter(x => (x.roles.includes(role) || x.roles.includes(chief))
-      && discord.is_online(x));
+    return guild.members.filter(
+      x => (x.roles.includes(role)
+        || x.roles.includes(chief))
+        && discord.is_online(x)
+        && !this.member_in_debt(x, guild)
+    );
   },
 
   chief_role(member) {

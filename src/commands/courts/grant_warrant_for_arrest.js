@@ -32,7 +32,7 @@ do not proceed with this warrant.
 __IGNORANCE IS NOT A DEFENSE.__
 
 If this case proceeds to go to court and the defendant is found not guilty, \
-you will be fined ${number.format('{0}')}.
+you will be fined ${number.format(Math.abs('{0}'))}.
 
 If you are sure you wish to proceed with the warrant given the aforementioned terms \
 and have reviewed the necessary information, please type \`yes\`.`;

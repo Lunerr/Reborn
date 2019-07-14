@@ -57,17 +57,15 @@ async function dm(warrant, time_left, officer, judges, guild) {
   const past = warrant.extended_time ? last_notified > extended_dm : last_notified > regular_dm;
 
   if (!notification || past) {
-    const { hours, minutes } = number.msToTime(time_left);
+    const { hours, minutes, seconds } = number.msToTime(time_left);
     let format;
 
     if (hours) {
-      format = `${hours} hours`;
-
-      if (minutes) {
-        format += ` and ${minutes} minutes`;
-      }
+      format = `${hours} hours${minutes ? ` and ${minutes} minutes` : ''}`;
+    } else if (minutes) {
+      format = `${minutes} minutes${seconds ? ` and ${seconds} seconds` : ''}`;
     } else {
-      format = `${minutes} minutes`;
+      format = `${seconds} seconds`;
     }
 
     if (officer) {
@@ -98,15 +96,17 @@ async function impeach(guild, warrant, defendant, officer, roles) {
   }
 
   if (officer) {
-    await system.impeach(
-      officer, guild, roles.officer_role, 'impeached for failing to get their detainment approved.'
-    );
-
     const not_impeached = new Date(Date.now() + to_week);
 
     await discord.dm(officer.user, `You have been impeached for not getting your warrant \
 (${warrant.id}) approved within ${warrant.extended_time ? '12 hours' : '5 minutes'}.\n\nYou will \
 not be able to receive a government official role until ${not_impeached.toLocaleString()}.`, guild);
+    await system.impeach(
+      officer,
+      guild,
+      roles.officer_role,
+      `impeached for failing to get detainment #${warrant.id} approved`
+    );
   }
 }
 

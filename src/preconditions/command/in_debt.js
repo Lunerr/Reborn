@@ -31,7 +31,7 @@ module.exports = new class InDebt extends Precondition {
 
     if (cash < in_debt) {
       return PreconditionResult.fromError(
-        cmd, `You cannot use this command because you are in debt.
+        cmd, `You cannot use this command because you are in debt.\n
 Your current balance is ${number.format(cash)}.`
       );
     }

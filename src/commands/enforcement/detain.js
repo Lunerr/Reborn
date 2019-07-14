@@ -91,7 +91,7 @@ module.exports = new class Detain extends Command {
 
       const res = await this.verify(
         msg, msg.member, `What law did ${args.user.mention} break? You willed be fined \
-${number.format(config.not_guilty_arrest)} if this user ends being not guilty.\n
+${number.format(Math.abs(config.not_guilty_arrest))} if this user ends being not guilty.\n
 Type \`cancel\` to cancel the command.`, args.user, filtered
       );
 
@@ -197,7 +197,8 @@ Type \`cancel\` to cancel the command.`;
       msg.channel, `You have successfully detained ${member.mention} and a warrant has been \
 created under the law ${law.name}.\n\nA judge must approve this detainment by using \
 \`${config.prefix}approve ${id}\` within ${online < min_judges ? '12 hours' : '5 minutes'} \
-or else you will get impeached.`
+or you will be impeached and be charged with a fine of \
+${number.format(Math.abs(config.not_guilty_arrest))}.`
     );
 
     const w_channel = msg.channel.guild.channels.get(warrant_channel);
