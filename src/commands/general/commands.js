@@ -37,7 +37,8 @@ module.exports = new class Commands extends Command {
       title: 'Commands',
       fields: []
     };
-    const sorted = groups.sort((a, b) => a.commands.length - b.commands.length);
+    const get_len = cmds => cmds.map(x => x.names[0]).join('').length;
+    const sorted = groups.sort((a, b) => get_len(a.commands) - get_len(b.commands));
 
     for (let i = 0; i < sorted.length; i++) {
       const group = sorted[i];
