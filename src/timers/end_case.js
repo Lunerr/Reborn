@@ -39,11 +39,11 @@ async function impeach(guild, judge_id, defendant_id, judge_role, trial_role, ja
   await system.impeach(judge, guild, judge_role, 'Impeached for having an inactive case');
 
   if (jailed_role) {
-    await remove_role(guild.id, defendant_id, jailed, 'Inactive case.');
+    await remove_role(guild.id, defendant_id, jailed, 'Judge of an inactive case');
   }
 
   if (t_role) {
-    await remove_role(guild.id, defendant_id, trial_role, 'Inactive case.');
+    await remove_role(guild.id, defendant_id, trial_role, 'Judge of an inactive case');
   }
 }
 
