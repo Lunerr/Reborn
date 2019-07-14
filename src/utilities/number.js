@@ -23,8 +23,8 @@ const formatter = Intl.NumberFormat('en-US', {
 });
 
 module.exports = {
-  format(input) {
-    return formatter.format(input);
+  format(num) {
+    return formatter.format(num);
   },
 
   msToTime(input) {

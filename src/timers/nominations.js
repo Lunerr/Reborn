@@ -105,7 +105,7 @@ async function dm(chief, guild, count) {
       await discord.dm_fallback(mem.user, `Due to the lack of having at least ${min_online} \
 members of your branch online consistently that aren't in-debt, you will have to nominate \
 ${min_nominations} or more people using the \`!nominate\` command or you will be impeached \
-${first} and fined ${number.format(Math.abs(config.impeach))}.`, guild);
+${first} and fined ${number.format(Math.abs(config.impeached))}.`, guild);
       upsert_notification(mem.id, guild.id, now, notification);
     }
   }
