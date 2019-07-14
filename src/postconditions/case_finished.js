@@ -39,14 +39,14 @@ class CaseFinished extends Postcondition {
     await system.dm_cash(
       judge,
       guild,
-      config.guilty_granted_warrant,
+      grant_amount,
       `${is_detainment ? 'approving' : 'granting'} warrant #${warrant.id}, \
 which led to a ${result} verdict`
     );
     await system.dm_cash(
       officer,
       guild,
-      config.guilty_arrest,
+      arrest_amount,
       `${is_detainment ? 'detaining' : 'arresting'} the defendant in warrant #${warrant.id}, \
 which led to a ${result} verdict.`
     );
