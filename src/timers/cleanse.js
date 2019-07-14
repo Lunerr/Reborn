@@ -71,7 +71,7 @@ const bad_words = [
   '18'
 ];
 const reg = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g;
-const msg_limit = 2e3;
+const msg_limit = 5e3;
 const rl = 4;
 
 function chunk(arr, size) {
