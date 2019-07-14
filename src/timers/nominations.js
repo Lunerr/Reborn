@@ -32,11 +32,11 @@ const impeached = 1728e5;
 const hours_in_day = 24;
 
 async function impeach(member, chief, min) {
+  await discord.dm_fallback(member.user, `You have been impeached for failing to nominate \
+${min} people, that aren't in-debt, to your branch within 48 hours since you were first notified.`);
   await system.impeach(
     member, member.guild, chief, 'impeached for having an inactive branch'
   );
-  await discord.dm_fallback(member.user, `You have been impeached for failing to nominate \
-${min} people, that aren't in-debt, to your branch within 48 hours since you were first notified.`);
   db.set_last_notified(member.id, member.guild.id, notifications.nominations, null);
 }
 
@@ -105,7 +105,7 @@ async function dm(chief, guild, count) {
       await discord.dm_fallback(mem.user, `Due to the lack of having at least ${min_online} \
 members of your branch online consistently that aren't in-debt, you will have to nominate \
 ${min_nominations} or more people using the \`!nominate\` command or you will be impeached \
-${first}.`, guild);
+${first} and fined ${number.format(Math.abs(config.impeach))}.`, guild);
       upsert_notification(mem.id, guild.id, now, notification);
     }
   }

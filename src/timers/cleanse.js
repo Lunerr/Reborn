@@ -71,7 +71,7 @@ const bad_words = [
   '18'
 ];
 const reg = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g;
-const msg_limit = 25e3;
+const msg_limit = 2e3;
 const rl = 4;
 
 function chunk(arr, size) {
@@ -117,7 +117,7 @@ async function purify(channel) {
     }
 
     if (bulk_del.length || single_del.length) {
-      const single = `and deleted ${single_del.length} `;
+      const single = single_del.length ? `and deleted ${single_del.length} ` : '';
 
       await log.info(`Bulk deleted ${bulk_del.length} messages ${single}\
 messages manually in ${channel.name} (${channel.id})`);
