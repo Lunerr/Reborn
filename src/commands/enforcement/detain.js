@@ -89,11 +89,10 @@ module.exports = new class Detain extends Command {
         return filtered;
       }
 
-      const res = await this.verify(
-        msg, msg.member, `What law did ${args.user.mention} break? You willed be fined \
-${number.format(Math.abs(config.not_guilty_arrest))} if this user ends being not guilty.\n
-Type \`cancel\` to cancel the command.`, args.user, filtered
-      );
+      const res = await this.verify(msg, msg.member, `What law did ${args.user.mention} break?
+**__In the event that this detainment does not lead to a conviction, YOU WILL BE FINED \
+${number.format(Math.abs(config.not_guilty_arrest))}.__**\n
+Type \`cancel\` to cancel the command.`, args.user, filtered);
 
       this.running[key] = false;
 
