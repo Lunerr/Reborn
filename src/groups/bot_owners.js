@@ -19,7 +19,7 @@
 const { Group } = require('patron.js');
 
 module.exports = new Group({
-  description: 'The boys of government that nominate.',
+  description: 'The big chode guys.',
   name: 'bot_owners',
   preconditions: ['bot_owners']
 });
