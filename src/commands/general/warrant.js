@@ -20,6 +20,7 @@ const { Argument, Command, CommandResult } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
+const empty_argument = Symbol('Empty Argument');
 
 module.exports = new class Warrant extends Command {
   constructor() {
@@ -29,7 +30,8 @@ module.exports = new class Warrant extends Command {
           example: '2',
           type: 'int',
           name: 'id',
-          key: 'id'
+          key: 'id',
+          defaultValue: empty_argument
         })
       ],
       description: 'View a warrant.',
@@ -40,7 +42,13 @@ module.exports = new class Warrant extends Command {
 
   async run(msg, args) {
     const warrants = db.fetch_warrants(msg.channel.guild.id);
-    const warrant = warrants.find(x => x.id === args.id);
+
+    if (!warrants.length) {
+      return CommandResult.fromError('There are no warrants.');
+    }
+
+    const last = warrants[warrants.length - 1];
+    const warrant = args.id === empty_argument ? last : warrants.find(x => x.id === args.id);
 
     if (!warrant) {
       return CommandResult.fromError('This warrant does not exist.');

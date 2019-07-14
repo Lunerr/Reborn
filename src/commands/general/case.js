@@ -20,6 +20,7 @@ const { Argument, Command, CommandResult } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
+const empty_argument = Symbol('Empty Argument');
 
 module.exports = new class Case extends Command {
   constructor() {
@@ -29,7 +30,8 @@ module.exports = new class Case extends Command {
           example: '2',
           type: 'int',
           name: 'id',
-          key: 'id'
+          key: 'id',
+          defaultValue: empty_argument
         })
       ],
       description: 'View a court case.',
@@ -40,7 +42,13 @@ module.exports = new class Case extends Command {
 
   async run(msg, args) {
     const cases = db.fetch_cases(msg.channel.guild.id);
-    const c_case = cases.find(x => x.id === args.id);
+
+    if (!cases.length) {
+      return CommandResult.fromError('There are no cases.');
+    }
+
+    const last = cases[cases.length - 1];
+    const c_case = args.id === empty_argument ? last : cases.find(x => x.id === args.id);
 
     if (!c_case) {
       return CommandResult.fromError('This court case does not exist.');
