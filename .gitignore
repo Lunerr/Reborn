@@ -13,3 +13,4 @@ package-lock.json
 logs/
 auth.yml
 backups/
+.vscode/
