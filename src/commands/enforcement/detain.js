@@ -69,10 +69,14 @@ module.exports = new class Detain extends Command {
     return this.mutex.sync(key, async () => {
       this.running[key] = true;
 
-      const { jailed_role } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+      const {
+        jailed_role, imprisoned_role
+      } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
       const member = msg.channel.guild.members.get(args.user.id);
 
-      if (member) {
+      if (member && member.roles.includes(imprisoned_role)) {
+        return CommandResult.fromError('This user is already muted.');
+      } else if (member) {
         await add_role(msg.channel.guild.id, args.user.id, jailed_role);
       }
 

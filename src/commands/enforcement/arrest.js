@@ -105,12 +105,17 @@ module.exports = new class Arrest extends Command {
 
   async prerequisites(msg, warrant) {
     const {
-      court_category, judge_role, trial_role, jailed_role, chief_justice_role
+      court_category, judge_role, trial_role, jailed_role, imprisoned_role, chief_justice_role
     } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const n_warrant = db.get_warrant(warrant.id);
     const prefix = `${discord.tag(msg.author).boldified}, `;
+    const defendant = msg.channel.guild.members.get(warrant.defendant_id);
 
-    if (n_warrant.executed === 1) {
+    if (defendant && defendant.roles.includes(imprisoned_role)) {
+      await discord.create_msg(msg, `${prefix}This user is already muted.`);
+
+      return false;
+    } else if (n_warrant.executed === 1) {
       await discord.create_msg(msg, `${prefix}This warrant has already been executed.`);
 
       return false;
