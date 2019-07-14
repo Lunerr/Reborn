@@ -21,5 +21,5 @@ const { Group } = require('patron.js');
 module.exports = new Group({
   description: 'Enforce the damn law.',
   name: 'enforcement',
-  preconditions: ['officers']
+  preconditions: ['officers', 'in_debt']
 });

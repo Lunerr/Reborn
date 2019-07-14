@@ -52,6 +52,12 @@ Your current balance is ${number.format(current_balance)}.`,
     );
   },
 
+  member_in_debt(member, guild) {
+    const cash = db.get_cash(member.id, guild.id);
+
+    return cash < config.in_debt;
+  },
+
   async impeach(member, guild, role, reason) {
     const time = Date.now();
 

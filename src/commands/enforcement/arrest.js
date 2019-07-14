@@ -253,8 +253,11 @@ the prosecutor and defendant have the right to request a qualified and earnest a
   }
 
   get_judge(guild, warrant, judge_role, chief) {
-    let judge = guild.members
-      .filter(mbr => mbr.roles.includes(judge_role) || mbr.roles.includes(chief));
+    let judge = guild.members.filter(
+      mbr => !system.member_in_debt(mbr, guild)
+        && (mbr.roles.includes(judge_role)
+        || mbr.roles.includes(chief))
+    );
 
     if (judge.length >= 1) {
       const ids = [warrant.judge_id, warrant.defendant_id, warrant.officer_id];

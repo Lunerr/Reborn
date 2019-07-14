@@ -35,7 +35,7 @@ terms and have reviewed the necessary information, please type \`yes\`.`;
 module.exports = new class ApproveDetainment extends Command {
   constructor() {
     super({
-      preconditions: ['judges'],
+      preconditions: ['judges', 'in_debt'],
       args: [
         new Argument({
           example: '2',

@@ -53,21 +53,32 @@ time_units: {
 
 restart: git pull && pm2 restart 0
 
-# Cash
+# The minimum amount of cash that is considered not in-debt
+in_debt: 0
+
+# Amount given for finishing a case
 judge_case: 1e3
 
+# Amount given to the approving judge if the case leads to a guilty verdict
 guilty_granted_warrant: 250
 
+# Amount given to the cop if the case leads to a guilty verdict
 guilty_arrest: 250
 
+# Amount given to the approving judge if the case leads to a guilty verdict
 not_guilty_granted_warrant: -500
 
+# Amount given to the cop if the case leads to a guilty verdict
 not_guilty_arrest: -500
 
+# Amount given if one gets impeached
 impeached: -2e3
 
+# Amount given per message
 cash_per_msg: 0.25
 
+# Cooldown for chat cash
 msg_cooldown: 3e4
 
+# Minimum character to get cash (Message is sanitized for links, emojis, and mentions)
 min_msg_length: 7

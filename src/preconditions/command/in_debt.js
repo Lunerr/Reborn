@@ -16,10 +16,26 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
-const { Group } = require('patron.js');
+const { Precondition, PreconditionResult } = require('patron.js');
+const { config: { in_debt } } = require('../../services/data.js');
+const db = require('../../services/database.js');
+const number = require('../../utilities/number.js');
 
-module.exports = new Group({
-  description: 'The big boys of the government.',
-  name: 'congress',
-  preconditions: ['congress', 'in_debt']
-});
+module.exports = new class InDebt extends Precondition {
+  constructor() {
+    super({ name: 'in_debt' });
+  }
+
+  async run(cmd, msg) {
+    const cash = db.get_cash(msg.author.id, msg.channel.guild.id);
+
+    if (cash < in_debt) {
+      return PreconditionResult.fromError(
+        cmd, `You cannot use this command because you are in debt.
+Your current balance is ${number.format(cash)}.`
+      );
+    }
+
+    return PreconditionResult.fromSuccess();
+  }
+}();
