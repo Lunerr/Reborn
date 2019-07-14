@@ -117,7 +117,9 @@ async function purify(channel) {
     }
 
     if (bulk_del.length || single_del.length) {
-      await log.info(`Bulk deleted ${bulk_del.length} messages and deleted ${single_del.length} \
+      const single = `and deleted ${single_del.length} `;
+
+      await log.info(`Bulk deleted ${bulk_del.length} messages ${single}\
 messages manually in ${channel.name} (${channel.id})`);
     }
 
