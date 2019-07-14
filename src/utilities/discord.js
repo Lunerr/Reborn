@@ -108,7 +108,16 @@ module.exports = {
     let fetched;
     let last;
 
-    while ((fetched = await channel.getMessages(max_fetch, last)).length) {
+    const on_err = async l => {
+      await util.delay();
+
+      return channel.getMessages(max_fetch, l);
+    };
+
+    /* eslint-disable no-loop-func */
+    while (
+      (fetched = await channel.getMessages(max_fetch, last).catch(() => on_err(last))).length
+    ) {
       msgs.push(...fetched);
 
       if (limit !== null && msgs.length >= limit) {
