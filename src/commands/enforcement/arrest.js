@@ -17,13 +17,15 @@
  */
 'use strict';
 const { Argument, Command, CommandResult, MultiMutex } = require('patron.js');
-const catch_discord = require('../../utilities/catch_discord.js');
 const { config } = require('../../services/data.js');
 const client = require('../../services/client.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
 const reg = require('../../services/registry.js');
+const number = require('../../utilities/number.js');
+const str = require('../../utilities/string.js');
+const catch_discord = require('../../utilities/catch_discord.js');
 const create_channel = catch_discord(client.createChannel.bind(client));
 const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
@@ -38,6 +40,9 @@ __IGNORANCE IS NOT A DEFENSE.__
 Furthermore, if you perform this arrest, **you will need to prosecute it in court.** \
 This may take days. This will be time consuming. If you fail to properly prosecute the case, \
 you will be impeached.
+
+If this case proceeds to go to court and the defendant is found not guilty, \
+you will be fined ${number.format('{0}')}.
 
 If you are sure you wish to proceed with the arrest given the aforementioned terms \
 and have reviewed the necessary information, please type \`yes\`.`;
@@ -67,12 +72,14 @@ module.exports = new class Arrest extends Command {
 
   async run(msg, args) {
     return this.mutex.sync(`${msg.channel.guild.id}-${args.warrant.id}`, async () => {
-      if (args.warrant.executed === 1) {
+      if (args.warrant.request === 1) {
+        return CommandResult.fromError(
+          `This warrant can only be approved using \`${config.prefix}!approve\`.`
+        );
+      } else if (args.warrant.executed === 1) {
         return CommandResult.fromError('This warrant was already served.');
       } else if (args.warrant.defendant_id === msg.author.id) {
         return CommandResult.fromError('You cannot arrest yourself.');
-      } else if (args.warrant.request === 1 && args.warrant.approved === 0) {
-        return CommandResult.fromError('This request warrant has not been approved by a judge.');
       }
 
       const res = await this.prerequisites(msg, args.warrant);
@@ -121,7 +128,9 @@ module.exports = new class Arrest extends Command {
       return false;
     }
 
-    const verified = await discord.verify_msg(msg, `${arrest_message}`, null, 'yes');
+    const verified = await discord.verify_msg(
+      msg, `${str.format(arrest_message, config.not_guilty_arrest)}`, null, 'yes'
+    );
 
     if (!verified) {
       await discord.create_msg(msg.channel, `${prefix}The command has been cancelled.`);

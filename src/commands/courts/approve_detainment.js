@@ -32,7 +32,7 @@ do not proceed with this approval.
 
 __IGNORANCE IS NOT A DEFENSE.__
 
-If proceeds to go to court and the defendant is found not guilty, \
+If this case proceeds to go to court and the defendant is found not guilty, \
 you will be fined ${number.format('{0}')}.
 
 If you are sure you wish to proceed with the approval this detainment given the aforementioned \
