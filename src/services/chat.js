@@ -40,10 +40,6 @@ module.exports = {
     const longEnough = this.prune(msg.content).length >= config.min_msg_length;
 
     if (cdOver && longEnough) {
-      if (!lastMessage) {
-        db.get_member(msg.author.id, msg.channel.guild.id);
-      }
-
       const amount = config.cash_per_msg;
 
       this.messages[key] = Date.now();
