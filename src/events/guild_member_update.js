@@ -22,6 +22,7 @@ const discord = require('../utilities/discord.js');
 const number = require('../utilities/number.js');
 const db = require('../services/database.js');
 const verdict = require('../enums/verdict.js');
+const notifications = require('../enums/notifications.js');
 const system = require('../utilities/system.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const edit_member = catch_discord(client.editGuildMember.bind(client));
@@ -138,6 +139,12 @@ client.on('guildMemberUpdate', async (guild, new_member, old_member) => {
 
   if (old_member.roles.includes(res.judge) && !new_member.roles.includes(res.judge)) {
     await lost_judge(new_member);
+  }
+
+  const is_chief = x => system.chief_roles.some(c => x.roles.includes(res[c]));
+
+  if (is_chief(old_member) && !is_chief(new_member)) {
+    db.set_last_notified(new_member.id, guild.id, notifications.nominations, null);
   }
 
   const jobs = system.gov_roles.concat(system.chief_roles)
