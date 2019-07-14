@@ -55,7 +55,9 @@ module.exports = new class ApproveDetainment extends Command {
     return this.mutex.sync(`${msg.channel.guild.id}-${args.warrant.id}`, async () => {
       const warrant = db.get_warrant(args.warrant.id);
 
-      if (warrant.executed === 1) {
+      if (warrant.request !== 1) {
+        return CommandResult.fromError('This warrant is not a detainment.');
+      } else if (warrant.executed === 1) {
         return CommandResult.fromError('This detainment has already been executed.');
       } else if (warrant.approved === 1) {
         return CommandResult.fromError('This detainment has already been approved.');
