@@ -28,6 +28,8 @@ client.on('guildMemberRemove', async (guild, member) => {
   const t_role = guild.roles.get(trial_role);
   const j_role = guild.roles.get(jailed_role);
 
+  db.get_member(member.id, guild.id);
+
   if (t_role) {
     db.set_trial(member.roles.includes(trial_role) ? 1 : 0, guild.id, member.id);
   }
