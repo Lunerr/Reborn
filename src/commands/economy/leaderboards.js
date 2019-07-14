@@ -56,9 +56,7 @@ module.exports = new class Leaderboards extends Command {
         break;
       }
 
-      console.log(members[i])
-
-      const cash = number.format(members[i].cash);
+      const cash = number.format(members[i].cash, true);
       const user = util.escape_markdown(discord.tag(member.user));
 
       embed.embed.description += `${i + 1}. **${user}**: ${cash}\n`;

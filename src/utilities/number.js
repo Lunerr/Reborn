@@ -21,10 +21,15 @@ const formatter = Intl.NumberFormat('en-US', {
   currency: 'USD',
   minimumFractionDigits: 2
 });
+const to_cents = 100;
 
 module.exports = {
-  format(num) {
-    return formatter.format(num);
+  value(num) {
+    return num / to_cents;
+  },
+
+  format(num, cents = false) {
+    return formatter.format(cents ? this.value(num) : num);
   },
 
   msToTime(input) {
