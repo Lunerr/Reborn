@@ -23,6 +23,7 @@ const catch_discord = require('../../utilities/catch_discord.js');
 const client = require('../../services/client.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
+const number = require('../../utilities/number.js');
 const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const max_evidence = 10;
@@ -88,8 +89,11 @@ module.exports = new class Detain extends Command {
         return filtered;
       }
 
-      const res = await this.verify(msg, msg.member, `What law did ${args.user.mention} break?\n
-Type \`cancel\` to cancel the command.`, args.user, filtered);
+      const res = await this.verify(
+        msg, msg.member, `What law did ${args.user.mention} break? You willed be fined \
+${number.format(config.not_guilty_arrest)} if this user ends being not guilty.\n
+Type \`cancel\` to cancel the command.`, args.user, filtered
+      );
 
       this.running[key] = false;
 

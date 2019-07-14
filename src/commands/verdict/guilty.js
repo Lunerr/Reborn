@@ -17,6 +17,7 @@
  */
 'use strict';
 const { Argument, Command, CommandResult, MultiMutex } = require('patron.js');
+const { config } = require('../../services/data.js');
 const client = require('../../services/client.js');
 const verdict = require('../../enums/verdict.js');
 const db = require('../../services/database.js');
@@ -115,7 +116,8 @@ ${time} in prison${repeated ? ` for repeatedly breaking the law \`${law.name}\``
 charged with committing a misdemeanor'}.`;
 
     await discord.create_msg(
-      msg.channel, `${def.mention} has been found guilty and ${ending}`
+      msg.channel, `${def.mention} has been found guilty and ${ending}\n\n${msg.member.mention}, \
+you have been rewarded with ${number.format(config.judge_case)} for delivering the verdict.`
     );
     await system.close_case(msg, msg.channel);
   }

@@ -17,11 +17,13 @@
  */
 'use strict';
 const { Argument, Command, CommandResult } = require('patron.js');
+const { config } = require('../../services/data.js');
 const client = require('../../services/client.js');
 const verdict = require('../../enums/verdict.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
+const number = require('../../utilities/number.js');
 
 module.exports = new class NotGuilty extends Command {
   constructor() {
@@ -51,14 +53,13 @@ module.exports = new class NotGuilty extends Command {
       return CommandResult.fromError(res.reason);
     }
 
-    const update = {
+    const { lastInsertRowid: id } = db.insert('verdicts', {
       guild_id: msg.channel.guild.id,
       case_id,
       defendant_id,
       verdict: verdict.innocent,
       opinion: args.opinion
-    };
-    const { lastInsertRowid: id } = db.insert('verdicts', update);
+    });
 
     await this.free(msg.channel.guild, defendant);
     c_case = db.get_case(id);
@@ -71,10 +72,12 @@ module.exports = new class NotGuilty extends Command {
     }
 
     const prefix = `${discord.tag(msg.author).boldified}, `;
+    const def = defendant || await client.getRESTUser(defendant_id);
 
     await discord.create_msg(
-      msg.channel, `${prefix}The court has found \
-${(defendant || await client.getRESTUser(defendant_id)).mention} not guilty.`
+      msg.channel,
+      `${prefix}The court has found ${def.mention} not guilty.\n\n${msg.member.mention}, \
+you have been rewarded with ${number.format(config.judge_case)} for delivering the verdict.`
     );
     await system.close_case(msg, msg.channel);
 

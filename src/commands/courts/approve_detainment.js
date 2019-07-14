@@ -17,10 +17,13 @@
  */
 'use strict';
 const { Argument, Command, CommandResult, MultiMutex } = require('patron.js');
+const { config } = require('../../services/data.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const registry = require('../../services/registry.js');
 const system = require('../../utilities/system.js');
+const number = require('../../utilities/number.js');
+const str = require('../../utilities/string.js');
 const content = `Approving unlawful detainments will result in \
 impeachment and **national disgrace**.
 
@@ -28,6 +31,9 @@ If you have **ANY DOUBTS WHATSOEVER ABOUT THE VALIDITY OF THIS DETAINMENT**, \
 do not proceed with this approval.
 
 __IGNORANCE IS NOT A DEFENSE.__
+
+If proceeds to go to court and the defendant is found not guilty, \
+you will be fined ${number.format('{0}')}.
 
 If you are sure you wish to proceed with the approval this detainment given the aforementioned \
 terms and have reviewed the necessary information, please type \`yes\`.`;
@@ -57,15 +63,13 @@ module.exports = new class ApproveDetainment extends Command {
 
       if (warrant.request !== 1) {
         return CommandResult.fromError('This warrant is not a detainment.');
-      } else if (warrant.executed === 1) {
-        return CommandResult.fromError('This detainment has already been executed.');
       } else if (warrant.approved === 1) {
         return CommandResult.fromError('This detainment has already been approved.');
       } else if (warrant.defendant_id === msg.author.id) {
         return CommandResult.fromError('You cannot approve a detainment that\'s against you.');
       }
 
-      const res = await discord.verify(msg, content);
+      const res = await discord.verify(msg, str.format(content, config.not_guilty_granted_warrant));
 
       if (!res.success) {
         return res;

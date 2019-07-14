@@ -17,11 +17,13 @@
  */
 'use strict';
 const { Argument, Command, CommandResult } = require('patron.js');
+const { config } = require('../../services/data.js');
 const client = require('../../services/client.js');
 const verdict = require('../../enums/verdict.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
+const number = require('../../utilities/number.js');
 
 module.exports = new class UnlawfulTrial extends Command {
   constructor() {
@@ -52,14 +54,13 @@ again.',
     }
 
     const { case_id, defendant_id, plaintiff_id } = res;
-    const update = {
+    const { lastInsertRowid: id } = db.insert('verdicts', {
       guild_id: msg.channel.guild.id,
       case_id,
       defendant_id,
       verdict: verdict.unjust_trial,
       opinion: args.reason
-    };
-    const { lastInsertRowid: id } = db.insert('verdicts', update);
+    });
 
     c_case = db.get_case(id);
 
@@ -82,12 +83,13 @@ again.',
     const prefix = `${discord.tag(msg.author).boldified}, `;
 
     await this.impeach(judge, cop, msg.channel.guild, {
-      judge: judge_role,
-      officer: officer_role
+      judge: judge_role, officer: officer_role
     });
     await discord.create_msg(msg.channel, `${prefix}This court case has been declared as an \
 unjust trial.\nBoth ${cop.mention} and ${judge.mention} have been impeached for partaking in this \
-unjust trial.\n\nNo verdict has been delivered and the accused may be prosecuted again.`);
+unjust trial.\n\nNo verdict has been delivered and the accused may be prosecuted again.\n\n\
+${msg.member.mention}, you have been rewarded with ${number.format(config.judge_case)} for \
+delivering the verdict.`);
     await system.close_case(msg, msg.channel);
 
     return c_case;

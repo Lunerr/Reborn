@@ -17,10 +17,12 @@
  */
 'use strict';
 const { Command, CommandResult } = require('patron.js');
+const { config } = require('../../services/data.js');
 const verdict = require('../../enums/verdict.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
+const number = require('../../utilities/number.js');
 
 module.exports = new class Mistrial extends Command {
   constructor() {
@@ -68,7 +70,8 @@ from prosecuting the defendant again.',
 
     await discord.create_msg(msg.channel, `${prefix}This court case has been declared as a \
 mistrial.\n\n\
-No verdict has been delivered and the accused may be prosecuted again.`);
+No verdict has been delivered and the accused may be prosecuted again.\n\n${msg.member.mention}, \
+you have been rewarded with ${number.format(config.judge_case)} for delivering the verdict.`);
     await system.close_case(msg, msg.channel);
 
     return c_case;
