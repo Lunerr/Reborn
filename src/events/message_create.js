@@ -146,7 +146,7 @@ client.on('messageCreate', catch_discord(async msg => {
   }
 
   if (!msg.content.startsWith(prefix)) {
-    return chat.add_cash(msg);
+    return msg.channel.guild ? chat.add_cash(msg) : null;
   }
 
   const result = await handler.run(msg, prefix.length);
