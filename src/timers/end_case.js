@@ -22,6 +22,7 @@ const catch_discord = require('../utilities/catch_discord.js');
 const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
 const system = require('../utilities/system.js');
+const number = require('../utilities/system.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const verdict = require('../enums/verdict.js');
 const last_message_time = 432e5;
@@ -83,7 +84,8 @@ async function close(c_case, guild, channel) {
       await channel.createMessage(`${pings}\nThis case has not yet reached a verdict and there has \
 been no recent activity.\nThis case will be marked as inactive ${left === 1 ? 'soon ' : ''}if no \
 recent message is sent.\n\n${judge.mention}, it is your duty to proceed with the case and come to \
-a verdict. Failure to do so will result in impeachment and national disgrace. `);
+a verdict. Failure to do so will result in impeachment, a fine of \
+${number.format(config.impeached)}, and national disgrace. `);
     }
 
     db.set_case_inactive_count(c_case.id, inactive_count + 1);
