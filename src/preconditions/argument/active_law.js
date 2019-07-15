@@ -26,6 +26,8 @@ module.exports = new class ActiveLaw extends ArgumentPrecondition {
   async run(cmd, msg, arg, args, val) {
     if (val.active === 0) {
       return PreconditionResult.fromError(cmd, 'This law is no longer active.');
+    } else if (val.in_effect === 0) {
+      return PreconditionResult.fromError(cmd, 'This law is not in effect yet.');
     }
 
     return PreconditionResult.fromSuccess();
