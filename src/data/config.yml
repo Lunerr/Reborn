@@ -34,6 +34,9 @@ auto_unmute: 3e5
 # Interval for cleansing the server
 auto_cleanse: 3e5
 
+# Interval for setting laws to be active
+active_law: 6e4
+
 # Time when the detain needs to be approved
 detain_approved: 3e4
 
@@ -52,6 +55,9 @@ time_units: {
 }
 
 restart: git pull && pm2 restart 0
+
+# Time when the law will be considered in place
+law_in_effect: 864e5
 
 # Innoncence bias reward
 innocence_bias: 0.1

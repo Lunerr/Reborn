@@ -38,6 +38,10 @@ module.exports = {
   bitfield: 2048,
   mutex: new MultiMutex(),
 
+  law_in_effect(law, time) {
+    return Date.now() - (law.created_at + time) > 0;
+  },
+
   dm_cash(user, guild, amount, reason) {
     const outcome = amount < 0 ? 'lost' : 'been rewarded with';
     const value = amount < 0 ? Math.abs(amount) : amount;
@@ -247,15 +251,49 @@ Your current balance is ${number.format(current_balance)}.`,
     await channel.deleteMessages(messages.map(x => x.id)).catch(() => null);
   },
 
+  edit_law(channel, law) {
+    return this.mutex.sync(`${channel.guild.id}-laws`, async () => {
+      const msgs = await discord.fetch_msgs(channel);
+
+      const parse_name = m => {
+        const embed = m && m.embeds.length;
+
+        if (!embed) {
+          return null;
+        }
+
+        const split = m.embeds[0].description.split('**Name:** ');
+
+        if (!split[1]) {
+          return null;
+        }
+
+        return split[1].split('\n')[0];
+      };
+      const found = msgs.find(x => parse_name(x) === law.name);
+
+      if (found) {
+        return found.edit({ embed: this.format_laws([law])[0] });
+      }
+
+      return law;
+    });
+  },
+
   format_laws(laws) {
     const msgs = [];
 
     for (let i = 0; i < laws.length; i++) {
-      const { name, content, mandatory_felony } = laws[i];
+      const { name, content, mandatory_felony, created_at } = laws[i];
       const { embed } = discord.embed({});
+      const description = `${content}${mandatory_felony ? ' (felony)' : ''}`;
+      const active = this.law_in_effect(laws[i], config.law_in_effect);
 
-      embed.title = name;
-      embed.description = `${content}${mandatory_felony ? ' (felony)' : ''}`;
+      embed.timestamp = new Date(created_at + (active ? 0 : config.law_in_effect)).toISOString();
+      embed.footer = {
+        text: active ? 'In effect since' : 'Takes effect'
+      };
+      embed.description = `**Name:** ${name}\n**Description:** ${description}`;
       msgs.push(embed);
     }
 
@@ -269,7 +307,12 @@ Your current balance is ${number.format(current_balance)}.`,
 
   async update_laws(channel, laws) {
     return this.mutex.sync(`${channel.guild.id}-laws`, async () => {
-      const fn = (x, item) => x && x.embeds[0].title === item.name;
+      const fn = (x, item) => {
+        const content = `${item.content}${item.mandatory_felony ? ' (felony)' : ''}`;
+        const description = `**Name:** ${item.name}\n**Description:** ${content}`;
+
+        return x && x.embeds[0].description === description;
+      };
       const to_prune = await this.should_prune(channel, laws, fn);
 
       if (to_prune) {

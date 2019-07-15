@@ -219,6 +219,10 @@ module.exports = {
     return impeachment;
   },
 
+  set_law_in_effect(law_id) {
+    return queries.set_law_in_effect.run(law_id);
+  },
+
   update_impeachment(guild_id, member_id, time) {
     this.get_impeachment(guild_id, member_id);
 

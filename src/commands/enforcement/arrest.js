@@ -74,7 +74,7 @@ module.exports = new class Arrest extends Command {
     return this.mutex.sync(`${msg.channel.guild.id}-${args.warrant.id}`, async () => {
       if (args.warrant.request === 1) {
         return CommandResult.fromError(
-          `This warrant can only be approved using \`${config.prefix}!approve\`.`
+          `This warrant can only be approved using \`${config.prefix}approve\`.`
         );
       } else if (args.warrant.executed === 1) {
         return CommandResult.fromError('This warrant was already served.');
