@@ -59,6 +59,12 @@ restart: git pull && pm2 restart 0
 # Minimum cash required for gambling
 min_gamble: 2.50
 
+# Minimum cash that can be transfered
+min_transfer: 5
+
+# Transaction fee when transferring
+transaction_fee: 0.1
+
 # Time when the law will be considered in place
 law_in_effect: 864e5
 
