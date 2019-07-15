@@ -2,8 +2,10 @@ const { Postcondition } = require('patron.js');
 const { config } = require('../services/data.js');
 const client = require('../services/client.js');
 const db = require('../services/database.js');
+const handler = require('../services/handler.js');
 const system = require('../utilities/system.js');
 const verdict = require('../enums/verdict.js');
+const ignore = ['mistrial'];
 
 class CaseFinished extends Postcondition {
   constructor() {
@@ -12,8 +14,19 @@ class CaseFinished extends Postcondition {
 
   async run(msg, result) {
     if (result.success !== false) {
-      const cmd = msg.content.slice(config.prefix.length).toLowerCase();
-      const bonus = cmd.startsWith('not_guilty') ? 1 + config.innocence_bias : 1;
+      const res = await handler.parseCommand(msg, config.prefix.length);
+
+      if (!res.success) {
+        return;
+      }
+
+      const [name] = res.command.names;
+
+      if (ignore.includes(name)) {
+        return;
+      }
+
+      const bonus = name === 'not_guilty' ? 1 + config.innocence_bias : 1;
       const amount = config.judge_case * bonus;
 
       db.add_cash(msg.author.id, msg.channel.guild.id, amount);
