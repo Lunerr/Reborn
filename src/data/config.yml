@@ -57,7 +57,7 @@ time_units: {
 restart: git pull && pm2 restart 0
 
 # Minimum cash required for gambling
-min_gamble: 5
+min_gamble: 2.50
 
 # Time when the law will be considered in place
 law_in_effect: 864e5
