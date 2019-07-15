@@ -26,7 +26,7 @@ class CaseFinished extends Postcondition {
         return;
       }
 
-      const bonus = name === 'not_guilty' ? 1 + config.innocence_bias : 1;
+      const bonus = name === 'guilty' ? 1 : 1 + config.innocence_bias;
       const amount = config.judge_case * bonus;
 
       db.add_cash(msg.author.id, msg.channel.guild.id, amount);
