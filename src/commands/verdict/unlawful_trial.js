@@ -46,7 +46,7 @@ again.',
   }
 
   async run(msg, args) {
-    let c_case = db.get_channel_case(msg.channel.id);
+    const c_case = db.get_channel_case(msg.channel.id);
     const res = await this.prerequisites(c_case);
 
     if (res instanceof CommandResult) {
@@ -55,15 +55,14 @@ again.',
 
     const { guild } = msg.channel;
     const { case_id, defendant_id, plaintiff_id } = res;
-    const { lastInsertRowid: id } = db.insert('verdicts', {
+
+    db.insert('verdicts', {
       guild_id: guild.id,
       case_id,
       defendant_id,
       verdict: verdict.unjust_trial,
       opinion: args.reason
     });
-
-    c_case = db.get_case(id);
 
     const {
       trial_role, jailed_role, case_channel, judge_role, officer_role

@@ -35,7 +35,7 @@ from prosecuting the defendant again.',
   }
 
   async run(msg) {
-    let c_case = db.get_channel_case(msg.channel.id);
+    const c_case = db.get_channel_case(msg.channel.id);
     const res = await this.prerequisites(c_case);
 
     if (res instanceof CommandResult) {
@@ -49,9 +49,8 @@ from prosecuting the defendant again.',
       defendant_id,
       verdict: verdict.mistrial
     };
-    const { lastInsertRowid: id } = db.insert('verdicts', update);
 
-    c_case = db.get_case(id);
+    db.insert('verdicts', update);
 
     const {
       trial_role, jailed_role, case_channel
