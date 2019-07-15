@@ -137,7 +137,7 @@ client.on('messageCreate', catch_discord(async msg => {
 
   const isCommand = await handler.parseCommand(msg, prefix.length);
 
-  if (!isCommand.success && msg.channel.guild) {
+  if ((!msg.content.startsWith(prefix) || !isCommand.success) && msg.channel.guild) {
     const { court_category } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
 
     if (!court_category || (msg.channel.parentID && msg.channel.parentID !== court_category)) {
