@@ -36,6 +36,26 @@ and you have been freed in ${guild.name}.`,
   );
 }
 
+function find_mute(db_verdict, verdicts) {
+  let exists = false;
+
+  for (let i = 0; i < verdicts.length; i++) {
+    if (verdicts[i].id === db_verdict.id) {
+      continue;
+    }
+
+    const unserved = verdicts[i].sentence !== null && verdicts[i].served === 0;
+    const time_left = verdicts[i].last_modified_at + verdicts[i].sentence - Date.now();
+
+    if (verdicts[i].verdict !== verdict.pending && unserved && time_left <= 0) {
+      exists = true;
+      break;
+    }
+  }
+
+  return exists;
+}
+
 Timer(async () => {
   const guilds = [...client.guilds.keys()];
 
@@ -60,6 +80,12 @@ Timer(async () => {
       const guild = client.guilds.get(verdicts[i].guild_id);
 
       if (!guild) {
+        continue;
+      }
+
+      const still_muted = find_mute(verdicts[i], verdicts);
+
+      if (still_muted) {
         continue;
       }
 
