@@ -1,4 +1,4 @@
-const Gambling = require('../../templates/Gambling.js');
+const Gambling = require('../../templates/gambling.js');
 const odds = 75;
 const payout = 2.6;
 
