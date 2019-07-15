@@ -45,7 +45,7 @@ class CaseFinished extends Postcondition {
     const judge = await client.getRESTUser(warrant.judge_id);
     const officer = await client.getRESTUser(c_case.plaintiff_id);
     const guild = client.guilds.get(c_case.guild_id);
-    const guilty = case_verdict.verdict === verdict.guilty;
+    const guilty = case_verdict && case_verdict.verdict === verdict.guilty;
     const grant_amount = guilty ? config.guilty_granted_warrant : config.not_guilty_granted_warrant;
     const arrest_amount = guilty ? config.guilty_arrest : config.not_guilty_arrest;
     const result = guilty ? 'guilty' : 'not guilty';
