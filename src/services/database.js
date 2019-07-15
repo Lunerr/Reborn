@@ -170,19 +170,27 @@ module.exports = {
   },
 
   set_cash(member_id, guild_id, amount, convert = true) {
-    this.get_member(member_id, guild_id);
-
+    const member = this.get_member(member_id, guild_id);
     const value = convert ? amount * to_cents : amount;
 
-    return queries.set_cash.run(value, member_id, guild_id);
+    queries.set_cash.run(value, member_id, guild_id);
+
+    return {
+      ...member,
+      cash: value
+    };
   },
 
   add_cash(member_id, guild_id, amount, convert = true) {
-    this.get_member(member_id, guild_id);
-
+    const member = this.get_member(member_id, guild_id);
     const value = convert ? amount * to_cents : amount;
 
-    return queries.add_cash.run(value, member_id, guild_id);
+    queries.add_cash.run(value, member_id, guild_id);
+
+    return {
+      ...member,
+      cash: member.cash + value
+    };
   },
 
   get_channel_case(channel_id) {

@@ -24,6 +24,18 @@ const formatter = Intl.NumberFormat('en-US', {
 const to_cents = 100;
 
 module.exports = {
+  nextInt(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+  },
+
+  nextFloat(min, max) {
+    return this.nextInt(min * to_cents, (max * to_cents) + 1) / to_cents;
+  },
+
+  roll() {
+    return this.nextFloat(0, to_cents);
+  },
+
   value(num) {
     return num / to_cents;
   },
