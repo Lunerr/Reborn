@@ -25,6 +25,7 @@ const db = require('../services/database.js');
 const verdict = require('../enums/verdict.js');
 const branch = require('../enums/branch.js');
 const number = require('./number.js');
+const str = require('../utilities/string.js');
 const catch_discord = require('../utilities/catch_discord.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 
@@ -421,7 +422,7 @@ Your current balance is ${number.format(current_balance)}.`,
 
     if (case_verdict) {
       verdict_string = Object.keys(verdict).find(x => verdict[x] === case_verdict.verdict);
-      verdict_string = verdict_string[0].toUpperCase() + verdict_string.slice(1);
+      verdict_string = verdict_string.split('_').map(str.to_uppercase).join(' ');
       append += `\n**Verdict:** ${verdict_string}`;
 
       if (case_verdict.verdict !== verdict.mistrial) {
