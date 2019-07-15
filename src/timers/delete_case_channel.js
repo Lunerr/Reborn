@@ -51,7 +51,7 @@ Timer(() => {
       const channel_case = db.get_case(verdicts[i].case_id);
       const channel = guild.channels.get(channel_case.channel_id);
 
-      if (channel) {
+      if (channel && channel.id !== '600133826081193994') {
         delete_channel(channel.id, '24 hours since the verdict was delivered');
       }
     }
