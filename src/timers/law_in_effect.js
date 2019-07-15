@@ -27,6 +27,7 @@ Timer(async () => {
 
   for (let k = 0; k < guilds.length; k++) {
     const laws = db.fetch_laws(guilds[k]);
+    let edited = false;
 
     for (let i = 0; i < laws.length; i++) {
       const law = laws[i];
@@ -40,19 +41,25 @@ Timer(async () => {
       }
 
       db.set_law_in_effect(law.id);
+      edited = true;
+    }
 
-      const guild = client.guilds.get(guilds[k]);
+    if (!edited) {
+      continue;
+    }
 
-      if (!guild) {
-        continue;
-      }
+    const guild = client.guilds.get(guilds[k]);
 
-      const { law_channel } = db.fetch('guilds', { guild_id: guild.id });
-      const channel = guild.channels.get(law_channel);
+    if (!guild) {
+      continue;
+    }
 
-      if (channel) {
-        await system.edit_law(channel, law);
-      }
+    const { law_channel } = db.fetch('guilds', { guild_id: guild.id });
+    const channel = guild.channels.get(law_channel);
+    const fetched = db.fetch_laws(guild.id);
+
+    if (channel) {
+      await system.update_laws(channel, fetched);
     }
   }
 }, config.active_law);

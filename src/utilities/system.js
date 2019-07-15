@@ -253,35 +253,6 @@ Your current balance is ${number.format(current_balance)}.`,
     await channel.deleteMessages(messages.map(x => x.id)).catch(() => null);
   },
 
-  edit_law(channel, law) {
-    return this.mutex.sync(`${channel.guild.id}-laws`, async () => {
-      const msgs = await discord.fetch_msgs(channel);
-
-      const parse_name = m => {
-        const embed = m && m.embeds.length;
-
-        if (!embed) {
-          return null;
-        }
-
-        const split = m.embeds[0].description.split('**Name:** ');
-
-        if (!split[1]) {
-          return null;
-        }
-
-        return split[1].split('\n')[0];
-      };
-      const found = msgs.find(x => parse_name(x) === law.name);
-
-      if (found) {
-        return found.edit({ embed: this.format_laws([law])[0] });
-      }
-
-      return law;
-    });
-  },
-
   format_laws(laws) {
     const msgs = [];
 
