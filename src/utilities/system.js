@@ -262,7 +262,7 @@ Your current balance is ${number.format(current_balance)}.`,
       const description = `${content}${mandatory_felony ? ' (felony)' : ''}`;
       const active = this.law_in_effect(laws[i], config.law_in_effect);
 
-      embed.timestamp = new Date(created_at + (active ? 0 : config.law_in_effect)).toISOString();
+      embed.timestamp = new Date(created_at + config.law_in_effect).toISOString();
       embed.footer = {
         text: active ? 'In effect since' : 'Takes effect'
       };
