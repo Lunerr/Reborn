@@ -128,9 +128,9 @@ you have been rewarded with ${number.format(config.judge_case)} for delivering t
       const total_hours = (days * hours_per_day) + hours;
 
       if (total_hours) {
-        return `${total_hours} hours${minutes ? ` ${minutes} minutes` : ''}`;
+        return `${total_hours} hours${minutes ? ` and ${minutes} minutes` : ''}`;
       } else if (minutes) {
-        return `${minutes} minutes${seconds ? ` ${seconds} seconds` : ''}`;
+        return `${minutes} minutes${seconds ? ` and ${seconds} seconds` : ''}`;
       } else if (seconds || !soon) {
         return `${seconds} seconds`;
       }
