@@ -119,11 +119,11 @@ module.exports = new class Arrest extends Command {
     const defendant = msg.channel.guild.members.get(warrant.defendant_id);
 
     if (defendant && defendant.roles.includes(imprisoned_role)) {
-      await discord.create_msg(msg, `${prefix}This user is already muted.`);
+      await discord.create_msg(msg.channel, `${prefix}This user is already muted.`);
 
       return false;
     } else if (n_warrant.executed === 1) {
-      await discord.create_msg(msg, `${prefix}This warrant has already been executed.`);
+      await discord.create_msg(msg.channel, `${prefix}This warrant has already been executed.`);
 
       return false;
     }
