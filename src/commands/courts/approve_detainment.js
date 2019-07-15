@@ -87,14 +87,7 @@ module.exports = new class ApproveDetainment extends Command {
         return CommandResult.fromError('There is no judge to serve the case.');
       }
 
-      db.approve_warrant(warrant.id, msg.author.id);
-      await discord.create_msg(
-        msg.channel, `${discord.tag(msg.author).boldified}, You've approved this detainment.`
-      );
-      await this.dm(msg.channel.guild, warrant.officer_id, msg.author, warrant);
-
-      const w_channel = msg.channel.guild.channels.get(warrant_channel);
-      const new_warrant = Object.assign(warrant, { judge_id: msg.author.id });
+      const { w_channel, new_warrant } = await this.approve(msg, warrant, warrant_channel);
 
       if (w_channel) {
         await system.edit_warrant(w_channel, new_warrant);
@@ -105,6 +98,23 @@ module.exports = new class ApproveDetainment extends Command {
         judge, trial_role, court_category, jailed: jailed_role, cmd: arrest
       });
     });
+  }
+
+  async approve(msg, warrant, warrant_channel) {
+    db.approve_warrant(warrant.id, msg.author.id);
+    await discord.create_msg(
+      msg.channel, `${discord.tag(msg.author).boldified}, You've approved this detainment.`
+    );
+    await this.dm(msg.channel.guild, warrant.officer_id, msg.author, warrant);
+
+    const w_channel = msg.channel.guild.channels.get(warrant_channel);
+    const new_warrant = {
+      ...warrant, judge_id: msg.author.id
+    };
+
+    return {
+      new_warrant, w_channel
+    };
   }
 
   async setup({ guild, warrant, judge, trial_role, jailed, court_category, cmd }) {

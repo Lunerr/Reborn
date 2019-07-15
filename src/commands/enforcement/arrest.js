@@ -276,8 +276,7 @@ additional ${innocence_bias} in compensation.`;
   get_judge(guild, warrant, judge_role, chief) {
     let judge = guild.members.filter(
       mbr => !system.member_in_debt(mbr, guild)
-        && (mbr.roles.includes(judge_role)
-          || mbr.roles.includes(chief))
+        && (mbr.roles.includes(judge_role) | mbr.roles.includes(chief))
     );
 
     if (judge.length >= 1) {
