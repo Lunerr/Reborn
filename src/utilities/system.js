@@ -36,6 +36,7 @@ module.exports = {
   max_evidence: 16e2,
   max_warrants: 25,
   bitfield: 2048,
+  fetch_limit: 100,
   mutex: new MultiMutex(),
 
   law_in_effect(law, time) {
@@ -358,12 +359,19 @@ Your current balance is ${number.format(current_balance)}.`,
     }
 
     const format = this.format_warrant_time(created_at + config.auto_close_warrant - Date.now());
+    let c_case;
+
+    if (type === 'Warrant') {
+      const found = db.fetch_cases(guild.id).find(x => x.warrant_id === warrant.id);
+
+      c_case = found ? `\n**Case ID**: ${found.id}` : '';
+    }
 
     return {
       title: `${type} for ${discord.tag(defendant)} (${law.name})`,
       description: `**ID:** ${id}${judge ? `\n**Granted by:** ${judge.mention}` : ''}
 **Evidence:**${evidence ? `\n${evidence.trim().slice(0, this.max_evidence)}` : 'N/A'}
-**Status:** ${served ? 'Served' : format}`
+**Status:** ${served ? 'Served' : format}${c_case}`
     };
   },
 
@@ -394,7 +402,7 @@ Your current balance is ${number.format(current_balance)}.`,
 
   async update_warrants(channel, warrants) {
     return this.mutex.sync(`${channel.guild.id}-warrants`, async () => {
-      const msgs = await discord.fetch_msgs(channel);
+      const msgs = await discord.fetch_msgs(channel, this.fetch_limit);
       const [most_recent] = msgs;
       const id = this.parse_id(most_recent || { embeds: [] });
       const index = warrants.findIndex(x => x.id === id);
@@ -454,7 +462,7 @@ Your current balance is ${number.format(current_balance)}.`,
 
   async update_cases(channel, cases) {
     return this.mutex.sync(`${channel.guild.id}-cases`, async () => {
-      const msgs = await discord.fetch_msgs(channel);
+      const msgs = await discord.fetch_msgs(channel, this.fetch_limit);
       const [most_recent] = msgs;
       const id = this.parse_id(most_recent || { embeds: [] });
       const index = cases.findIndex(x => x.id === id);
