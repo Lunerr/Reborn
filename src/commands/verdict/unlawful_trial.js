@@ -81,6 +81,7 @@ again.',
     const cop = guild.members.get(plaintiff_id) || await client.getRESTUser(plaintiff_id);
     const judge = guild.members.get(judge_id) || await client.getRESTUser(judge_id);
     const prefix = `${discord.tag(msg.author).boldified}, `;
+    const amount = config.judge_case * (1 + config.innocence_bias);
 
     await this.impeach(judge, cop, guild, {
       judge: judge_role, officer: officer_role
@@ -88,7 +89,7 @@ again.',
     await discord.create_msg(msg.channel, `${prefix}This court case has been declared as an \
 unjust trial.\nBoth ${cop.mention} and ${judge.mention} have been impeached for partaking in this \
 unjust trial.\n\nNo verdict has been delivered and the accused may be prosecuted again.\n\n\
-${msg.member.mention}, you have been rewarded with ${number.format(config.judge_case)} for \
+${msg.member.mention}, you have been rewarded with ${number.format(amount)} for \
 delivering the verdict.`);
     await system.close_case(msg, msg.channel);
 
