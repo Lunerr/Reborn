@@ -340,12 +340,14 @@ Your current balance is ${number.format(current_balance)}.`,
     }
 
     const format = this.format_warrant_time(created_at + config.auto_close_warrant - Date.now());
-    let c_case;
+    let c_case = '';
 
     if (type === 'Warrant') {
       const found = db.fetch_cases(guild.id).find(x => x.warrant_id === warrant.id);
 
-      c_case = found ? `\n**Case ID**: ${found.id}` : '';
+      if (found) {
+        c_case = `\n**Case ID**: ${found.id}`;
+      }
     }
 
     return {
