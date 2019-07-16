@@ -85,7 +85,7 @@ async function close(c_case, guild, channel) {
 been no recent activity.\nThis case will be marked as inactive ${left === 1 ? 'soon ' : ''}if no \
 recent message is sent.\n\n${judge.mention}, it is your duty to proceed with the case and come to \
 a verdict. Failure to do so will result in impeachment, a fine of \
-${number.format(config.impeached)}, and national disgrace. `);
+${number.format(Math.abs(config.impeached))}, and national disgrace. `);
     }
 
     db.set_case_inactive_count(c_case.id, inactive_count + 1);
