@@ -48,7 +48,7 @@ module.exports = new class GrantWarrantForArrest extends Command {
           key: 'member',
           name: 'member',
           type: 'member',
-          preconditions: ['no_bot']
+          preconditions: ['no_bot', 'no_self']
         }),
         new Argument({
           example: '2',

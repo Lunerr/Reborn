@@ -43,7 +43,7 @@ module.exports = new class Detain extends Command {
           key: 'user',
           name: 'user',
           type: 'user',
-          preconditions: ['no_bot'],
+          preconditions: ['no_bot', 'no_self'],
           remainder: true
         })
       ],
@@ -57,10 +57,6 @@ module.exports = new class Detain extends Command {
   }
 
   async run(msg, args) {
-    if (args.user.id === msg.author.id) {
-      return CommandResult.fromError('You may not detain yourself.');
-    }
-
     const key = `${msg.channel.guild.id}-${msg.author.id}-${args.user.id}`;
 
     if (this.running[key]) {
