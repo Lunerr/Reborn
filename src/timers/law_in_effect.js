@@ -32,6 +32,10 @@ Timer(async () => {
     for (let i = 0; i < laws.length; i++) {
       const law = laws[i];
 
+      if (law.edited_at !== null && law.edited_at + config.law_in_effect - Date.now() <= 0) {
+        db.close_law(law.id);
+      }
+
       if (law.active === 0 || law.in_effect === 1) {
         continue;
       }

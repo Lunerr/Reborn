@@ -27,9 +27,9 @@ module.exports = new class RemoveLaw extends Command {
       preconditions: ['law_channel'],
       args: [
         new Argument({
-          example: 'Rule 1',
+          example: '4',
           key: 'law',
-          name: 'law',
+          name: 'law ID',
           type: 'law',
           remainder: true
         })
@@ -47,7 +47,8 @@ module.exports = new class RemoveLaw extends Command {
 
     db.close_law(args.law.id);
     await discord.create_msg(
-      msg.channel, `${discord.tag(msg.author).boldified}, I have removed the law ${args.law.name}.`
+      msg.channel, `${discord.tag(msg.author).boldified}, I have removed the law \
+${args.law.name} (${args.law.id}).`
     );
 
     const laws = db.fetch_laws(msg.channel.guild.id).filter(x => x.active === 1);

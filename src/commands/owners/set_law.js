@@ -16,12 +16,12 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
-const { Argument, Command, CommandResult } = require('patron.js');
+const { Argument, Command } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
 
-module.exports = new class AddLaw extends Command {
+module.exports = new class SetLaw extends Command {
   constructor() {
     super({
       preconditions: ['guild_db_exists', 'law_channel'],
@@ -46,36 +46,68 @@ module.exports = new class AddLaw extends Command {
           defaultValue: false
         })
       ],
-      description: 'Adds a law.',
+      description: 'Adds a law or edits an existing one.',
       groupName: 'owners',
-      names: ['add_law']
+      names: ['set_law']
     });
   }
 
   async run(msg, args) {
     const name = args.name.toLowerCase();
-    const laws = db.fetch_laws(msg.channel.guild.id).filter(x => x.active === 1);
-    const existingLaw = laws.some(x => x.name.toLowerCase() === name);
-
-    if (existingLaw) {
-      return CommandResult.fromError('An active law by this name already exists.');
-    }
-
+    let laws = db.fetch_laws(msg.channel.guild.id);
+    const existing_law = laws.find(x => x.name.toLowerCase() === name);
     const law = {
       guild_id: msg.channel.guild.id,
       name: args.name,
       content: args.content,
       mandatory_felony: args.mandatory ? 1 : 0
     };
+    let id;
+    let reply;
 
-    db.insert('laws', law);
+    if (existing_law && existing_law.active === 1) {
+      reply = 'edited';
+      id = this.edit_existing(existing_law, law, laws);
+    } else {
+      reply = 'created';
+      id = db.insert('laws', law).lastInsertRowid;
+    }
+
     await discord.create_msg(
-      msg.channel, `${discord.tag(msg.author).boldified}, I have created the law ${args.name}.`
+      msg.channel,
+      `${discord.tag(msg.author).boldified}, I have ${reply} the law ${args.name} (${id}).`
     );
 
     const { law_channel } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const channel = msg.channel.guild.channels.get(law_channel);
 
-    return system.update_laws(channel, laws.concat(law));
+    laws = db.fetch_laws(msg.channel.guild.id).filter(x => x.active === 1);
+
+    return system.update_laws(channel, laws);
+  }
+
+  edit_existing(old_law, new_law, laws) {
+    const edit_edited = laws.find(
+      x => x.active === 1
+        && x.in_effect === 0
+        && x.edited_at === null
+        && x.name === new_law.name
+    );
+    const now = Date.now();
+    let id;
+
+    if (edit_edited) {
+      ({ id } = edit_edited);
+      db.set_law_description(edit_edited.id, new_law.content);
+      db.set_law_created_at(edit_edited.id, now);
+    }
+
+    db.set_law_edited_at(old_law.id, now);
+
+    if (!edit_edited) {
+      id = db.insert('laws', new_law).lastInsertRowid;
+    }
+
+    return id;
   }
 }();

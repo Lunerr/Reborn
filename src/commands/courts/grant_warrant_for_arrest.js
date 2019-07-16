@@ -51,9 +51,9 @@ module.exports = new class GrantWarrantForArrest extends Command {
           preconditions: ['no_bot']
         }),
         new Argument({
-          example: 'Murder',
+          example: '2',
           key: 'law',
-          name: 'law',
+          name: 'law ID',
           type: 'law',
           preconditions: ['active_law']
         }),
@@ -107,7 +107,7 @@ module.exports = new class GrantWarrantForArrest extends Command {
     obj.id = id;
     await discord.create_msg(
       msg.channel, `${discord.tag(msg.author).boldified}, A warrant has been granted \
-against ${args.member.mention}.`
+against ${args.member.mention} under the law ${args.law.name} (${args.law.id}).`
     );
 
     const { warrant_channel } = db.fetch('guilds', { guild_id: msg.channel.guild.id });

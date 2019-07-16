@@ -125,6 +125,18 @@ module.exports = {
     return queries.close_cmd.run(id);
   },
 
+  set_law_edited_at(law_id, time) {
+    return queries.set_law_edited_at.run(time, law_id);
+  },
+
+  set_law_created_at(law_id, time) {
+    return queries.set_law_created_at.run(time, law_id);
+  },
+
+  set_law_description(law_id, desc) {
+    return queries.update_law_description.run(desc, law_id);
+  },
+
   serve_verdict(id) {
     return queries.serve_verdict.run(id);
   },

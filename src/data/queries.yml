@@ -8,7 +8,8 @@ laws_table: |-
     content TEXT NOT NULL,
     mandatory_felony TINYINT NOT NULL DEFAULT 0,
     active TINYINT NOT NULL DEFAULT 1,
-    in_effect TINYINT NOT NULL DEFAULT 0
+    in_effect TINYINT NOT NULL DEFAULT 0,
+    edited_at INTEGER
   )
 
 warrants_table: |-
@@ -156,6 +157,12 @@ upsert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT(guild_id) DO UPDATE SET {3}
 add_cash: UPDATE members SET cash = cash + ? WHERE member_id = ? AND guild_id = ?
 
 set_cash: UPDATE members SET cash = ? WHERE member_id = ? AND guild_id = ?
+
+set_law_edited_at: UPDATE laws SET edited_at = ? WHERE id = ?
+
+set_law_created_at: UPDATE laws SET created_at = ? WHERE id = ?
+
+update_law_description: UPDATE laws SET content = ? WHERE id = ?
 
 set_law_in_effect: UPDATE laws SET in_effect = 1 WHERE id = ?
 

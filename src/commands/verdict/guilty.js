@@ -112,8 +112,8 @@ misdemeanors of this crime before a prison sentence is permissible.');
       opinion, sentence, law, guild: msg.channel.guild
     });
     const ending = `${law.mandatory_felony || (!law.mandatory_felony && repeated) ? `sentenced to \
-${time} in prison${repeated ? ` for repeatedly breaking the law \`${law.name}\`` : ''}` : '\
-charged with committing a misdemeanor'}.`;
+${time} in prison${repeated ? ` for repeatedly breaking the law \`${law.name}\` \
+(${law.id})` : ''}` : 'charged with committing a misdemeanor'}.`;
 
     await discord.create_msg(
       msg.channel, `${def.mention} has been found guilty and ${ending}\n\n${msg.member.mention}, \

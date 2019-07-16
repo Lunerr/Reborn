@@ -150,7 +150,7 @@ older than 5 minutes, consider getting a judge to grant a warrant for this user.
 
     const laws = db.fetch_laws(msg.channel.guild.id);
     const reply = res.reply.content.toLowerCase();
-    const law = laws.find(x => x.name.toLowerCase() === reply && x.active === 1);
+    const law = laws.find(x => x.id === Number(reply) && x.active === 1);
 
     if (law) {
       if (law.active === 0) {
@@ -201,7 +201,7 @@ Type \`cancel\` to cancel the command.`;
     warrant.id = id;
     await discord.create_msg(
       msg.channel, `You have successfully detained ${member.mention} and a warrant has been \
-created under the law ${law.name}.\n\nA judge must approve this detainment by using \
+created under the law ${law.name} (${law.id}).\n\nA judge must approve this detainment by using \
 \`${config.prefix}approve ${id}\` within ${online < min_judges ? '12 hours' : '5 minutes'} \
 or you will be impeached and be charged with a fine of \
 ${number.format(Math.abs(config.not_guilty_arrest))}.`

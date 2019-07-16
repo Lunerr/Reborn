@@ -257,16 +257,30 @@ Your current balance is ${number.format(current_balance)}.`,
     const msgs = [];
 
     for (let i = 0; i < laws.length; i++) {
-      const { name, content, mandatory_felony, created_at } = laws[i];
+      const { name, content, mandatory_felony, created_at, id, edited_at } = laws[i];
       const { embed } = discord.embed({});
-      const description = `${content}${mandatory_felony ? ' (felony)' : ''}`;
+      let description = `${content}${mandatory_felony ? ' (felony)' : ''}`;
+
+      if (edited_at !== null) {
+        const expires = number.msToTime(edited_at + config.law_in_effect - Date.now());
+        let time = '';
+
+        if (expires.hours > 0) {
+          time = `in ${expires.hours} hours`;
+        } else {
+          time = 'soon';
+        }
+
+        description += ` (OUTDATED: expires ${time})`;
+      }
+
       const active = this.law_in_effect(laws[i], config.law_in_effect);
 
       embed.timestamp = new Date(created_at + config.law_in_effect).toISOString();
       embed.footer = {
         text: active ? 'In effect since' : 'Takes effect'
       };
-      embed.description = `**Name:** ${name}\n**Description:** ${description}`;
+      embed.description = `**ID:** ${id}\n**Name:** ${name}\n**Description:** ${description}`;
       msgs.push(embed);
     }
 
@@ -280,12 +294,7 @@ Your current balance is ${number.format(current_balance)}.`,
 
   async update_laws(channel, laws) {
     return this.mutex.sync(`${channel.guild.id}-laws`, async () => {
-      const fn = (x, item) => {
-        const content = `${item.content}${item.mandatory_felony ? ' (felony)' : ''}`;
-        const description = `**Name:** ${item.name}\n**Description:** ${content}`;
-
-        return x && x.embeds[0].description === description;
-      };
+      const fn = (x, item) => this.format_laws([item])[0].description === x.embeds[0].description;
       const to_prune = await this.should_prune(channel, laws, fn);
 
       if (to_prune) {
