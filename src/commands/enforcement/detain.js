@@ -200,7 +200,7 @@ Type \`cancel\` to cancel the command.`;
 created under the law ${law.name} (${law.id}).\n\nA judge must approve this detainment by using \
 \`${config.prefix}approve ${id}\` within ${online < min_judges ? '12 hours' : '5 minutes'} \
 or you will be impeached and be charged with a fine of \
-${number.format(Math.abs(config.not_guilty_arrest))}.`
+${number.format(Math.abs(config.impeached))}.`
     );
 
     const w_channel = msg.channel.guild.channels.get(warrant_channel);
