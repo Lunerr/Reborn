@@ -138,8 +138,7 @@ client.on('guildMemberUpdate', async (guild, new_member, old_member) => {
 
   const res = db.fetch('guilds', { guild_id: guild.id });
 
-  if (old_member.roles.includes(res.judge) && !new_member.roles.includes(res.judge)) {
-    console.log('L')
+  if (old_member.roles.includes(res.judge_role) && !new_member.roles.includes(res.judge_role)) {
     await lost_judge(new_member);
   }
 
