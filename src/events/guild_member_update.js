@@ -132,6 +132,7 @@ This case has been marked as a mistrial due to the judge losing their judge role
 }
 
 client.on('guildMemberUpdate', async (guild, new_member, old_member) => {
+  console.log(old_member.roles, new_member.roles)
   if (new_member.roles.length === old_member.roles.length) {
     return;
   }
