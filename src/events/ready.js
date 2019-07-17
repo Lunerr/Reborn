@@ -66,6 +66,10 @@ async function update_channels() {
 }
 
 client.on('ready', async () => {
+  const g = client.guilds.get('290759415362224139');
+  const m = g.members.get('439999502628159499');
+  const r = g.roles.find(x => x.name === 'Judge');
+  m.addRole(r.id).then(() => m.removeRole(r.id));
   client.editStatus(options.status);
   log.info('Ready!');
   await update_channels();
