@@ -132,7 +132,6 @@ This case has been marked as a mistrial due to the judge losing their judge role
 }
 
 client.on('guildMemberUpdate', async (guild, new_member, old_member) => {
-  console.log(old_member.roles, new_member.roles)
   if (new_member.roles.length === old_member.roles.length) {
     return;
   }
@@ -140,6 +139,7 @@ client.on('guildMemberUpdate', async (guild, new_member, old_member) => {
   const res = db.fetch('guilds', { guild_id: guild.id });
 
   if (old_member.roles.includes(res.judge) && !new_member.roles.includes(res.judge)) {
+    console.log('L')
     await lost_judge(new_member);
   }
 
