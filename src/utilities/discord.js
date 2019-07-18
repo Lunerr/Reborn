@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
-const { CommandResult } = require('patron.js');
+const { CommandResult, MultiMutex } = require('patron.js');
 const catch_discord = require('./catch_discord.js');
 const client = require('../services/client.js');
 const { config, constants } = require('../services/data.js');
@@ -205,7 +205,7 @@ module.exports = {
     );
     const cancelled = verified.reply && verified.reply.content.toLowerCase() === 'cancel';
 
-    if (!verified.sucess && cancelled) {
+    if (!verified.sucess || cancelled) {
       return CommandResult.fromError('The command has been cancelled.');
     }
 
@@ -223,66 +223,63 @@ module.exports = {
   },
 
   running: {},
+  mutex: new MultiMutex(),
 
   async verify_channel_msg(msg, channel, content, file, fn) {
     const key = `${msg.author.id}-${msg.channel.guild.id}`;
-    const found = Object.keys(this.running).find(x => x === key);
 
-    if (this.running[found]) {
-      this.running[found].cancel();
-    }
+    return this.mutex.sync(key, async () => {
+      let resolve;
+      let cancelled;
 
-    let resolve;
-    let cancelled;
+      const wrap_with_cancel = func => (...data) => {
+        if (!cancelled) {
+          return func(...data);
+        }
+      };
+      const promise = new Promise(r => {
+        resolve = r;
+      });
+      const obj = {
+        promise,
+        cancel: () => {
+          cancelled = true;
+          this.running[key] = false;
+          resolve({
+            success: false, conflicting: true
+          });
+        }
+      };
 
-    const wrap_with_cancel = func => (...data) => {
-      if (!cancelled) {
-        return func(...data);
-      }
-    };
-    const promise = new Promise(r => {
-      resolve = r;
+      this.running[key] = obj;
+      Promise.resolve()
+        .then(() => wrap_with_cancel(this.create_msg.bind(this))(channel, content, null, file))
+        .then(() => wrap_with_cancel(this._timeout_promise.bind(this))(msg, fn, key, obj))
+        .then(resolve);
+
+      return obj;
     });
-
-    Promise.resolve()
-      .then(() => wrap_with_cancel(this.create_msg.bind(this))(channel, content, null, file))
-      .then(() => wrap_with_cancel(this._timeout_promise.bind(this))(msg, fn, key))
-      .then(resolve);
-
-    const obj = {
-      promise,
-      cancel: () => {
-        cancelled = true;
-
-        const reply = { content: 'cancel' };
-
-        resolve({
-          success: true, reply, conflicting: true
-        });
-      }
-    };
-
-    this.running[key] = obj;
-
-    return obj;
   },
 
-  _timeout_promise(msg, fn, key) {
+  _timeout_promise(msg, fn, key, obj) {
     return new Promise(async res => {
       const timeout = setTimeout(() => {
         msg_collector.remove(msg.id);
         res({ success: false });
-        this.running[key] = null;
+        this.running[key] = false;
       }, config.verify_timeout);
 
-      msg_collector.add(
-        m => fn(m), reply => {
-          this.running[key] = null;
+      await msg_collector.add(
+        m => fn(m),
+        reply => {
+          this.running[key] = false;
           clearTimeout(timeout);
           res({
             success: true, reply
           });
-        }, key
+        },
+        key,
+        obj
       );
     });
   },

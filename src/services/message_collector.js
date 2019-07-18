@@ -16,19 +16,35 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
+const { config } = require('../services/data.js');
+const handler = require('../services/handler.js');
+const interactive_cmds = [
+  'arrest',
+  'guilty',
+  'approve_detainment',
+  'grant_warrant_for_arrest',
+  'detain'
+];
 
 module.exports = {
   collectors: new Map(),
 
-  add(condition, callback, key) {
+  add(condition, callback, key, obj) {
     this.collectors.set(key, {
       callback,
-      condition
+      condition,
+      running: obj
     });
   },
 
-  check(msg) {
+  async check(msg) {
     for (const [key, val] of this.collectors) {
+      const is_cmd = await handler.parseCommand(msg, config.prefix.length);
+
+      if (is_cmd.success && interactive_cmds.includes(is_cmd.command.names[0])) {
+        await val.running.cancel();
+      }
+
       if (val.condition(msg)) {
         val.callback(msg);
         this.remove(key);
