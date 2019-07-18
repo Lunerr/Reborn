@@ -170,18 +170,6 @@ module.exports = {
     return content.replace(/@(everyone|here|(!|&)?\d{17,19})/g, '@\u200b$1');
   },
 
-  async verify(msg, content) {
-    const verified = await this.verify_msg(
-      msg, `${this.tag(msg.author).boldified}, ${content}`, null, 'yes'
-    );
-
-    if (!verified) {
-      return CommandResult.fromError('The command has been cancelled.');
-    }
-
-    return { success: true };
-  },
-
   async get_infinite_invite(guild) {
     const invites = await guild.getInvites();
     const inf_invite = invites.find(
@@ -211,32 +199,90 @@ module.exports = {
     });
   },
 
+  async verify(msg, content) {
+    const verified = await this.verify_msg(
+      msg, `${this.tag(msg.author).boldified}, ${content}`, null, 'yes'
+    );
+    const cancelled = verified.reply && verified.reply.content.toLowerCase() === 'cancel';
+
+    if (!verified.sucess && cancelled) {
+      return CommandResult.fromError('The command has been cancelled.');
+    }
+
+    return { success: true };
+  },
+
   async verify_msg(msg, content, file, verify = 'I\'m sure') {
     const lower = verify.toLowerCase();
     const fn = m => m.author.id === msg.author.id && m.content.toLowerCase() === lower;
-    const res = await this.verify_channel_msg(msg, msg.channel, content, file, fn);
+    const res = await this
+      .verify_channel_msg(msg, msg.channel, content, file, fn)
+      .then(x => x.promise);
 
-    return res.success;
+    return res;
   },
 
-  verify_channel_msg(msg, channel, content, file, fn) {
-    return new Promise(async res => {
-      await this.create_msg(channel, content, null, file);
+  running: {},
 
+  async verify_channel_msg(msg, channel, content, file, fn) {
+    const key = `${msg.author.id}-${msg.channel.guild.id}`;
+    const found = Object.keys(this.running).find(x => x === key);
+
+    if (this.running[found]) {
+      this.running[found].cancel();
+    }
+
+    let resolve;
+    let cancelled;
+
+    const wrap_with_cancel = func => (...data) => {
+      if (!cancelled) {
+        return func(...data);
+      }
+    };
+    const promise = new Promise(r => {
+      resolve = r;
+    });
+
+    Promise.resolve()
+      .then(() => wrap_with_cancel(this.create_msg.bind(this))(channel, content, null, file))
+      .then(() => wrap_with_cancel(this._timeout_promise.bind(this))(msg, fn, key))
+      .then(resolve);
+
+    const obj = {
+      promise,
+      cancel: () => {
+        cancelled = true;
+
+        const reply = { content: 'cancel' };
+
+        resolve({
+          success: true, reply, conflicting: true
+        });
+      }
+    };
+
+    this.running[key] = obj;
+
+    return obj;
+  },
+
+  _timeout_promise(msg, fn, key) {
+    return new Promise(async res => {
       const timeout = setTimeout(() => {
         msg_collector.remove(msg.id);
         res({ success: false });
+        this.running[key] = null;
       }, config.verify_timeout);
 
       msg_collector.add(
-        m => fn(m),
-        reply => {
+        m => fn(m), reply => {
+          this.running[key] = null;
           clearTimeout(timeout);
           res({
             success: true, reply
           });
-        },
-        msg.id
+        }, key
       );
     });
   },

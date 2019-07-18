@@ -132,7 +132,7 @@ module.exports = new class Arrest extends Command {
       arrest_message, number.format(Math.abs(config.not_guilty_arrest))
     )}`, null, 'yes');
 
-    if (!verified) {
+    if (!verified.success) {
       await discord.create_msg(msg.channel, `${prefix}The command has been cancelled.`);
 
       return false;

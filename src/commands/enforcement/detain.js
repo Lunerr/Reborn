@@ -132,7 +132,7 @@ older than 5 minutes, consider getting a judge to grant a warrant for this user.
       content,
       null,
       x => x.author.id === member.id
-    );
+    ).then(x => x.promise);
 
     if (res.success && res.reply.content.toLowerCase() === 'cancel') {
       const prefix = `${discord.tag(msg.author).boldified}, `;

@@ -89,7 +89,7 @@ misdemeanors of this crime before a prison sentence is permissible.');
       const prefix = `${discord.tag(msg.author).boldified}, `;
       const verified = await discord.verify_msg(msg, `${prefix}${content}`, null, 'yes');
 
-      if (!verified) {
+      if (!verified.success) {
         return CommandResult.fromError('The command has been cancelled.');
       }
 
