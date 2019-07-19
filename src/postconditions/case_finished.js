@@ -15,11 +15,6 @@ class CaseFinished extends Postcondition {
   async run(msg, result) {
     if (result.success !== false) {
       const res = await handler.parseCommand(msg, config.prefix.length);
-
-      if (!res.success) {
-        return;
-      }
-
       const [name] = res.command.names;
 
       if (ignore.includes(name)) {
