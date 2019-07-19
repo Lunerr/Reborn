@@ -222,7 +222,6 @@ module.exports = {
     return res;
   },
 
-  running: {},
   mutex: new MultiMutex(),
 
   async verify_channel_msg(msg, channel, content, file, fn) {
@@ -244,14 +243,12 @@ module.exports = {
         promise,
         cancel: () => {
           cancelled = true;
-          this.running[key] = false;
           resolve({
             success: false, conflicting: true
           });
         }
       };
 
-      this.running[key] = obj;
       Promise.resolve()
         .then(() => wrap_with_cancel(this.create_msg.bind(this))(channel, content, null, file))
         .then(() => wrap_with_cancel(this._timeout_promise.bind(this))(msg, fn, key, obj))
@@ -266,13 +263,11 @@ module.exports = {
       const timeout = setTimeout(() => {
         msg_collector.remove(msg.id);
         res({ success: false });
-        this.running[key] = false;
       }, config.verify_timeout);
 
       await msg_collector.add(
         m => fn(m),
         reply => {
-          this.running[key] = false;
           clearTimeout(timeout);
           res({
             success: true, reply

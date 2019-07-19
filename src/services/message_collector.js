@@ -33,7 +33,7 @@ module.exports = {
     this.collectors.set(key, {
       callback,
       condition,
-      running: obj
+      ...obj
     });
   },
 
@@ -42,8 +42,8 @@ module.exports = {
       const parsed = await handler.parseCommand(msg, config.prefix.length);
       const is_cmd = msg.content.startsWith(config.prefix) && parsed.success;
 
-      if (is_cmd && interactive_cmds.includes(is_cmd.command.names[0])) {
-        await val.running.cancel();
+      if (is_cmd && interactive_cmds.includes(parsed.command.names[0])) {
+        await val.cancel();
       }
 
       if (val.condition(msg)) {
