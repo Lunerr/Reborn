@@ -108,12 +108,11 @@ module.exports = new class ApproveDetainment extends Command {
     await this.dm(msg.channel.guild, warrant.officer_id, msg.author, warrant);
 
     const w_channel = msg.channel.guild.channels.get(warrant_channel);
-    const new_warrant = {
-      ...warrant, judge_id: msg.author.id
-    };
+
+    warrant.judge_id = msg.author.id;
 
     return {
-      new_warrant, w_channel
+      new_warrant: warrant, w_channel
     };
   }
 
