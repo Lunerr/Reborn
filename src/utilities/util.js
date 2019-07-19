@@ -24,6 +24,6 @@ module.exports = {
   },
 
   escape_markdown(content) {
-    return content.replace(/(\*|~|`|_)+/g, '');
+    return content.replace(/(\*|~|`|_|\|)+/g, '');
   }
 };

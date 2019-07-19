@@ -18,6 +18,7 @@
 'use strict';
 const { config } = require('../services/data.js');
 const db = require('../services/database.js');
+const util = require('../utilities/util.js');
 const link = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g;
 const emoji = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/;
 const mentions = /@(everyone|here)|(<@(!|#|&)?(\d{17,19})>)/g;
@@ -26,10 +27,10 @@ module.exports = {
   messages: {},
 
   prune(content) {
-    return content
+    return util.escape_markdown(content
       .replace(link, '')
       .replace(emoji, '')
-      .replace(mentions, '');
+      .replace(mentions, ''));
   },
 
   async add_cash(msg) {
