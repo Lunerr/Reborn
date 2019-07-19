@@ -39,9 +39,10 @@ module.exports = {
 
   async check(msg) {
     for (const [key, val] of this.collectors) {
-      const is_cmd = await handler.parseCommand(msg, config.prefix.length);
+      const parsed = await handler.parseCommand(msg, config.prefix.length);
+      const is_cmd = msg.content.startsWith(config.prefix) && parsed.success;
 
-      if (is_cmd.success && interactive_cmds.includes(is_cmd.command.names[0])) {
+      if (is_cmd && interactive_cmds.includes(is_cmd.command.names[0])) {
         await val.running.cancel();
       }
 
