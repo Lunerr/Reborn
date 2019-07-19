@@ -205,7 +205,9 @@ module.exports = {
     );
     const cancelled = verified.reply && verified.reply.content.toLowerCase() === 'cancel';
 
-    if (!verified.sucess || cancelled) {
+    if (verified.conflicting) {
+      return CommandResult.fromError('The previous interactive command was cancelled.');
+    } else if (!verified.success || cancelled) {
       return CommandResult.fromError('The command has been cancelled.');
     }
 

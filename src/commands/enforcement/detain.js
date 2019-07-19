@@ -17,7 +17,7 @@
  */
 'use strict';
 const { Argument, Command, CommandResult, MultiMutex } = require('patron.js');
-const { config } = require('../../services/data.js');
+const { config, constants: { error_color } } = require('../../services/data.js');
 const db = require('../../services/database.js');
 const catch_discord = require('../../utilities/catch_discord.js');
 const client = require('../../services/client.js');
@@ -133,10 +133,15 @@ older than 5 minutes, consider getting a judge to grant a warrant for this user.
       null,
       x => x.author.id === member.id
     ).then(x => x.promise);
+    const prefix = `${discord.tag(msg.author).boldified}, `;
 
-    if (res.success && res.reply.content.toLowerCase() === 'cancel') {
-      const prefix = `${discord.tag(msg.author).boldified}, `;
+    if (res.conflicting) {
+      await discord.create_msg(
+        msg.channel, `${prefix}The previous interactive command was cancelled.`, error_color
+      );
 
+      return manual_cancel;
+    } else if (res.success && res.reply.content.toLowerCase() === 'cancel') {
       await discord.create_msg(msg.channel, `${prefix}The command has been cancelled.`);
 
       return manual_cancel;
