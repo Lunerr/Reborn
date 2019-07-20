@@ -38,11 +38,14 @@ module.exports = {
   },
 
   async check(msg) {
+    const existing_key = `${msg.author.id}-${msg.channel.guild.id}`;
+
     for (const [key, val] of this.collectors) {
       const parsed = await handler.parseCommand(msg, config.prefix.length);
       const is_cmd = msg.content.startsWith(config.prefix) && parsed.success;
+      const exists = key === existing_key;
 
-      if (is_cmd && interactive_cmds.includes(parsed.command.names[0])) {
+      if (exists && is_cmd && interactive_cmds.includes(parsed.command.names[0])) {
         await val.cancel();
       }
 

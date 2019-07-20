@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
-const { CommandResult, MultiMutex } = require('patron.js');
+const { CommandResult } = require('patron.js');
 const catch_discord = require('./catch_discord.js');
 const client = require('../services/client.js');
 const { config, constants } = require('../services/data.js');
@@ -224,40 +224,35 @@ module.exports = {
     return res;
   },
 
-  mutex: new MultiMutex(),
-
   async verify_channel_msg(msg, channel, content, file, fn) {
+    let resolve;
+    let cancelled;
+
+    const wrap_with_cancel = func => (...data) => {
+      if (!cancelled) {
+        return func(...data);
+      }
+    };
+    const promise = new Promise(r => {
+      resolve = r;
+    });
+    const obj = {
+      promise,
+      cancel: () => {
+        cancelled = true;
+        resolve({
+          success: false, conflicting: true
+        });
+      }
+    };
     const key = `${msg.author.id}-${msg.channel.guild.id}`;
 
-    return this.mutex.sync(key, async () => {
-      let resolve;
-      let cancelled;
+    Promise.resolve()
+      .then(() => wrap_with_cancel(this.create_msg.bind(this))(channel, content, null, file))
+      .then(() => wrap_with_cancel(this._timeout_promise.bind(this))(msg, fn, key, obj))
+      .then(resolve);
 
-      const wrap_with_cancel = func => (...data) => {
-        if (!cancelled) {
-          return func(...data);
-        }
-      };
-      const promise = new Promise(r => {
-        resolve = r;
-      });
-      const obj = {
-        promise,
-        cancel: () => {
-          cancelled = true;
-          resolve({
-            success: false, conflicting: true
-          });
-        }
-      };
-
-      Promise.resolve()
-        .then(() => wrap_with_cancel(this.create_msg.bind(this))(channel, content, null, file))
-        .then(() => wrap_with_cancel(this._timeout_promise.bind(this))(msg, fn, key, obj))
-        .then(resolve);
-
-      return obj;
-    });
+    return obj;
   },
 
   _timeout_promise(msg, fn, key, obj) {
