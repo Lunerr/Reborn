@@ -164,7 +164,7 @@ set_law_edited_at: UPDATE laws SET edited_at = ? WHERE id = ?
 
 set_case_lawyer: UPDATE cases SET lawyer_id = ? WHERE id = ?
 
-set_lawyer_hired_at: UPDATE cases SET lawyer_hired_at = ? WHERE id ?
+set_lawyer_hired_at: UPDATE cases SET lawyer_hired_at = ? WHERE id = ?
 
 set_law_created_at: UPDATE laws SET created_at = ? WHERE id = ?
 
