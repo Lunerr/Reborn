@@ -22,7 +22,7 @@ const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
 const util = require('../../utilities/util.js');
-const verdict = require('../../enums/verdict.js');
+const system = require('../../utilities/system.js');
 const to_percent = 100;
 
 module.exports = new class Lawyers extends Command {
@@ -38,8 +38,8 @@ module.exports = new class Lawyers extends Command {
     const lawyers = db
       .get_guild_lawyers(msg.channel.guild.id)
       .sort((a, b) => {
-        const a_percent = this.get_win_percent(a.member_id, msg.channel.guild).win_percent;
-        const b_percent = this.get_win_percent(b.member_id, msg.channel.guild).win_percent;
+        const a_percent = system.get_win_percent(a.member_id, msg.channel.guild).win_percent;
+        const b_percent = system.get_win_percent(b.member_id, msg.channel.guild).win_percent;
 
         return a_percent - b_percent;
       });
@@ -62,7 +62,7 @@ module.exports = new class Lawyers extends Command {
         break;
       }
 
-      const record = this.get_win_percent(lawyers[i].member_id, msg.channel.guild);
+      const record = system.get_win_percent(lawyers[i].member_id, msg.channel.guild);
       const rate = number.format(lawyers[i].rate, true);
       const user = util.escape_markdown(discord.tag(member.user));
       const percent = `${record.win_percent * to_percent}%`;
@@ -72,38 +72,5 @@ module.exports = new class Lawyers extends Command {
     }
 
     return msg.channel.createMessage(obj);
-  }
-
-  get_win_percent(lawyer_id, guild) {
-    const wins = this.get_case_count(lawyer_id, guild, x => x.verdict === verdict.innocent);
-    const losses = this.get_case_count(lawyer_id, guild, x => x.verdict === verdict.guilty);
-
-    return {
-      wins,
-      losses,
-      win_percent: wins === 0 ? 0 : 1 - (losses / wins)
-    };
-  }
-
-  get_case_count(lawyer_id, guild, fn) {
-    const cases = db.fetch_cases(guild.id);
-    let count = 0;
-
-    for (let i = 0; i < cases.length; i++) {
-      const c_case = cases[i];
-
-      if (c_case.lawyer_id !== lawyer_id) {
-        continue;
-      }
-
-      const case_verdict = db.get_verdict(c_case.id);
-      const res = fn(case_verdict);
-
-      if (res) {
-        count++;
-      }
-    }
-
-    return count;
   }
 }();

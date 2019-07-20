@@ -200,6 +200,39 @@ Your current balance is ${number.format(current_balance)}.`,
     return mute;
   },
 
+  get_win_percent(lawyer_id, guild) {
+    const wins = this.get_case_count(lawyer_id, guild, x => x.verdict === verdict.innocent);
+    const losses = this.get_case_count(lawyer_id, guild, x => x.verdict === verdict.guilty);
+
+    return {
+      wins,
+      losses,
+      win_percent: wins === 0 ? 0 : 1 - (losses / wins)
+    };
+  },
+
+  get_case_count(lawyer_id, guild, fn) {
+    const cases = db.fetch_cases(guild.id);
+    let count = 0;
+
+    for (let i = 0; i < cases.length; i++) {
+      const c_case = cases[i];
+
+      if (c_case.lawyer_id !== lawyer_id) {
+        continue;
+      }
+
+      const case_verdict = db.get_verdict(c_case.id);
+      const res = fn(case_verdict);
+
+      if (res) {
+        count++;
+      }
+    }
+
+    return count;
+  },
+
   async find(items, fn, extra) {
     let res;
 
