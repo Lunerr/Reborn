@@ -17,11 +17,12 @@
  */
 'use strict';
 const { CommandResult } = require('patron.js');
+const { config, constants } = require('../services/data.js');
 const catch_discord = require('./catch_discord.js');
 const client = require('../services/client.js');
-const { config, constants } = require('../services/data.js');
 const msg_collector = require('../services/message_collector.js');
 const util = require('../utilities/util.js');
+const str = require('../utilities/string.js');
 const db = require('../services/database.js');
 const create_message = catch_discord((...args) => client.createMessage(...args));
 const fetch = require('node-fetch');
@@ -302,6 +303,30 @@ module.exports = {
     const member = guild.members.get(client.user.id);
 
     return member.permission.has('manageRoles') && this.hierarchy(member) > role.position;
+  },
+
+  valid_role(res, roles, guild) {
+    for (let i = 0; i < roles.length; i++) {
+      const id = res[roles[i]];
+      const g_role = guild.roles.get(id);
+      const name = roles[i].split('_').slice(0, -1).map(str.to_uppercase);
+
+      if (!id || !g_role) {
+        return {
+          success: false,
+          reason: `The ${name.join(' ')} role needs to be set.`
+        };
+      } else if (!this.usable_role(guild, g_role)) {
+        return {
+          success: false,
+          reason: `The ${name.join(' ')} role is higher in hierarchy than me.`
+        };
+      }
+    }
+
+    return {
+      success: true
+    };
   },
 
   hierarchy(member) {

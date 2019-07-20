@@ -16,10 +16,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
+const { Precondition, PreconditionResult } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
-const str = require('../../utilities/string.js');
-const { Precondition, PreconditionResult } = require('patron.js');
 
 module.exports = new class UsableGovRole extends Precondition {
   constructor() {
@@ -29,21 +28,10 @@ module.exports = new class UsableGovRole extends Precondition {
   async run(cmd, msg, options) {
     const res = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const roles = options && options.roles ? options.roles : [];
+    const result = discord.valid_role(res, roles, msg.channel.guild);
 
-    for (let i = 0; i < roles.length; i++) {
-      const id = res[roles[i]];
-      const role = msg.channel.guild.roles.get(id);
-      const name = roles[i].split('_').slice(0, -1).map(str.to_uppercase);
-
-      if (!id || !role) {
-        return PreconditionResult.fromError(
-          cmd, `The ${name.join(' ')} role needs to be set.`
-        );
-      } else if (!discord.usable_role(msg.channel.guild, role)) {
-        return PreconditionResult.fromError(
-          cmd, `The ${name.join(' ')} role is higher than me in hierarchy.`
-        );
-      }
+    if (!result.success) {
+      return PreconditionResult.fromError(cmd, result.reason);
     }
 
     return PreconditionResult.fromSuccess();

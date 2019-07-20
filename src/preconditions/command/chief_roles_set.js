@@ -20,7 +20,6 @@ const { Precondition, PreconditionResult } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
-const str = require('../../utilities/string.js');
 
 module.exports = new class ChiefRolesSet extends Precondition {
   constructor() {
@@ -30,19 +29,10 @@ module.exports = new class ChiefRolesSet extends Precondition {
   async run(cmd, msg) {
     const res = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const roles = Object.keys(res).filter(x => system.chief_roles.includes(x));
+    const result = discord.valid_role(res, roles, msg.channel.guild);
 
-    for (let i = 0; i < roles.length; i++) {
-      const id = res[roles[i]];
-      const role = msg.channel.guild.roles.get(id);
-      const name = roles[i].split('_').slice(0, -1).map(str.to_uppercase);
-
-      if (!id || !role) {
-        return PreconditionResult.fromError(cmd, `The ${name.join(' ')} role needs to be set.`);
-      } else if (!discord.usable_role(msg.channel.guild, role)) {
-        return PreconditionResult.fromError(
-          cmd, `The ${name.join(' ')} role is higher in hierarchy than me.`
-        );
-      }
+    if (!result.success) {
+      return PreconditionResult.fromError(cmd, result.reason);
     }
 
     return PreconditionResult.fromSuccess();
