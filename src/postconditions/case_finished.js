@@ -47,7 +47,6 @@ class CaseFinished extends Postcondition {
     const is_detainment = warrant.request === 1;
 
     db.add_cash(judge.id, guild.id, grant_amount);
-    db.add_cash(officer.id, guild.id, arrest_amount);
     await system.dm_cash(
       judge,
       guild,
@@ -55,6 +54,7 @@ class CaseFinished extends Postcondition {
       `${is_detainment ? 'approving' : 'granting'} warrant #${warrant.id}, \
 which led to a ${result} verdict`
     );
+    db.add_cash(officer.id, guild.id, arrest_amount);
     await system.dm_cash(
       officer,
       guild,
