@@ -19,7 +19,7 @@ class Gambling extends Command {
           type: 'cash',
           example: '500',
           preconditionOptions: [{ minimum: config.min_gamble }],
-          preconditions: ['min_cash', 'cash']
+          preconditions: ['min', 'cash']
         })
       ]
     });

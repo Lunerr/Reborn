@@ -257,8 +257,30 @@ module.exports = {
     return queries.set_case_lawyer.run(lawyer_id, case_id);
   },
 
-  set_lawyer_hired_at(case_id, time = Date.now()) {
-    return queries.set_lawyer_hired_at.run(time, case_id);
+  get_lawyer(guild_id, member_id) {
+    let exists = queries.get_lawyer.get(member_id, guild_id);
+
+    if (!exists) {
+      this.insert('lawyers', {
+        guild_id,
+        member_id
+      });
+      exists = queries.get_lawyer.get(member_id, guild_id);
+    }
+
+    return exists;
+  },
+
+  get_guild_lawyers(guild_id) {
+    return queries.get_guild_lawyers.all(guild_id);
+  },
+
+  set_rate(guild_id, member_id, rate, convert = true) {
+    this.get_lawyer(guild_id, member_id);
+
+    const value = convert ? rate * to_cents : rate;
+
+    return queries.set_lawyer_rate.run(value, member_id, guild_id);
   },
 
   set_last_notified(member_id, guild_id, type, time) {

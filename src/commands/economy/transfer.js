@@ -24,7 +24,7 @@ class Transfer extends Command {
           type: 'cash',
           example: '500',
           preconditionOptions: [{ minimum: config.min_transfer }],
-          preconditions: ['min_cash', 'cash']
+          preconditions: ['min', 'cash']
         })
       ]
     });

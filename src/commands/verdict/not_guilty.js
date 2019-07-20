@@ -44,7 +44,7 @@ module.exports = new class NotGuilty extends Command {
   }
 
   async run(msg, args) {
-    let c_case = db.get_channel_case(msg.channel.id);
+    const c_case = db.get_channel_case(msg.channel.id);
     const { defendant_id, id: case_id } = c_case;
     const defendant = msg.channel.guild.members.get(defendant_id);
     const res = system.case_finished(case_id);
@@ -53,16 +53,14 @@ module.exports = new class NotGuilty extends Command {
       return CommandResult.fromError(res.reason);
     }
 
-    const { lastInsertRowid: id } = db.insert('verdicts', {
+    db.insert('verdicts', {
       guild_id: msg.channel.guild.id,
       case_id,
       defendant_id,
       verdict: verdict.innocent,
       opinion: args.opinion
     });
-
     await this.free(msg.channel.guild, defendant);
-    c_case = db.get_case(id);
 
     const { case_channel } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const c_channel = msg.channel.guild.channels.get(case_channel);
