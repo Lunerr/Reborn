@@ -253,6 +253,14 @@ module.exports = {
     return queries.set_last_dm.run(time, member_id, guild_id, type);
   },
 
+  set_lawyer(lawyer_id, case_id) {
+    return queries.set_case_lawyer.run(lawyer_id, case_id);
+  },
+
+  set_lawyer_hired_at(case_id, time = Date.now()) {
+    return queries.set_lawyer_hired_at.run(time, case_id);
+  },
+
   set_last_notified(member_id, guild_id, type, time) {
     return queries.set_last_notified.run(time, member_id, guild_id, type);
   },

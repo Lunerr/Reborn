@@ -41,6 +41,8 @@ cases_table: |-
     defendant_id TEXT NOT NULL,
     judge_id TEXT NOT NULL,
     plaintiff_id TEXT NOT NULL,
+    lawyer_id TEXT,
+    lawyer_hired_at INTEGER,
     inactive_count TINYINT NOT NULL DEFAULT 0
   )
 
@@ -159,6 +161,10 @@ add_cash: UPDATE members SET cash = cash + ? WHERE member_id = ? AND guild_id = 
 set_cash: UPDATE members SET cash = ? WHERE member_id = ? AND guild_id = ?
 
 set_law_edited_at: UPDATE laws SET edited_at = ? WHERE id = ?
+
+set_case_lawyer: UPDATE cases SET lawyer_id = ? WHERE id = ?
+
+set_lawyer_hired_at: UPDATE cases SET lawyer_hired_at = ? WHERE id ?
 
 set_law_created_at: UPDATE laws SET created_at = ? WHERE id = ?
 
