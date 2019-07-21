@@ -145,10 +145,6 @@ module.exports = {
     return queries.set_jailed.run(status, member_id, guild_id);
   },
 
-  set_trial(status, guild_id, member_id) {
-    return queries.set_trial.run(status, member_id, guild_id);
-  },
-
   set_case_inactive_count(id, count) {
     return queries.set_case_inactive_count.run(count, id);
   },

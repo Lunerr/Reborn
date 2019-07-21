@@ -21,6 +21,8 @@ const catch_discord = require('../utilities/catch_discord.js');
 const verdict = require('../enums/verdict.js');
 const db = require('../services/database.js');
 const discord = require('../utilities/discord.js');
+const number = require('../utilities/number.js');
+const system = require('../utilities/system.js');
 const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const msg = `**BY THE PEOPLE, FOR THE PEOPLE**
 
@@ -53,27 +55,29 @@ client.on('guildMemberAdd', async (guild, member) => {
     }
 
     const mute = verdicts[i].last_modified_at + verdicts[i].sentence - Date.now();
+    const time_left = number.msToTime(verdicts[i].sentence - Date.now()).hours;
+    const format = time_left ? `${time_left} hours left` : '';
 
     if (mute > 0) {
-      await add_role(guild.id, member.id, imprisoned_role, 'Mute persistence');
+      await add_role(guild.id, member.id, imprisoned_role, `Mute persistence (${format})`);
       break;
     }
   }
 
-  const t_role = guild.roles.get(trial_role);
   const j_role = guild.roles.get(jailed_role);
   const db_member = db.get_member(member.id, guild.id);
 
   if (member.roles.includes(imprisoned_role)) {
-    db.set_trial(0, guild.id, member.id);
     db.set_jailed(0, guild.id, member.id);
   } else if (db_member) {
     if (db_member.jailed && j_role) {
       await add_role(guild.id, member.id, jailed_role, 'Role persistence');
     }
 
-    if (db_member.on_trial && t_role) {
-      await add_role(guild.id, member.id, trial_role, 'Role persistence');
+    const has_case = system.has_active_case(guild.id, member.id);
+
+    if (has_case.active) {
+      await add_role(guild.id, member.id, trial_role, `Has an active case (${has_case.c_case.id})`);
     }
   }
 });

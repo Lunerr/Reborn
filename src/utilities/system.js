@@ -116,9 +116,10 @@ Your current balance is ${number.format(current_balance)}.`,
     return null;
   },
 
-  async free_from_court(guild_id, defendant_id, roles) {
+  has_active_case(guild_id, defendant_id) {
     const cases = db.fetch_cases(guild_id);
-    let free = true;
+    let active = false;
+    let c_case = null;
 
     for (let i = 0; i < cases.length; i++) {
       if (cases[i].defendant_id !== defendant_id) {
@@ -129,10 +130,21 @@ Your current balance is ${number.format(current_balance)}.`,
       const no_verdict = !case_verdict || case_verdict.verdict === verdict.pending;
 
       if (no_verdict) {
-        free = false;
+        active = true;
+        c_case = cases[i];
         break;
       }
     }
+
+    return {
+      c_case,
+      active
+    };
+  },
+
+  async free_from_court(guild_id, defendant_id, roles) {
+    const { active } = this.has_active_case(guild_id, defendant_id);
+    const free = !active;
 
     if (free) {
       for (let i = 0; i < roles.length; i++) {

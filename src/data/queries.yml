@@ -144,8 +144,7 @@ members_table: |-
     created_at INTEGER NOT NULL,
     last_modified_at INTEGER NOT NULL,
     cash INTEGER NOT NULL DEFAULT 0,
-    jailed TINYINT NOT NULL DEFAULT 0,
-    on_trial TINYINT NOT NULL DEFAULT 0
+    jailed TINYINT NOT NULL DEFAULT 0
   )
 
 impeachments_table: |-
@@ -204,8 +203,6 @@ select_channels: SELECT * FROM public_channels WHERE guild_id = ?
 serve_verdict: UPDATE verdicts SET served = 1 WHERE id = ?
 
 set_jailed: UPDATE members SET jailed = ? WHERE member_id = ? AND guild_id = ?
-
-set_trial: UPDATE members SET on_trial = ? WHERE member_id = ? AND guild_id = ?
 
 get_member: SELECT * FROM members WHERE member_id = ? AND guild_id = ?
 
