@@ -15,11 +15,12 @@ class InformJudge extends Postcondition {
     if (result.success !== false) {
       const warrant = db.get_warrant(result.warrant_id);
       const judge = await client.getRESTUser(warrant.judge_id);
-      let info = `${discord.tag(msg.author).boldified} has reached a verdict in case #${result.id}`;
+      let info = `${discord.tag(msg.author).boldified} \
+has delivered a verdict in case #${result.id}\n`;
       const case_verdict = db.get_verdict(result.id);
       const str_verdict = Object.keys(verdict).find(x => verdict[x] === case_verdict.verdict);
 
-      info += `\n\n**Verdict:** ${str_verdict.split('_').map(str.to_uppercase).join(' ')}\n`;
+      info += `**Verdict:** ${str_verdict.split('_').map(str.to_uppercase).join(' ')}\n`;
 
       if (case_verdict.sentence !== null) {
         info += `**Sentence:** ${util.get_time(case_verdict.sentence)}\n`;
