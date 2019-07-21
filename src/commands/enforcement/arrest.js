@@ -174,7 +174,10 @@ module.exports = new class Arrest extends Command {
       `Case for ${channel_name_cop}-VS-${channel_name_def}`,
       category
     );
-    const edits = [judge.id, officer.id, defendant.id, guild.shard.client.user.id];
+    const found_lawyer = system.find_lawyer(
+      guild, [warrant.judge_id, officer.id, defendant.id, judge.id]
+    );
+    const edits = [judge.id, officer.id, defendant.id, client.user.id, found_lawyer];
 
     await Promise.all(edits.map(x => channel.editPermission(
       x, this.bitfield, 0, 'member', 'Adding members to the court case'
@@ -187,9 +190,6 @@ module.exports = new class Arrest extends Command {
     const format = this.format_evidence(warrant.evidence);
     const evidence = Array.isArray(format) ? format[0] : format;
     const innocence_bias = number.format(config.judge_case * config.innocence_bias);
-    const found_lawyer = system.find_lawyer(
-      guild, [warrant.judge_id, officer.id, defendant.id, judge.id]
-    );
     const lawyer = guild.members.get(found_lawyer) || await client.getRESTUser(found_lawyer);
     const content = str.format(
       opening_msg,
