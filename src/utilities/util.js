@@ -17,8 +17,25 @@
  */
 'use strict';
 const default_delay = 2e3;
+const number = require('./number.js');
+const hours_per_day = 24;
 
 module.exports = {
+  get_time(time, soon = false) {
+    const { days, hours, minutes, seconds } = number.msToTime(time);
+    const total_hours = (days * hours_per_day) + hours;
+
+    if (total_hours) {
+      return `${total_hours} hours${minutes ? ` and ${minutes} minutes` : ''}`;
+    } else if (minutes) {
+      return `${minutes} minutes${seconds ? ` and ${seconds} seconds` : ''}`;
+    } else if (seconds || !soon) {
+      return `${seconds} seconds`;
+    }
+
+    return 'a short period';
+  },
+
   delay(time = default_delay) {
     return new Promise(r => setTimeout(r, time));
   },

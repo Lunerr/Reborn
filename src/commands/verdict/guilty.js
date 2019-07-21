@@ -24,10 +24,10 @@ const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
 const system = require('../../utilities/system.js');
+const util = require('../../utilities/util.js');
 const catch_discord = require('../../utilities/catch_discord.js');
 const add_role = catch_discord(client.addGuildMemberRole.bind(client));
 const empty_argument = Symbol('Empty Argument');
-const hours_per_day = 24;
 const content = `Rendering a guilty verdict when there remains a reasonable doubt will result in \
 impeachment and **national disgrace**.
 
@@ -126,18 +126,7 @@ you have been rewarded with ${number.format(config.judge_case)} for delivering t
 
   get_time(time, soon = false) {
     if (typeof time === 'number') {
-      const { days, hours, minutes, seconds } = number.msToTime(time);
-      const total_hours = (days * hours_per_day) + hours;
-
-      if (total_hours) {
-        return `${total_hours} hours${minutes ? ` and ${minutes} minutes` : ''}`;
-      } else if (minutes) {
-        return `${minutes} minutes${seconds ? ` and ${seconds} seconds` : ''}`;
-      } else if (seconds || !soon) {
-        return `${seconds} seconds`;
-      }
-
-      return 'a short period';
+      return util.get_time(time, soon);
     }
 
     return '';
