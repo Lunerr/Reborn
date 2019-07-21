@@ -10,7 +10,7 @@ class Max extends ArgumentPrecondition {
     if (value >= options.maximum) {
       return PreconditionResult.fromError(
         command,
-        `The maximum ${argument.name} is ${number.format(options.minimum)}`
+        `The maximum ${argument.name} is ${number.format(options.maximum)}`
       );
     }
 
