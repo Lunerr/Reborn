@@ -17,6 +17,7 @@
  */
 'use strict';
 const { Argument, Command } = require('patron.js');
+const { config } = require('../../services/data.js')
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
@@ -31,8 +32,8 @@ module.exports = new class SetLawyerWage extends Command {
           key: 'rate',
           name: 'rate',
           type: 'amount',
-          preconditions: ['min'],
-          preconditionOptions: [{ minimum: min_rate }],
+          preconditions: ['min', 'max'],
+          preconditionOptions: [{ minimum: min_rate }, { maximum: config.max_lawyer_rate }],
           remainder: true
         })
       ],
