@@ -33,7 +33,7 @@ module.exports = new class Law extends TypeReader {
 
     return handle_matches(
       cmd,
-      laws.filter(x => x.name === lower),
+      laws.filter(x => x.name.toLowerCase() === lower),
       'That law does not exist.'
     );
   }
