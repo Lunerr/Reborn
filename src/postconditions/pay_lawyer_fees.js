@@ -24,12 +24,13 @@ class PayLawyerFees extends Postcondition {
 
       const name = await handler.parseCommand(msg, config.prefix.length)
         .then(x => x.command.names[0]);
+      const lawyer_user = await client.getRESTUser(lawyer.member_id);
 
       if (name === 'guilty') {
         const def_cash = db.get_cash(result.defendant_id, msg.channel.guild.id, false);
         const user = await client.getRESTUser(result.defendant_id);
 
-        return this.take_cash(result, user, msg.channel.guild, def_cash, lawyer.rate);
+        return this.take_cash(result, user, msg.channel.guild, def_cash, lawyer.rate, lawyer_user);
       }
 
       const half = lawyer.rate / split;
@@ -39,8 +40,11 @@ class PayLawyerFees extends Postcondition {
       const judge_bal = db.get_cash(warrant.judge_id, msg.channel.guild.id, false);
       const officer_bal = db.get_cash(warrant.officer_id, msg.channel.guild.id, false);
 
-      return this.take_cash(result, judge, msg.channel.guild, judge_bal, half)
-        .then(() => this.take_cash(result, officer, msg.channel.guild, officer_bal, half));
+      return this.take_cash(
+        result, judge, msg.channel.guild, judge_bal, half, lawyer_user
+      ).then(() => this.take_cash(
+        result, officer, msg.channel.guild, officer_bal, half, lawyer_user
+      ));
     }
   }
 
