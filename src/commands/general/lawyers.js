@@ -46,10 +46,10 @@ module.exports = new class Lawyers extends Command {
     }
 
     lawyers.sort((a, b) => {
-      const a_percent = system.get_win_percent(a.member_id, msg.channel.guild).win_percent;
-      const b_percent = system.get_win_percent(b.member_id, msg.channel.guild).win_percent;
+      const a_wins = system.get_win_percent(a.member_id, msg.channel.guild).wins;
+      const b_wins = system.get_win_percent(b.member_id, msg.channel.guild).wins;
 
-      return a_percent - b_percent;
+      return a_wins - b_wins;
     });
 
     const obj = discord.embed({
