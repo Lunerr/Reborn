@@ -35,11 +35,7 @@ module.exports = new class Lawyers extends Command {
   }
 
   async run(msg) {
-    const lawyers = db
-      .get_guild_lawyers(msg.channel.guild.id)
-      .filter(x => system.get_win_percent(
-        x.member_id, msg.channel.guild
-      ).win_percent >= config.min_lawyer_win_percent);
+    const lawyers = db.get_guild_lawyers(msg.channel.guild.id);
 
     if (!lawyers.length) {
       return CommandResult.fromError('There are no lawyers on the leaderboards.');
