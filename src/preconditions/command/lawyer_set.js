@@ -16,17 +16,23 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
-const { Group } = require('patron.js');
+const { Precondition, PreconditionResult } = require('patron.js');
+const db = require('../../services/database.js');
 
-module.exports = new Group({
-  description: 'The available verdicts to be given out',
-  name: 'verdicts',
-  preconditions: [
-    'court_only',
-    'court_case',
-    'can_trial',
-    'judge_creator',
-    'lawyer_set'
-  ],
-  postconditions: ['case_finished', 'pay_lawyer_fees']
-});
+module.exports = new class LawyerSet extends Precondition {
+  constructor() {
+    super({ name: 'lawyer_set' });
+  }
+
+  async run(cmd, msg) {
+    const c_case = db.get_channel_case(msg.channel.id);
+
+    if (c_case.lawyer_id === null) {
+      return PreconditionResult.fromError(
+        cmd, 'The lawyer needs to be set before issuing a verdict.'
+      );
+    }
+
+    return PreconditionResult.fromSuccess();
+  }
+}();

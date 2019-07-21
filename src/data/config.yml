@@ -80,6 +80,9 @@ leaderboard: 10
 # Number of members to display in the lawyers leaderboard
 lawyer_leaderboard: 10
 
+# Minimum win percent for a lawyer to be displayed on the lawyers leaderboard
+min_lawyer_win_percent: 0.75
+
 # The minimum amount of cash that is considered not in-debt
 in_debt: 0
 

@@ -52,6 +52,8 @@ module.exports = new class SetLawyer extends Command {
       return CommandResult.fromError(
         `The ${warrant.request === 1 ? 'approving' : 'granting'} judge may not be their lawyer.`
       );
+    } else if (!discord.is_online(args.member)) {
+      return CommandResult.fromError('The selected lawyer must be online.');
     }
 
     db.set_lawyer(args.member.id, c_case.id);

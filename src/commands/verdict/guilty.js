@@ -171,13 +171,13 @@ you have been rewarded with ${number.format(config.judge_case)} for delivering t
       await add_role(ids.guild, ids.defendant, imprisoned_role, `Sentenced to ${time}`);
     }
 
-    const { lastInsertRowid: id } = db.insert('verdicts', update);
+    db.insert('verdicts', update);
 
     if (in_server) {
       await system.free_from_court(ids.guild, ids.defendant, [trial_role, jailed_role]);
     }
 
-    const c_case = db.get_case(id);
+    const c_case = db.get_case(ids.case);
     const c_channel = client.guilds.get(ids.guild).channels.get(case_channel);
 
     if (c_channel) {

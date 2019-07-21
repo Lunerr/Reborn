@@ -37,19 +37,26 @@ module.exports = new class Lawyers extends Command {
   async run(msg) {
     const lawyers = db
       .get_guild_lawyers(msg.channel.guild.id)
-      .sort((a, b) => {
-        const a_percent = system.get_win_percent(a.member_id, msg.channel.guild).win_percent;
-        const b_percent = system.get_win_percent(b.member_id, msg.channel.guild).win_percent;
-
-        return a_percent - b_percent;
-      });
+      .filter(x => system.get_win_percent(
+        x.member_id, msg.channel.guild
+      ).win_percent >= config.min_lawyer_win_percent);
 
     if (!lawyers.length) {
       return CommandResult.fromError('There are no lawyers on the leaderboards.');
     }
 
+    lawyers.sort((a, b) => {
+      const a_percent = system.get_win_percent(a.member_id, msg.channel.guild).win_percent;
+      const b_percent = system.get_win_percent(b.member_id, msg.channel.guild).win_percent;
+
+      return a_percent - b_percent;
+    });
+
     const obj = discord.embed({
-      title: 'The Top Lawyers', description: ''
+      title: 'The Top Lawyers', description: '', footer: {
+        text: `Only lawyers with atleast a \
+${config.min_lawyer_win_percent * to_percent}% win percent are displayed`
+      }
     });
 
     for (let i = 0; i < lawyers.length; i++) {
