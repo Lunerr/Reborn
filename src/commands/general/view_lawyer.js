@@ -20,8 +20,9 @@ const { Argument, Command, ArgumentDefault } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
+const system = require('../../utilities/system.js');
 
-module.exports = new class Rate extends Command {
+module.exports = new class ViewLawyer extends Command {
   constructor() {
     super({
       args: [
@@ -34,18 +35,20 @@ module.exports = new class Rate extends Command {
           defaultValue: ArgumentDefault.Member
         })
       ],
-      description: 'View a lawyers\'s rate.',
+      description: 'View a lawyers\'s record.',
       groupName: 'general',
-      names: ['rate', 'lawyers_rate']
+      names: ['view_lawyer', 'lawyer']
     });
   }
 
   async run(msg, args) {
     const lawyer = db.get_lawyer(msg.channel.guild.id, args.member.id);
+    const record = system.get_win_percent(args.member.id, msg.channel.guild.id);
     const formatted_rate = number.format(lawyer.rate, true);
     const embed = discord.embed({
-      title: `${discord.tag(args.member.user)}'s Rate`,
-      description: `**Rate:** ${formatted_rate}`
+      title: `${discord.tag(args.member.user)}'s Lawyer Record`,
+      description: `**Wins**: ${record.wins}\n**Losses:** ${record.losses}
+**Win Percent:** ${record.win_percent}%\n**Rate:** ${formatted_rate} per case`
     });
 
     return msg.channel.createMessage(embed);
