@@ -60,7 +60,7 @@ which led to a ${result} verdict`
       guild,
       arrest_amount,
       `${is_detainment ? 'detaining' : 'arresting'} the defendant in warrant #${warrant.id}, \
-which led to a ${result} verdict.`
+which led to a ${result} verdict`
     );
   }
 }
