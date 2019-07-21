@@ -17,7 +17,7 @@
  */
 'use strict';
 const { Argument, Command } = require('patron.js');
-const { config } = require('../../services/data.js')
+const { config } = require('../../services/data.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
