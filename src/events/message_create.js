@@ -140,9 +140,10 @@ client.on('messageCreate', catch_discord(async msg => {
   const isCommand = await handler.parseCommand(msg, prefix.length);
 
   if ((!msg.content.startsWith(prefix) || !isCommand.success) && msg.channel.guild) {
-    const { court_category } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+    const public_channels = db.fetch_channels(msg.channel.guild.id).filter(x => x.active === 1);
+    const is_public = public_channels.some(x => x.channel_id === msg.channel.id);
 
-    if (!court_category || (msg.channel.parentID && msg.channel.parentID !== court_category)) {
+    if (is_public) {
       await custom_cmd(msg);
     }
   }
