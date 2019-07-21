@@ -21,12 +21,6 @@ const { Group } = require('patron.js');
 module.exports = new Group({
   description: 'The available verdicts to be given out',
   name: 'verdicts',
-  preconditions: [
-    'court_only',
-    'court_case',
-    'can_trial',
-    'judge_creator',
-    'lawyer_set'
-  ],
+  preconditions: ['court_only', 'court_case', 'can_trial', 'judge_creator'],
   postconditions: ['case_finished', 'pay_lawyer_fees']
 });

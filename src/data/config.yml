@@ -83,6 +83,9 @@ lawyer_leaderboard: 10
 # Minimum win percent for a lawyer to be displayed on the lawyers leaderboard
 min_lawyer_win_percent: 0.75
 
+# Max number of active cases a lawyer can have at once
+max_active_lawyer_cases: 3
+
 # The minimum amount of cash that is considered not in-debt
 in_debt: 0
 

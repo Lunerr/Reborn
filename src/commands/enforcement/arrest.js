@@ -46,6 +46,21 @@ you will be fined {0}.
 
 If you are sure you wish to proceed with the arrest given the aforementioned terms \
 and have reviewed the necessary information, please type \`yes\`.`;
+const opening_msg = `{0} VS {1}
+
+{2} will be presiding over this court proceeding. {1}'s provided lawyer is {3}
+
+The defense is accused of violating the following law: {4}
+
+{5}
+
+In order to promote a just and free society, we must be biased towards **INNOCENCE!**
+
+If you find the slightest bit of inconsistent evidence, contradictory testimony, or holes \
+in the prosecution's points, **DO NOT DELIVER A GUILTY VERDICT!**
+
+When rendering **ANY VERDICT** other than a guilty verdict, you will receive an \
+additional {6} in compensation.`;
 const max_len = 14e2;
 const dots = '...';
 
@@ -172,21 +187,16 @@ module.exports = new class Arrest extends Command {
     const format = this.format_evidence(warrant.evidence);
     const evidence = Array.isArray(format) ? format[0] : format;
     const innocence_bias = number.format(config.judge_case * config.innocence_bias);
-    const content = `${officer.mention} VS ${defendant.mention}
-
-${judge.mention} will be presiding over this court proceeding.
-
-The defense is accused of violating the following law: ${law.name}
-
-${warrant.evidence ? `${warrant.request === 1 ? 'Messages' : 'Evidence'}: ${evidence}` : ''}
-
-In order to promote a just and free society, we must be biased towards **INNOCENCE!**
-
-If you find the slightest bit of inconsistent evidence, contradictory testimony, or holes \
-in the prosecution's points, **DO NOT DELIVER A GUILTY VERDICT!**
-
-When rendering **ANY VERDICT** other than a guilty verdict, you will receive an \
-additional ${innocence_bias} in compensation.`;
+    const found_lawyer = system.find_lawyer(
+      guild, [warrant.judge_id, officer.id, defendant.id, judge.id]
+    );
+    const lawyer = guild.members.get(found_lawyer) || await client.getRESTUser(found_lawyer);
+    const content = str.format(
+      opening_msg,
+      officer.mention, defendant.mention, judge.mention, lawyer.mention, law.name,
+      warrant.evidence ? `${warrant.request === 1 ? 'Messages' : 'Evidence'}: ${evidence}` : '',
+      innocence_bias
+    );
     const sent = await channel.createMessage(content);
 
     if (Array.isArray(format)) {
@@ -197,7 +207,9 @@ additional ${innocence_bias} in compensation.`;
 
     await this.send_cmds(channel);
     await sent.pin();
-    await this.close(channel, warrant, defendant.id, judge.id, officer.id, trial_role, jailed);
+    await this.close(
+      channel, warrant, defendant.id, judge.id, officer.id, trial_role, jailed, found_lawyer
+    );
   }
 
   send_cmds(channel) {
@@ -242,12 +254,13 @@ additional ${innocence_bias} in compensation.`;
     return [initial].concat(rest);
   }
 
-  async close(channel, warrant, defendant_id, judge_id, plaintiff_id, role, jailed) {
+  async close(channel, warrant, defendant_id, judge_id, plaintiff_id, role, jailed, found_lawyer) {
     const c_case = {
       guild_id: channel.guild.id,
       channel_id: channel.id,
       warrant_id: warrant.id,
       law_id: warrant.law_id,
+      lawyer_id: found_lawyer,
       defendant_id,
       judge_id,
       plaintiff_id
