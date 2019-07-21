@@ -4,7 +4,8 @@ const client = require('../services/client.js');
 const db = require('../services/database.js');
 const handler = require('../services/handler.js');
 const system = require('../utilities/system.js');
-const discord = require('../utilities/discord.js');
+const number = require('../utilities/number.js');
+const verdict = require('../enums/verdict.js');
 const to_cents = 100;
 const split = 2;
 
@@ -44,16 +45,25 @@ class PayLawyerFees extends Postcondition {
   }
 
   take_cash(c_case, user, guild, balance, rate) {
-    const ending = `in case #${c_case.id}`;
+    const case_verdict = db.get_verdict(c_case.id);
+    const case_result = case_verdict.verdict === verdict.guilty ? 'guilty' : 'not guilty';
+    const ending = `in case #${c_case.id} as the accused was found to be ${case_result}`;
+    const action = 'been billed';
+    let reason = `legal fees ${ending}`;
 
     if (balance >= rate) {
       db.add_cash(c_case.defendant_id, guild.id, -rate, false);
 
-      return system.dm_cash(user, guild, -rate / to_cents, `covering lawyer fees ${ending}`);
+      return system.dm_cash(user, guild, -rate / to_cents, reason, action, 'in');
     }
 
-    return discord.dm(user, `The government has paid for your lawyer fees in order to \
-prevent you from going in debt ${ending}.`, guild);
+    const paid_for = rate - balance;
+
+    reason += `. The government has covered ${number.format(rate - paid_for, true)} of your legal \
+fees to protect your right of having an attorney`;
+    db.add_cash(c_case.defendant_id, guild.id, -paid_for, false);
+
+    return system.dm_cash(user, guild, -paid_for / to_cents, reason, action, 'in');
   }
 }
 

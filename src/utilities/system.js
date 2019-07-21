@@ -44,15 +44,24 @@ module.exports = {
     return Date.now() - (law.created_at + time) > 0;
   },
 
-  dm_cash(user, guild, amount, reason) {
-    const outcome = amount < 0 ? 'lost' : 'been rewarded with';
+  dm_cash(user, guild, amount, reason, action, sep = 'for') {
+    let outcome;
+
+    if (action) {
+      outcome = action;
+    } else if (amount < 0) {
+      outcome = 'lost';
+    } else {
+      outcome = 'been rewarded with';
+    }
+
     const value = amount < 0 ? Math.abs(amount) : amount;
     const format = number.format(value);
     const current_balance = db.get_cash(user.id, guild.id);
 
     return discord.dm(
       user,
-      `You have ${outcome} ${format} for ${reason} in ${guild.name}.\n
+      `You have ${outcome} ${format} ${sep} ${reason}.\n
 Your current balance is ${number.format(current_balance)}.`,
       guild
     );
