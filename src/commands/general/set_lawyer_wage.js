@@ -22,7 +22,7 @@ const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
 const min_rate = 0;
 
-module.exports = new class SetRate extends Command {
+module.exports = new class SetLawyerWage extends Command {
   constructor() {
     super({
       args: [
@@ -38,7 +38,7 @@ module.exports = new class SetRate extends Command {
       ],
       description: 'Sets your rate per case.',
       groupName: 'general',
-      names: ['set_rate']
+      names: ['set_lawyer_wage']
     });
   }
 

@@ -46,7 +46,7 @@ module.exports = new class ViewLawyer extends Command {
     const record = system.get_win_percent(args.member.id, msg.channel.guild.id);
     const formatted_rate = number.format(lawyer.rate, true);
     const embed = discord.embed({
-      title: `${discord.tag(args.member.user)}'s Lawyer Record`,
+      title: `${discord.tag(args.member.user)}'s Lawyer Profile`,
       description: `**Wins**: ${record.wins}\n**Losses:** ${record.losses}
 **Win Percent:** ${record.win_percent}%\n**Rate:** ${formatted_rate} per case`
     });
