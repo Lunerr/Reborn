@@ -49,10 +49,7 @@ module.exports = new class Lawyers extends Command {
     });
 
     const obj = discord.embed({
-      title: 'The Top Lawyers', description: '', footer: {
-        text: `Only lawyers with atleast a \
-${config.min_lawyer_win_percent * to_percent}% win percent are displayed`
-      }
+      title: 'The Top Lawyers', description: ''
     });
 
     for (let i = 0; i < lawyers.length; i++) {
