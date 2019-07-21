@@ -16,17 +16,18 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
-const { Argument, Command } = require('patron.js');
+const { Argument, Command, CommandResult } = require('patron.js');
 const system = require('../../utilities/system.js');
+const db = require('../../services/database.js');
 
 module.exports = new class Law extends Command {
   constructor() {
     super({
       args: [
         new Argument({
-          example: '2',
-          type: 'law',
-          name: 'id',
+          example: 'cp',
+          type: 'int',
+          name: 'law ID',
           key: 'law'
         })
       ],
@@ -37,7 +38,13 @@ module.exports = new class Law extends Command {
   }
 
   async run(msg, args) {
-    const [formatted_law] = system.format_laws([args.law]);
+    const law = db.fetch_laws(msg.channel.guild.id).find(x => x.id === args.law && x.active === 1);
+
+    if (!law) {
+      return CommandResult.fromError('This law does not exist.');
+    }
+
+    const [formatted_law] = system.format_laws([law]);
 
     return msg.channel.createMessage({ embed: formatted_law });
   }

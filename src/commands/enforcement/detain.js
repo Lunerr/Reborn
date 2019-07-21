@@ -151,7 +151,7 @@ older than 5 minutes, consider getting a judge to grant a warrant for this user.
 
     const laws = db.fetch_laws(msg.channel.guild.id);
     const reply = res.reply.content.toLowerCase();
-    const law = laws.find(x => x.id === Number(reply) && x.active === 1);
+    const law = laws.find(x => x.name === reply && x.active === 1);
 
     if (law) {
       if (law.active === 0) {
