@@ -59,11 +59,11 @@ class PayLawyerFees extends Postcondition {
 
     const paid_for = rate - balance;
 
-    reason += `. The government has covered ${number.format(rate - paid_for, true)} of your legal \
+    reason += `. The government has covered ${number.format(paid_for, true)} of your legal \
 fees to protect your right of having an attorney`;
-    db.add_cash(c_case.defendant_id, guild.id, -paid_for, false);
+    db.add_cash(c_case.defendant_id, guild.id, -(rate - paid_for), false);
 
-    return system.dm_cash(user, guild, -paid_for / to_cents, reason, action, 'in');
+    return system.dm_cash(user, guild, -(rate - paid_for) / to_cents, reason, action, 'in');
   }
 }
 
