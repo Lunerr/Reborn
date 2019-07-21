@@ -292,6 +292,11 @@ Your current balance is ${number.format(current_balance)}.`,
       }
 
       const case_verdict = db.get_verdict(c_case.id);
+      
+      if (!case_verdict) {
+        continue;
+      }
+
       const res = fn(case_verdict);
 
       if (res) {
