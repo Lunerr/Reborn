@@ -22,6 +22,5 @@ module.exports = {
   guilty: 1,
   innocent: 2,
   mistrial: 3,
-  inactive: 4,
-  unjust_trial: 5
+  inactive: 4
 };
