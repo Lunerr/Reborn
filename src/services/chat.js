@@ -34,18 +34,25 @@ module.exports = {
   },
 
   async add_cash(msg) {
+    const now = Date.now();
     const key = `${msg.author.id}-${msg.channel.guild.id}`;
     const lastMessage = this.messages[key];
     const cooldown = config.msg_cooldown;
-    const cdOver = !lastMessage || Date.now() - lastMessage > cooldown;
+    const cdOver = !lastMessage || now - lastMessage.time > cooldown;
     const longEnough = this.prune(msg.content).length >= config.min_msg_length;
 
     if (cdOver && longEnough) {
-      const amount = config.cash_per_msg;
+      if (lastMessage) {
+        this.message[key].ids.push(msg.id);
+        this.messages[key].time = now;
+      } else {
+        this.messages[key] = {
+          ids: [msg.id],
+          time: now
+        };
+      }
 
-      this.messages[key] = Date.now();
-
-      return db.add_cash(msg.author.id, msg.channel.guild.id, amount);
+      return db.add_cash(msg.author.id, msg.channel.guild.id, config.cash_per_msg);
     }
   }
 };
