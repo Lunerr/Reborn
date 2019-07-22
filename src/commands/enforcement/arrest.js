@@ -168,16 +168,19 @@ module.exports = new class Arrest extends Command {
     const channel_name_cop = discord.formatUsername(officer.username).trim() || 'reborn';
     const channel_name_def = discord.formatUsername(defendant.username).trim() || 'the_people';
     const channel = await create_channel(
-      guild.id,
-      `${channel_name_cop}-VS-${channel_name_def}`,
-      0,
-      `Case for ${channel_name_cop}-VS-${channel_name_def}`,
-      category
+      guild.id, `${channel_name_cop}-VS-${channel_name_def}`,
+      0, `Case for ${channel_name_cop}-VS-${channel_name_def}`, category
     );
     const found_lawyer = system.find_lawyer(
       guild, [warrant.judge_id, officer.id, defendant.id, judge.id]
     );
-    const edits = [judge.id, officer.id, defendant.id, client.user.id, found_lawyer];
+    const edits = [
+      judge.id,
+      officer.id,
+      defendant.id,
+      client.user.id,
+      found_lawyer
+    ];
 
     await Promise.all(edits.map(x => channel.editPermission(
       x, this.bitfield, 0, 'member', 'Adding members to the court case'
@@ -201,7 +204,7 @@ module.exports = new class Arrest extends Command {
 
     if (Array.isArray(format)) {
       for (let i = 1; i < format.length; i++) {
-        await channel.createMessage(`Continuation of Evidence #${i + 1}:${format[i]}`);
+        await channel.createMessage(`Continuation of Evidence #${i + 1}:\n${format[i]}`);
       }
     }
 
@@ -243,9 +246,9 @@ module.exports = new class Arrest extends Command {
     }
 
     if (index !== -1) {
-      const rest = evidence.slice(index);
+      const rest = evidence.slice(index + 1);
 
-      return [evidence.slice(0, index)].concat(this.format_evidence(rest));
+      return [evidence.slice(0, index + 1)].concat(this.format_evidence(rest));
     }
 
     const initial = `${evidence.slice(0, max_len - dots.length)}${dots}`;

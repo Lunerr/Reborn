@@ -52,7 +52,7 @@ module.exports = {
         const a_wins = this.get_win_percent(a.member_id, guild).wins;
         const b_wins = this.get_win_percent(b.member_id, guild).wins;
 
-        return a_wins - b_wins;
+        return b_wins - a_wins;
       });
     let lawyer;
 
