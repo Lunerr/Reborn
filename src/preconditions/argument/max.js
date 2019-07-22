@@ -7,7 +7,7 @@ class Max extends ArgumentPrecondition {
   }
 
   async run(command, msg, argument, args, value, options) {
-    if (value >= options.maximum) {
+    if (value > options.maximum) {
       return PreconditionResult.fromError(
         command,
         `The maximum ${argument.name} is ${number.format(options.maximum)}`
