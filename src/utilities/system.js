@@ -133,8 +133,23 @@ Your current balance is ${number.format(current_balance)}.`,
 
     const user = member instanceof Member ? member.user : member;
 
+    await this.dm_cash(user, guild, config.impeached, `getting ${reason}`);
+
+    const [recent_nomination] = db
+      .fetch_nominations(guild.id)
+      .filter(x => x.nominatee === member.id)
+      .sort((a, b) => b.created_at - a.created_at);
+
+    if (!recent_nomination) {
+      return;
+    }
+
+    const nominator = await client.getRESTUser(recent_nomination.nominator);
+
+    db.add_cash(recent_nomination.nominator, guild.id, config.impeached);
+
     return this.dm_cash(
-      user, guild, config.impeached, `getting ${reason}`
+      nominator, guild, config.impeached, `nominating ${member.mention} who recently got impeached`
     );
   },
 
