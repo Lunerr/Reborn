@@ -22,7 +22,7 @@ const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
 const system = require('../../utilities/system.js');
 
-module.exports = new class ViewLawyer extends Command {
+module.exports = new class Lawyer extends Command {
   constructor() {
     super({
       args: [
@@ -37,7 +37,7 @@ module.exports = new class ViewLawyer extends Command {
       ],
       description: 'View a lawyers\'s record.',
       groupName: 'general',
-      names: ['view_lawyer', 'lawyer']
+      names: ['lawyer']
     });
   }
 
