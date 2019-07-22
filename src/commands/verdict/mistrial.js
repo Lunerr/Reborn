@@ -67,7 +67,7 @@ from prosecuting the defendant again.',
 
     await discord.create_msg(msg.channel, `${prefix}This court case has been declared as a \
 mistrial.\n\n\
-No verdict has been delivered and the accused may be prosecuted again.`);
+No verdict has been delivered in case #${c_case.id} and the accused may be prosecuted again.`);
     await system.close_case(msg, msg.channel);
 
     return c_case;

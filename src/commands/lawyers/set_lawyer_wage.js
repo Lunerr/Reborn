@@ -38,7 +38,7 @@ module.exports = new class SetLawyerWage extends Command {
         })
       ],
       description: 'Sets your rate per case.',
-      groupName: 'general',
+      groupName: 'lawyers',
       names: ['set_lawyer_wage', 'set_lawyer_rate', 'set_wage', 'set_rate']
     });
   }

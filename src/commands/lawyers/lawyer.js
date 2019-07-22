@@ -37,7 +37,7 @@ module.exports = new class Lawyer extends Command {
         })
       ],
       description: 'View a lawyers\'s record.',
-      groupName: 'general',
+      groupName: 'lawyers',
       names: ['lawyer']
     });
   }

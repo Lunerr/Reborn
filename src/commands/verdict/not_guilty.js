@@ -75,8 +75,8 @@ module.exports = new class NotGuilty extends Command {
 
     await discord.create_msg(
       msg.channel,
-      `${prefix}The court has found ${def.mention} not guilty.\n\n${msg.member.mention}, \
-you have been rewarded with ${number.format(amount)} for delivering the verdict.`
+      `${prefix}The court has found ${def.mention} not guilty.\n\n${msg.member.mention}, you have \
+been rewarded with ${number.format(amount)} for delivering the verdict in case #${c_case.id}.`
     );
     await system.close_case(msg, msg.channel);
 

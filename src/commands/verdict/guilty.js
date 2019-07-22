@@ -119,7 +119,8 @@ ${time} in prison${repeated ? ` for repeatedly breaking the law \`${law.name}\` 
 
     await discord.create_msg(
       msg.channel, `${def.mention} has been found guilty and ${ending}\n\n${msg.member.mention}, \
-you have been rewarded with ${number.format(config.judge_case)} for delivering the verdict.`
+you have been rewarded with ${number.format(config.judge_case)} for delivering the verdict in \
+case #${case_id}.`
     );
     await system.close_case(msg, msg.channel);
   }
