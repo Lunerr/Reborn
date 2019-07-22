@@ -297,6 +297,8 @@ Your current balance is ${number.format(current_balance)}.`,
         continue;
       }
 
+      console.log(case_verdict);
+
       const res = fn(case_verdict);
 
       if (res) {
