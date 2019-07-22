@@ -283,6 +283,7 @@ Your current balance is ${number.format(current_balance)}.`,
   get_case_count(lawyer_id, guild, fn) {
     const cases = db.fetch_cases(guild.id);
     let count = 0;
+    console.log(lawyer_id, guild.id)
 
     for (let i = 0; i < cases.length; i++) {
       const c_case = cases[i];
@@ -296,8 +297,6 @@ Your current balance is ${number.format(current_balance)}.`,
       if (!case_verdict) {
         continue;
       }
-
-      console.log(case_verdict);
 
       const res = fn(case_verdict);
 
