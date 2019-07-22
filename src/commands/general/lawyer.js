@@ -43,7 +43,7 @@ module.exports = new class Lawyer extends Command {
 
   async run(msg, args) {
     const lawyer = db.get_lawyer(msg.channel.guild.id, args.member.id);
-    const record = system.get_win_percent(args.member.id, msg.channel.guild.id);
+    const record = system.get_win_percent(args.member.id, msg.channel.guild);
     const formatted_rate = number.format(lawyer.rate, true);
     const embed = discord.embed({
       title: `${discord.tag(args.member.user)}'s Lawyer Profile`,
