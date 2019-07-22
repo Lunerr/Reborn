@@ -4,6 +4,7 @@ const numeric_values = {
   MILLION: 1e6,
   BILLION: 1e9
 };
+const max_dec = 2;
 
 class Amount extends TypeReader {
   constructor() {
@@ -11,7 +12,7 @@ class Amount extends TypeReader {
   }
 
   async read(cmd, msg, arg, args, input) {
-    let value = Number.parseFloat(input);
+    let value = Number(Number.parseFloat(input).toFixed(max_dec));
 
     if (Number.isNaN(value) === false) {
       if (input.toLowerCase().endsWith('k')) {
