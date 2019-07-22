@@ -20,10 +20,8 @@ const { Command, CommandResult } = require('patron.js');
 const { config } = require('../../services/data.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
-const number = require('../../utilities/number.js');
 const util = require('../../utilities/util.js');
 const system = require('../../utilities/system.js');
-const to_percent = 100;
 
 module.exports = new class Lawyers extends Command {
   constructor() {
@@ -49,7 +47,9 @@ module.exports = new class Lawyers extends Command {
     });
 
     const obj = discord.embed({
-      title: 'The Top Lawyers', description: ''
+      title: 'The Top Lawyers', description: '', footer: {
+        text: `Use ${config.prefix}lawyer @User for more info`
+      }
     });
 
     for (let i = 0; i < lawyers.length; i++) {
@@ -63,12 +63,10 @@ module.exports = new class Lawyers extends Command {
       }
 
       const record = system.get_win_percent(lawyers[i].member_id, msg.channel.guild);
-      const rate = number.format(lawyers[i].rate, true);
       const user = util.escape_markdown(discord.tag(member.user));
-      const percent = `${record.win_percent * to_percent}%`;
-      const profile_format = `${record.wins} wins, ${record.losses} losses (${percent})`;
+      const win_loss = `${record.wins} wins, ${record.losses} losses`;
 
-      obj.embed.description += `${i + 1}. **${user}** (${rate}/case): ${profile_format}\n`;
+      obj.embed.description += `${i + 1}. **${user}** ${win_loss}\n`;
     }
 
     return msg.channel.createMessage(obj);
