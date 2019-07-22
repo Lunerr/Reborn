@@ -54,7 +54,7 @@ class PayLawyerFees extends Postcondition {
 
   async take_cash(c_case, user, guild, balance, rate, lawyer) {
     db.add_cash(lawyer.id, guild.id, rate, false);
-    await system.dm_cash(lawyer, guild, rate, `being the lawyer case #${c_case.id}`);
+    await system.dm_cash(lawyer, guild, rate / to_cents, `being the lawyer case #${c_case.id}`);
 
     const case_verdict = db.get_verdict(c_case.id);
     const case_result = case_verdict.verdict === verdict.guilty ? 'guilty' : 'not guilty';
