@@ -57,7 +57,8 @@ class PayLawyerFees extends Postcondition {
     await system.dm_cash(lawyer, guild, rate / to_cents, `being the lawyer case #${c_case.id}`);
 
     const case_verdict = db.get_verdict(c_case.id);
-    const case_result = case_verdict.verdict === verdict.guilty ? 'guilty' : 'not guilty';
+    const guilty = case_verdict.verdict === verdict.guilty;
+    const case_result = guilty ? 'guilty' : 'not guilty';
     const ending = `in case #${c_case.id} as the accused was found to be ${case_result}`;
     const action = 'been billed';
     let reason = `legal fees ${ending}`;
@@ -70,8 +71,8 @@ class PayLawyerFees extends Postcondition {
 
     const paid_for = rate - balance;
 
-    reason += `. The government has covered ${number.format(paid_for, true)} of your legal \
-fees to protect your right of having an attorney`;
+    reason += `. The government has covered ${number.format(paid_for, true)} of your legal fees to \
+protect ${guilty ? 'your' : 'the defendant\'s'} right of having an attorney`;
     db.add_cash(c_case.defendant_id, guild.id, -(rate - paid_for), false);
 
     return system.dm_cash(user, guild, -(rate - paid_for) / to_cents, reason, action, 'in');
