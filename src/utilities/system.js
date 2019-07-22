@@ -276,7 +276,7 @@ Your current balance is ${number.format(current_balance)}.`,
     return {
       wins,
       losses,
-      win_percent: wins === 0 ? 0 : 1 - ((wins + losses) / wins)
+      win_percent: wins === 0 ? 0 : (wins + losses) / wins
     };
   },
 
