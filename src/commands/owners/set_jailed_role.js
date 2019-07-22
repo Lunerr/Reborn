@@ -35,7 +35,7 @@ module.exports = new class SetJailedRole extends Command {
       ],
       description: 'Sets the Jailed role.',
       groupName: 'owners',
-      names: ['set_jailed_role', 'set_jailed']
+      names: ['set_jailed_role', 'set_jailed', 'set_jail_role']
     });
   }
 
