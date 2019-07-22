@@ -65,7 +65,7 @@ class PayLawyerFees extends Postcondition {
     let reason = `legal fees ${ending}`;
 
     if (balance >= rate) {
-      db.add_cash(c_case.defendant_id, guild.id, -rate, false);
+      db.add_cash(user.id, guild.id, -rate, false);
 
       return system.dm_cash(user, guild, -rate / to_cents, reason, action, 'in');
     }
@@ -74,7 +74,7 @@ class PayLawyerFees extends Postcondition {
 
     reason += `. The government has covered ${number.format(paid_for, true)} of your legal fees to \
 protect ${guilty ? 'your' : 'the defendant\'s'} right of having an attorney`;
-    db.add_cash(c_case.defendant_id, guild.id, -(rate - paid_for), false);
+    db.add_cash(user.id, guild.id, -(rate - paid_for), false);
 
     return system.dm_cash(user, guild, -(rate - paid_for) / to_cents, reason, action, 'in');
   }
