@@ -33,17 +33,17 @@ module.exports = new class Lawyers extends Command {
   }
 
   async run(msg) {
-    let lawyers = db.get_guild_lawyers(msg.channel.guild.id);
+    const lawyers = db.get_guild_lawyers(msg.channel.guild.id);
 
     if (!lawyers.length) {
       return CommandResult.fromError('There are no lawyers on the leaderboards.');
     }
 
-    lawyers = lawyers.sort((a, b) => {
+    lawyers.sort((a, b) => {
       const a_wins = system.get_win_percent(a.member_id, msg.channel.guild).wins;
       const b_wins = system.get_win_percent(b.member_id, msg.channel.guild).wins;
 
-      return a_wins - b_wins;
+      return b_wins - a_wins;
     });
 
     const obj = discord.embed({
