@@ -64,6 +64,10 @@ additional {6} in compensation.`;
 const max_len = 14e2;
 const dots = '...';
 
+function get_index(string, char, max) {
+  return string.slice(0, max).lastIndexOf(char);
+}
+
 module.exports = new class Arrest extends Command {
   constructor() {
     super({
@@ -230,19 +234,15 @@ module.exports = new class Arrest extends Command {
     return channel.createMessage(obj);
   }
 
-  get_index(string, char, max) {
-    return string.slice(0, max).lastIndexOf(char);
-  }
-
   format_evidence(evidence) {
     if (evidence.length <= max_len) {
       return evidence;
     }
 
-    let index = this.get_index(evidence, '\n', max_len);
+    let index = get_index(evidence, '\n', max_len);
 
     if (index === -1) {
-      index = this.get_index(evidence, ' ', max_len);
+      index = get_index(evidence, ' ', max_len);
     }
 
     if (index !== -1) {
