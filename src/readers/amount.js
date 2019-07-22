@@ -1,8 +1,8 @@
 const { TypeReader, TypeReaderResult } = require('patron.js');
 const numeric_values = {
-  THOUSAND: 1e3,
-  MILLION: 1e6,
-  BILLION: 1e9
+  thousand: 1e3,
+  million: 1e6,
+  billion: 1e9
 };
 const max_dec = 2;
 
@@ -16,11 +16,11 @@ class Amount extends TypeReader {
 
     if (Number.isNaN(value) === false) {
       if (input.toLowerCase().endsWith('k')) {
-        value *= numeric_values.THOUSAND;
+        value *= numeric_values.thousand;
       } else if (input.toLowerCase().endsWith('m')) {
-        value *= numeric_values.MILLION;
+        value *= numeric_values.million;
       } else if (input.toLowerCase().endsWith('b')) {
-        value *= numeric_values.BILLION;
+        value *= numeric_values.billion;
       }
 
       return TypeReaderResult.fromSuccess(value);

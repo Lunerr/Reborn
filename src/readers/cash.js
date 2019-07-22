@@ -22,8 +22,8 @@ class Cash extends TypeReader {
 
     this.inputted_all = false;
 
-    const amountReader = reg.typeReaders.find(x => x.type === 'amount');
-    const result = await amountReader.read(cmd, msg, arg, args, input);
+    const amount_reader = reg.typeReaders.find(x => x.type === 'amount');
+    const result = await amount_reader.read(cmd, msg, arg, args, input);
 
     if (!result.success) {
       return TypeReaderResult.fromError(
