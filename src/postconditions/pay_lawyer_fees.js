@@ -16,6 +16,10 @@ class PayLawyerFees extends Postcondition {
 
   async run(msg, result) {
     if (result.success !== false) {
+      if (!result.lawyer_id) {
+        return;
+      }
+
       const lawyer = db.get_lawyer(msg.channel.guild.id, result.lawyer_id);
 
       if (lawyer.rate === 0) {
