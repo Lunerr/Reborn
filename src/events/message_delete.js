@@ -26,17 +26,19 @@ client.on('messageDelete', async message => {
 
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
+    const obj = chat.messages[key];
+    const index = obj.ids.indexOf(message.id);
 
-    if (chat.messages[key].ids.includes(message.id)) {
-      const [author_id, guild_id] = key.split('-');
-
-      keys.splice(i--, 1);
-
-      if (author_id && guild_id) {
-        db.add_cash(author_id, guild_id, -config.cash_per_msg);
-      }
-
+    if (index === -1) {
       continue;
+    }
+
+    const [author_id, guild_id] = obj.ids[index].split('-');
+
+    obj.ids.splice(index, 1);
+
+    if (author_id && guild_id) {
+      db.add_cash(author_id, guild_id, -config.cash_per_msg);
     }
   }
 });
