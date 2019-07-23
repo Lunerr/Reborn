@@ -173,7 +173,7 @@ who recently got impeached`);
         config.congress_impeachment_check,
         `${impeached.mention} was impeached`,
         null,
-        'because'
+        'as a member of Congress because'
       );
     }
   },
