@@ -59,7 +59,9 @@ class PayLawyerFees extends Postcondition {
     const ending = `in case #${c_case.id} as the accused was found to be ${case_result}`;
 
     db.add_cash(lawyer.id, guild.id, rate, false);
-    await system.dm_cash(lawyer, guild, rate / to_cents, `being the lawyer${ending}`);
+    await system.dm_cash(
+      lawyer, guild, rate / to_cents, `being the lawyer${ending}`, null, `from ${user.mention} for`
+    );
 
     const action = 'been billed';
     let reason = `legal fees ${ending}`;
