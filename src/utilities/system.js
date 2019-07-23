@@ -146,7 +146,7 @@ Your current balance is ${number.format(current_balance)}.`,
 
     const nominator = await client.getRESTUser(recent_nomination.nominator);
 
-    db.add_cash(recent_nomination.nominator, guild.id, config.impeached);
+    db.add_cash(recent_nomination.nominator, guild.id, config.chief_impeached_deduction);
 
     return this.dm_cash(
       nominator, guild, config.impeached, `nominating ${member.mention} who recently got impeached`
