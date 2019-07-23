@@ -35,7 +35,7 @@ client.on('messageDelete', async message => {
 
     const [author_id, guild_id] = obj.ids[index].split('-');
 
-    obj.ids.splice(index, 1);
+    await chat.mutex.sync(`${author_id}-${guild_id}`, () => obj.ids.splice(index, 1));
 
     if (author_id && guild_id) {
       db.add_cash(author_id, guild_id, -config.cash_per_msg);

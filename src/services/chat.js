@@ -16,6 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
+const { MultiMutex } = require('patron.js');
 const { config } = require('../services/data.js');
 const db = require('../services/database.js');
 const util = require('../utilities/util.js');
@@ -25,6 +26,7 @@ const mentions = /@(everyone|here)|(<@(!|#|&)?(\d{17,19})>)/g;
 
 module.exports = {
   messages: {},
+  mutex: new MultiMutex(),
 
   prune(content) {
     return util.escape_markdown(content
@@ -34,26 +36,29 @@ module.exports = {
   },
 
   async add_cash(msg) {
-    const now = Date.now();
     const key = `${msg.author.id}-${msg.channel.guild.id}`;
-    const lastMessage = this.messages[key];
-    const cooldown = config.msg_cooldown;
-    const cdOver = !lastMessage || now - lastMessage.time > cooldown;
-    const longEnough = this.prune(msg.content).length >= config.min_msg_length;
 
-    if (cdOver && longEnough) {
-      if (lastMessage) {
-        this.message[key].ids.push(msg.id);
-        this.messages[key].time = now;
-      } else {
-        this.messages[key] = {
-          ids: [msg.id],
-          time: now
-        };
+    return this.mutex.sync(key, async () => {
+      const now = Date.now();
+      const lastMessage = this.messages[key];
+      const cooldown = config.msg_cooldown;
+      const cdOver = !lastMessage || now - lastMessage.time > cooldown;
+      const longEnough = this.prune(msg.content).length >= config.min_msg_length;
+
+      if (cdOver && longEnough) {
+        if (lastMessage) {
+          this.messages[key].ids.push(msg.id);
+          this.messages[key].time = now;
+        } else {
+          this.messages[key] = {
+            ids: [msg.id],
+            time: now
+          };
+        }
+
+        return db.add_cash(msg.author.id, msg.channel.guild.id, config.cash_per_msg);
       }
-
-      return db.add_cash(msg.author.id, msg.channel.guild.id, config.cash_per_msg);
-    }
+    });
   }
 };
 
