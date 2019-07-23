@@ -93,7 +93,7 @@ lawyer_leaderboard: 10
 min_lawyer_win_percent: 0.75
 
 # Max lawyer rate
-max_lawyer_rate: 1e4
+max_lawyer_rate: 5e3
 
 # Max number of active cases a lawyer can have at once
 max_active_lawyer_cases: 2
