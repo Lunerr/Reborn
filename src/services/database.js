@@ -249,8 +249,12 @@ module.exports = {
     return queries.set_last_dm.run(time, member_id, guild_id, type);
   },
 
-  set_lawyer(lawyer_id, case_id) {
-    return queries.set_case_lawyer.run(lawyer_id, case_id);
+  set_lawyer(lawyer_id, case_id, time = Date.now()) {
+    return queries.set_case_lawyer.run(lawyer_id, time, case_id);
+  },
+
+  set_case_plea(case_id, plea) {
+    return queries.set_case_plea.run(plea, case_id);
   },
 
   get_lawyer(guild_id, member_id, insert = true) {

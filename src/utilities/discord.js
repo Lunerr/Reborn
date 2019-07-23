@@ -225,7 +225,7 @@ module.exports = {
     return res;
   },
 
-  async verify_channel_msg(msg, channel, content, file, fn) {
+  async verify_channel_msg(msg, channel, content, file, fn, key_append = '', time) {
     let resolve;
     let cancelled;
 
@@ -246,33 +246,36 @@ module.exports = {
         });
       }
     };
-    const key = `${msg.author.id}-${msg.channel.guild.id}`;
+    const key = `${msg.author.id}-${msg.channel.guild.id}${key_append ? `-${key_append}` : ''}`;
 
     Promise.resolve()
-      .then(() => wrap_with_cancel(this.create_msg.bind(this))(channel, content, null, file))
-      .then(() => wrap_with_cancel(this._timeout_promise.bind(this))(msg, fn, key, obj))
+      .then(() => {
+        if (content) {
+          return wrap_with_cancel(this.create_msg.bind(this))(channel, content, null, file);
+        }
+
+        return {};
+      })
+      .then(() => wrap_with_cancel(this._timeout_promise)(msg, fn, key, key_append, obj, time))
       .then(resolve);
 
     return obj;
   },
 
-  _timeout_promise(msg, fn, key, obj) {
+  _timeout_promise(msg, fn, key, key_append, obj, time) {
     return new Promise(async res => {
       const timeout = setTimeout(() => {
         msg_collector.remove(msg.id);
         res({ success: false });
-      }, config.verify_timeout);
+      }, time ? time : config.verify_timeout);
 
-      await msg_collector.add(
-        m => fn(m),
-        reply => {
+      msg_collector.add(
+        m => fn(m), reply => {
           clearTimeout(timeout);
           res({
             success: true, reply
           });
-        },
-        key,
-        obj
+        }, key, key_append, obj
       );
     });
   },

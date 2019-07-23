@@ -56,6 +56,15 @@ time_units: {
 
 restart: git pull && pm2 restart 0
 
+# Time that a lawyer has to accept the request
+lawyer_accept_time: 3e5
+
+# Default value of a request amount
+default_lawyer_request: 1e3
+
+# When a lawyer gets auto picked in hours
+auto_pick_lawyer: 24
+
 # Money multiplier for Congress when they send a valid message
 congress_cpm_multiplier: 8
 

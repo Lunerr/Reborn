@@ -32,23 +32,23 @@ const max_len = 2e3;
 
 function handle_err(result) {
   switch (result.error.code) {
-  case discord_err_codes.no_bots:
-    return 'I don\'t have permission to do that.';
-  case discord_err_codes.cant_dm:
-    return 'I can\'t DM you. Please allow direct messages from server members.';
-  default:
-    if (discord_err_codes.missing_perms.includes(result.error.code)) {
+    case discord_err_codes.no_bots:
       return 'I don\'t have permission to do that.';
-    } else if (result.error.code >= discord_err_codes.internal[0]
-          && result.error.code <= discord_err_codes.internal[1]) {
-      return 'an unexpected error has occurred, please try again later.';
-    } else if (result.error.message.startsWith(discord_err_codes.timeout)) {
-      return 'Discord isn\'t responding, please try again later.';
-    }
+    case discord_err_codes.cant_dm:
+      return 'I can\'t DM you. Please allow direct messages from server members.';
+    default:
+      if (discord_err_codes.missing_perms.includes(result.error.code)) {
+        return 'I don\'t have permission to do that.';
+      } else if (result.error.code >= discord_err_codes.internal[0]
+        && result.error.code <= discord_err_codes.internal[1]) {
+        return 'an unexpected error has occurred, please try again later.';
+      } else if (result.error.message.startsWith(discord_err_codes.timeout)) {
+        return 'Discord isn\'t responding, please try again later.';
+      }
 
-    log.error(result.error);
+      log.error(result.error);
 
-    return result.error.message;
+      return result.error.message;
   }
 }
 
@@ -56,46 +56,46 @@ async function handle_result(msg, result) {
   let reply = `${discord.tag(msg.author).boldified}, `;
 
   switch (result.commandError) {
-  case CommandError.Exception:
-    reply += handle_err(result);
-    break;
-  case CommandError.BotPermission:
-    if (result.permissions.includes('sendMessages') || result.permissions.includes('embedLinks')) {
-      return;
-    }
+    case CommandError.Exception:
+      reply += handle_err(result);
+      break;
+    case CommandError.BotPermission:
+      if (result.permissions.includes('sendMessages') || result.permissions.includes('embedLinks')) {
+        return;
+      }
 
-    reply += 'I don\'t have permission to do that.';
-    break;
-  case CommandError.MemberPermission:
-    reply += 'you don\'t have permission to do that.';
-    break;
-  case CommandError.Cooldown:
-    reply += 'you\'re using this command too fast.';
-    break;
-  case CommandError.InvalidContext:
-    reply += `this command may only be used in \
+      reply += 'I don\'t have permission to do that.';
+      break;
+    case CommandError.MemberPermission:
+      reply += 'you don\'t have permission to do that.';
+      break;
+    case CommandError.Cooldown:
+      reply += 'you\'re using this command too fast.';
+      break;
+    case CommandError.InvalidContext:
+      reply += `this command may only be used in \
 ${result.context === Context.Guild ? 'DMs' : 'a server'}.`;
-    break;
-  case CommandError.InvalidArgCount:
-    reply += 'you\'re incorrectly using this command.\n';
-    reply += `**Usage:** \`${prefix}${result.command.getUsage()}\`\n`;
-    reply += `**Example:** \`${prefix}${result.command.getExample()}\``;
-    break;
-  case CommandError.Command:
-  case CommandError.Precondition:
-  case CommandError.TypeReader:
-    reply += result.errorReason;
-    break;
-  default:
-    if (result.error) {
-      log.error(result.error);
-      reply += result.error.message;
-    } else {
-      log.error(result);
-      reply += 'an unknown error has occured.';
-    }
+      break;
+    case CommandError.InvalidArgCount:
+      reply += 'you\'re incorrectly using this command.\n';
+      reply += `**Usage:** \`${prefix}${result.command.getUsage()}\`\n`;
+      reply += `**Example:** \`${prefix}${result.command.getExample()}\``;
+      break;
+    case CommandError.Command:
+    case CommandError.Precondition:
+    case CommandError.TypeReader:
+      reply += result.errorReason;
+      break;
+    default:
+      if (result.error) {
+        log.error(result.error);
+        reply += result.error.message;
+      } else {
+        log.error(result);
+        reply += 'an unknown error has occured.';
+      }
 
-    break;
+      break;
   }
   await discord.create_msg(msg.channel, reply.slice(0, max_len), error_color);
 }
@@ -129,9 +129,7 @@ async function custom_cmd(msg) {
 }
 
 client.on('messageCreate', catch_discord(async msg => {
-  if (msg.channel.type === 0) {
-    await msg_collector.check(msg);
-  }
+  await msg_collector.check(msg);
 
   if (!msg.author || msg.author.bot) {
     return;

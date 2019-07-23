@@ -23,29 +23,42 @@ const interactive_cmds = [
   'guilty',
   'approve_detainment',
   'grant_warrant_for_arrest',
-  'detain'
+  'detain',
+  'request_lawyer'
 ];
+
+async function is_cmd(msg) {
+  const parsed = await handler.parseCommand(msg, config.prefix.length);
+
+  return {
+    is_command: msg.content.startsWith(config.prefix) && parsed.success,
+    parsed
+  };
+}
 
 module.exports = {
   collectors: new Map(),
 
-  add(condition, callback, key, obj) {
+  add(condition, callback, key, key_append, obj) {
     this.collectors.set(key, {
       callback,
       condition,
+      key_append,
       ...obj
     });
   },
 
   async check(msg) {
-    const existing_key = `${msg.author.id}-${msg.channel.guild.id}`;
+    const second_key = msg.channel.guild ? msg.channel.guild.id : msg.channel.id;
+    let existing_key = `${msg.author.id}-${second_key}`;
 
     for (const [key, val] of this.collectors) {
-      const parsed = await handler.parseCommand(msg, config.prefix.length);
-      const is_cmd = msg.content.startsWith(config.prefix) && parsed.success;
-      const exists = key === existing_key;
+      existing_key += val.key_append ? `-${val.key_append}` : '';
 
-      if (exists && is_cmd && interactive_cmds.includes(parsed.command.names[0])) {
+      const exists = key === existing_key;
+      const { parsed, is_command } = await is_cmd(msg);
+
+      if (exists && is_command && interactive_cmds.includes(parsed.command.names[0])) {
         await val.cancel();
       }
 

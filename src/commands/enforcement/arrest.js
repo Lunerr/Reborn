@@ -61,6 +61,13 @@ in the prosecution's points, **DO NOT DELIVER A GUILTY VERDICT!**
 
 When rendering **ANY VERDICT** other than a guilty verdict, you will receive an \
 additional {6} in compensation.`;
+const lawyer_dm = 'You have been sent to trial (case #{0}) under warrant \
+#{1} by {2}.\nAs part of your rights you are allowed to a \
+lawyer which can be set using `{3}request_lawyer @User amount`. If you are unsure \
+of which lawyer to choose you can use `{3}auto_lawyer` which will choose the \
+**__TOP__** lawyer that consents and is online. Lastly, if you feel that you are capable of \
+representing yourself, you may do so with `{3}represent_myself`.\n\nIf you don\'t \
+use any of these commands within {4} hours, your lawyer will be auto picked.';
 const max_len = 14e2;
 const dots = '...';
 
@@ -186,13 +193,7 @@ module.exports = new class Arrest extends Command {
     const found_lawyer = system.find_lawyer(
       guild, [warrant.judge_id, officer.id, defendant.id, judge.id]
     );
-    const edits = [
-      judge.id,
-      officer.id,
-      defendant.id,
-      client.user.id,
-      found_lawyer
-    ];
+    const edits = [judge.id, defendant.id, client.user.id, found_lawyer];
 
     await Promise.all(edits.map(x => channel.editPermission(
       x, this.bitfield, 0, 'member', 'Adding members to the court case'
@@ -223,7 +224,7 @@ module.exports = new class Arrest extends Command {
     await this.send_cmds(channel);
     await sent.pin();
     await this.close(
-      channel, warrant, defendant.id, judge.id, officer.id, trial_role, jailed, found_lawyer
+      channel, warrant, defendant, judge.id, officer.id, trial_role, jailed, found_lawyer
     );
   }
 
@@ -265,14 +266,14 @@ module.exports = new class Arrest extends Command {
     return [initial].concat(rest);
   }
 
-  async close(channel, warrant, defendant_id, judge_id, plaintiff_id, role, jailed, found_lawyer) {
+  async close(channel, warrant, defendant, judge_id, plaintiff_id, role, jailed, found_lawyer) {
     const c_case = {
       guild_id: channel.guild.id,
       channel_id: channel.id,
       warrant_id: warrant.id,
       law_id: warrant.law_id,
       lawyer_id: found_lawyer,
-      defendant_id,
+      defendant_id: defendant.id,
       judge_id,
       plaintiff_id
     };
@@ -280,11 +281,17 @@ module.exports = new class Arrest extends Command {
 
     c_case.id = id;
 
-    if (channel.guild.members.has(defendant_id)) {
-      await remove_role(channel.guild.id, defendant_id, jailed, 'Defendant is on trial');
-      await add_role(channel.guild.id, defendant_id, role, 'Defendant is on trial');
+    if (channel.guild.members.has(defendant.id)) {
+      await remove_role(channel.guild.id, defendant.id, jailed, 'Defendant is on trial');
+      await add_role(channel.guild.id, defendant.id, role, 'Defendant is on trial');
     }
 
+    const cop = await client.getRESTUser(plaintiff_id);
+
+    await discord.dm(defendant, str.format(
+      lawyer_dm,
+      id, warrant.id, discord.tag(cop).boldified, config.prefix, config.auto_pick_lawyer
+    ), channel.guild);
     db.close_warrant(warrant.id);
 
     const { warrant_channel, case_channel } = db.fetch('guilds', { guild_id: channel.guild.id });

@@ -16,7 +16,7 @@ class PayLawyerFees extends Postcondition {
 
   async run(msg, result) {
     if (result.success !== false) {
-      if (!result.lawyer_id) {
+      if (!result.lawyer_id || result.lawyer_id === result.defendant_id) {
         return;
       }
 

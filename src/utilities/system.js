@@ -44,6 +44,25 @@ module.exports = {
     return Date.now() - (law.created_at + time) > 0;
   },
 
+  lawyer_picked(channel_id, guild) {
+    const channel_case = db.get_channel_case(channel_id);
+    const channel = guild.channels.get(channel_id);
+
+    if (!channel) {
+      return;
+    }
+
+    const prosecutor = guild.members.get(channel_case.plaintiff_id);
+
+    if (!prosecutor) {
+      return;
+    }
+
+    return channel.editPermission(
+      prosecutor.id, this.bitfield, 0, 'member', `Lawyer was picked (${channel_case.lawyer_id})`
+    );
+  },
+
   get_top_lawyers(guild) {
     return db
       .get_guild_lawyers(guild.id)

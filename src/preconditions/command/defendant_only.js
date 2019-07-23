@@ -16,12 +16,23 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
+const { Precondition, PreconditionResult } = require('patron.js');
+const db = require('../../services/database.js');
 
-module.exports = {
-  pending: 0,
-  guilty: 1,
-  innocent: 2,
-  mistrial: 3,
-  inactive: 4,
-  unjust_trial: 5
-};
+module.exports = new class DefendantOnly extends Precondition {
+  constructor() {
+    super({ name: 'defendant_only' });
+  }
+
+  async run(cmd, msg) {
+    const channel_case = db.get_channel_case(msg.channel.id);
+
+    if (channel_case.defendant_id !== msg.author.id) {
+      return PreconditionResult.fromError(
+        cmd, 'Only the defendant of the case can use this command.'
+      );
+    }
+
+    return PreconditionResult.fromSuccess();
+  }
+}();
