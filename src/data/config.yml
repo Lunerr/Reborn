@@ -76,7 +76,7 @@ transaction_fee: 0.1
 law_in_effect: 864e5
 
 # Innoncence bias reward
-innocence_bias: 0.1
+innocence_bias: 0.2
 
 # Time in weeks a user cant receive a gov role after being impeached
 impeachment_time: 1
