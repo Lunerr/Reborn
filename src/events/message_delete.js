@@ -33,7 +33,7 @@ client.on('messageDelete', async message => {
       continue;
     }
 
-    const [author_id, guild_id] = obj.ids[index].split('-');
+    const [author_id, guild_id] = key.split('-');
 
     await chat.mutex.sync(`${author_id}-${guild_id}`, () => obj.ids.splice(index, 1));
 
