@@ -40,7 +40,9 @@ function find_mute(db_verdict, verdicts) {
   let exists = false;
 
   for (let i = 0; i < verdicts.length; i++) {
-    if (verdicts[i].id === db_verdict.id) {
+    const not_defendant = verdicts[i].defendant_id !== db_verdict.defendant_id;
+
+    if (verdicts[i].id === db_verdict.id || not_defendant) {
       continue;
     }
 
