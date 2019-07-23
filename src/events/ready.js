@@ -66,7 +66,6 @@ async function update_channels() {
 }
 
 client.on('ready', async () => {
-  db.prepare('UPDATE verdicts SET served = 0 WHERE case_id = 203').run();
   client.editStatus(options.status);
   log.info('Ready!');
   await update_channels();
