@@ -44,10 +44,9 @@ function find_mute(db_verdict, verdicts) {
       continue;
     }
 
-    const unserved = verdicts[i].sentence !== null && verdicts[i].served === 0;
     const time_left = verdicts[i].last_modified_at + verdicts[i].sentence - Date.now();
 
-    if (verdicts[i].verdict !== verdict.pending && unserved && time_left > 0) {
+    if (verdicts[i].served === 0 && time_left > 0) {
       exists = true;
       break;
     }
@@ -65,7 +64,7 @@ Timer(async () => {
     for (let i = 0; i < verdicts.length; i++) {
       const served = verdicts[i].sentence === null || verdicts[i].served === 1;
 
-      if (verdicts[i].verdict === verdict.pending || served) {
+      if (served) {
         continue;
       }
 
