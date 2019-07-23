@@ -166,6 +166,7 @@ who recently got impeached`);
       .filter(x => x.roles.includes(house_speaker_role) || x.roles.includes(congress_role));
 
     for (let i = 0; i < members.length; i++) {
+      db.add_cash(members[i].id, guild.id, config.congress_impeachment_check);
       await this.dm_cash(
         members[i].user,
         guild,
