@@ -48,8 +48,10 @@ module.exports = new class Lawyer extends Command {
 
     if (!lawyer || lawyer.active === 0) {
       const is_self = args.member.id === msg.author.id;
+      const prefix = `${discord.tag(msg.author).boldified}, `;
       const obj = discord.embed({
-        description: `${is_self ? 'You\'re' : 'This user is'} not a lawyer.`, color: error_color
+        description: `${prefix}${is_self ? 'You\'re' : 'This user is'} not a lawyer.`,
+        color: error_color
       });
 
       if (is_self) {
