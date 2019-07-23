@@ -36,13 +36,13 @@ and you have been freed in ${guild.name}.`,
   );
 }
 
-function find_mute(db_verdict, verdicts) {
+function find_mute(db_verdict) {
+  const verdicts = db
+    .fetch_member_verdicts(db_verdict.guild_id, db_verdict.defendant_id);
   let exists = false;
 
   for (let i = 0; i < verdicts.length; i++) {
-    const not_defendant = verdicts[i].defendant_id !== db_verdict.defendant_id;
-
-    if (verdicts[i].id === db_verdict.id || not_defendant) {
+    if (verdicts[i].id === db_verdict.id) {
       continue;
     }
 
