@@ -56,7 +56,7 @@ module.exports = {
           };
         }
 
-        const amount = this.get_cpm(msg.channel.guild, msg.member);
+        const amount = this.get_cpm(msg.channel.guild.id, msg.member);
 
         return db.add_cash(msg.author.id, msg.channel.guild.id, amount);
       }
