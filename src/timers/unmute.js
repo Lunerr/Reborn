@@ -64,7 +64,7 @@ Timer(async () => {
     const verdicts = db.fetch_verdicts(guilds[k]);
 
     for (let i = 0; i < verdicts.length; i++) {
-      const served = verdicts[i].sentence === null //|| verdicts[i].served === 1;
+      const served = verdicts[i].sentence === null || verdicts[i].served === 1;
 
       if (served) {
         continue;
