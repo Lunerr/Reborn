@@ -56,6 +56,10 @@ time_units: {
 
 restart: git pull && pm2 restart 0
 
+
+# Money given to congress members after an impeachment
+congress_impeachment_check: 1e3
+
 # Money taken away from the chief when a member of their branch is impeached
 chief_impeached_deduction: -2e3
 

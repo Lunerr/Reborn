@@ -140,17 +140,32 @@ Your current balance is ${number.format(current_balance)}.`,
       .filter(x => x.nominatee === member.id)
       .sort((a, b) => b.created_at - a.created_at);
 
-    if (!recent_nomination) {
-      return;
+    if (recent_nomination) {
+      const nominator = await client.getRESTUser(recent_nomination.nominator);
+
+      db.add_cash(recent_nomination.nominator, guild.id, config.chief_impeached_deduction);
+      await this.dm_cash(nominator, guild, config.impeached, `nominating ${member.mention} \
+who recently got impeached`);
     }
 
-    const nominator = await client.getRESTUser(recent_nomination.nominator);
+    return this.reward_congress(guild, member);
+  },
 
-    db.add_cash(recent_nomination.nominator, guild.id, config.chief_impeached_deduction);
+  async reward_congress(guild, impeached) {
+    const { house_speaker_role, congress_role } = db.fetch('guilds', { guild_id: guild.id });
+    const members = guild.members
+      .filter(x => x.roles.includes(house_speaker_role) || x.roles.includes(congress_role));
 
-    return this.dm_cash(
-      nominator, guild, config.impeached, `nominating ${member.mention} who recently got impeached`
-    );
+    for (let i = 0; i < members.length; i++) {
+      await this.dm_cash(
+        members[i].user,
+        guild,
+        config.congress_impeachment_check,
+        `${impeached.mention} was impeached`,
+        null,
+        'because'
+      );
+    }
   },
 
   get_branch_members(guild, role, chief) {
