@@ -21,7 +21,6 @@ const client = require('../services/client.js');
 const { config } = require('../services/data.js');
 const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
-const verdict = require('../enums/verdict.js');
 const catch_discord = require('../utilities/catch_discord.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 
