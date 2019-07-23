@@ -56,9 +56,22 @@ module.exports = {
           };
         }
 
-        return db.add_cash(msg.author.id, msg.channel.guild.id, config.cash_per_msg);
+        const amount = this.get_cpm(msg.channel.guild, msg.member);
+
+        return db.add_cash(msg.author.id, msg.channel.guild.id, amount);
       }
     });
+  },
+
+  get_cpm(guild_id, member) {
+    const { house_speaker_role, congress_role } = db.fetch('guilds', { guild_id });
+    let amount = config.cash_per_msg;
+
+    if (member.roles.includes(house_speaker_role) || member.roles.includes(congress_role)) {
+      amount *= config.congress_cpm_multiplier;
+    }
+
+    return amount;
   }
 };
 

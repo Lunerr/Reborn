@@ -56,6 +56,8 @@ time_units: {
 
 restart: git pull && pm2 restart 0
 
+# Money multiplier for Congress when they send a valid message
+congress_cpm_multiplier: 8
 
 # Money given to congress members after an impeachment
 congress_impeachment_check: 1e3

@@ -38,7 +38,10 @@ client.on('messageDelete', async message => {
     await chat.mutex.sync(`${author_id}-${guild_id}`, () => obj.ids.splice(index, 1));
 
     if (author_id && guild_id) {
-      db.add_cash(author_id, guild_id, -config.cash_per_msg);
+      const member = client.guilds.get(guild_id).members.get(author_id);
+      const amount = member ? chat.get_cpm(guild_id, member) : config.cash_per_msg;
+
+      db.add_cash(author_id, guild_id, -amount);
     }
   }
 });
