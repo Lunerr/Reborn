@@ -44,16 +44,25 @@ module.exports = {
     return Date.now() - (law.created_at + time) > 0;
   },
 
+  get_top_lawyers(guild) {
+    return db
+      .get_guild_lawyers(guild.id)
+      .filter(x => x.active === 1)
+      .sort((a, b) => {
+        const a_record = this.get_win_percent(a.member_id, guild);
+        const b_record = this.get_win_percent(b.member_id, guild);
+
+        if (a_record.wins === b_record.wins) {
+          return a_record.losses - b_record.losses;
+        }
+
+        return b_record.wins - a_record.wins;
+      });
+  },
+
   find_lawyer(guild, exclude = []) {
     const cases = db.fetch_cases(guild.id);
-    const lawyers = db
-      .get_guild_lawyers(guild.id)
-      .sort((a, b) => {
-        const a_wins = this.get_win_percent(a.member_id, guild).wins;
-        const b_wins = this.get_win_percent(b.member_id, guild).wins;
-
-        return b_wins - a_wins;
-      });
+    const lawyers = this.get_top_lawyers(guild);
     let lawyer;
 
     for (let i = 0; i < lawyers.length; i++) {

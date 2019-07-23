@@ -18,7 +18,6 @@
 'use strict';
 const { Command, CommandResult } = require('patron.js');
 const { config } = require('../../services/data.js');
-const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const util = require('../../utilities/util.js');
 const system = require('../../utilities/system.js');
@@ -33,18 +32,11 @@ module.exports = new class Lawyers extends Command {
   }
 
   async run(msg) {
-    const lawyers = db.get_guild_lawyers(msg.channel.guild.id);
+    const lawyers = system.get_top_lawyers(msg.channel.guild);
 
     if (!lawyers.length) {
       return CommandResult.fromError('There are no lawyers on the leaderboards.');
     }
-
-    lawyers.sort((a, b) => {
-      const a_wins = system.get_win_percent(a.member_id, msg.channel.guild).wins;
-      const b_wins = system.get_win_percent(b.member_id, msg.channel.guild).wins;
-
-      return b_wins - a_wins;
-    });
 
     const obj = discord.embed({
       title: 'The Top Lawyers', description: '', footer: {

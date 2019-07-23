@@ -96,7 +96,7 @@ min_lawyer_win_percent: 0.75
 max_lawyer_rate: 1e4
 
 # Max number of active cases a lawyer can have at once
-max_active_lawyer_cases: 1
+max_active_lawyer_cases: 2
 
 # The minimum amount of cash that is considered not in-debt
 in_debt: 0

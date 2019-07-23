@@ -253,10 +253,10 @@ module.exports = {
     return queries.set_case_lawyer.run(lawyer_id, case_id);
   },
 
-  get_lawyer(guild_id, member_id) {
+  get_lawyer(guild_id, member_id, insert = true) {
     let exists = queries.get_lawyer.get(member_id, guild_id);
 
-    if (!exists) {
+    if (!exists && insert) {
       this.insert('lawyers', {
         guild_id,
         member_id
@@ -277,6 +277,10 @@ module.exports = {
     const value = convert ? rate * to_cents : rate;
 
     return queries.set_lawyer_rate.run(value, member_id, guild_id);
+  },
+
+  set_inactive_lawyer(guild_id, member_id) {
+    return queries.set_inactive_lawyer.run(member_id, guild_id);
   },
 
   set_last_notified(member_id, guild_id, type, time) {

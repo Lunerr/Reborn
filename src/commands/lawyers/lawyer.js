@@ -17,6 +17,7 @@
  */
 'use strict';
 const { Argument, Command, ArgumentDefault } = require('patron.js');
+const { config, constants: { error_color } } = require('../../services/data.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
@@ -43,7 +44,23 @@ module.exports = new class Lawyer extends Command {
   }
 
   async run(msg, args) {
-    const lawyer = db.get_lawyer(msg.channel.guild.id, args.member.id);
+    const lawyer = db.get_lawyer(msg.channel.guild.id, args.member.id, false);
+
+    if (!lawyer || lawyer.active === 0) {
+      const is_self = args.member.id === msg.author.id;
+      const obj = discord.embed({
+        description: `${is_self ? 'You\'re' : 'This user is'} not a lawyer.`, color: error_color
+      });
+
+      if (is_self) {
+        obj.embed.footer = {
+          text: `Use the ${config.prefix}set_lawyer_rate command to become a lawyer.`
+        };
+      }
+
+      return msg.channel.createMessage(obj);
+    }
+
     const record = system.get_win_percent(args.member.id, msg.channel.guild);
     const formatted_rate = number.format(lawyer.rate, true);
     const embed = discord.embed({
