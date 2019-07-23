@@ -84,7 +84,7 @@ Timer(async () => {
         continue;
       }
 
-      const still_muted = find_mute(verdicts[i], verdicts);
+      const still_muted = find_mute(verdicts[i]);
 
       if (still_muted) {
         continue;
@@ -100,8 +100,7 @@ Timer(async () => {
       await remove_role(guild.id, defendant.id, imprisoned_role, 'Auto unmute');
 
       const c_case = db.get_case(verdicts[i].case_id);
-      const user = client.users.get(verdicts[i].defendant_id)
-        || await client.getRESTUser(verdicts[i].defendant_id);
+      const user = await client.getRESTUser(verdicts[i].defendant_id);
 
       await dm(guild, user, c_case ? c_case.judge_id : '');
     }
