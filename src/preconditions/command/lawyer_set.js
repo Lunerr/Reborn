@@ -16,18 +16,24 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
-const { Group } = require('patron.js');
+const { Precondition, PreconditionResult } = require('patron.js');
+const { config } = require('../../services/data.js');
+const db = require('../../services/database.js');
 
-module.exports = new Group({
-  description: 'The available verdicts to be given out',
-  name: 'verdicts',
-  preconditions: [
-    'court_only',
-    'court_case',
-    'can_trial',
-    'judge_creator',
-    'lawyer_set',
-    'plea_set'
-  ],
-  postconditions: ['case_finished', 'pay_lawyer_fees', 'inform_judge']
-});
+module.exports = new class LawyerSet extends Precondition {
+  constructor() {
+    super({ name: 'lawyer_set' });
+  }
+
+  async run(cmd, msg) {
+    const channel_case = db.get_channel_case(msg.channel.id);
+
+    if (channel_case.lawyer_id === null) {
+      return PreconditionResult.fromError(cmd, `The lawyer must be set before this case can go any \
+further.\n\nIf the defendant does not request a lawyer or self respresent, a top lawyer will be \
+auto picked in ${config.auto_pick_lawyer} hours since the case started.`);
+    }
+
+    return PreconditionResult.fromSuccess();
+  }
+}();

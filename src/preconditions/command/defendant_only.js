@@ -29,7 +29,7 @@ module.exports = new class DefendantOnly extends Precondition {
 
     if (channel_case.defendant_id !== msg.author.id) {
       return PreconditionResult.fromError(
-        cmd, 'Only the defendant of the case can use this command.'
+        cmd, 'Only the defendant of this case can use this command.'
       );
     }
 

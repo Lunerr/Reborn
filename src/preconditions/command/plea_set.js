@@ -20,18 +20,18 @@ const { Precondition, PreconditionResult } = require('patron.js');
 const { config } = require('../../services/data.js');
 const db = require('../../services/database.js');
 
-module.exports = new class CaseLawyerSet extends Precondition {
+module.exports = new class PleaSet extends Precondition {
   constructor() {
-    super({ name: 'case_lawyer_set' });
+    super({ name: 'plea_set' });
   }
 
   async run(cmd, msg) {
     const channel_case = db.get_channel_case(msg.channel.id);
 
-    if (channel_case.lawyer_id === null) {
-      return PreconditionResult.fromError(cmd, `The lawyer must be set before this case can go any \
-further.\n\nIf the defendant does not request a lawyer or self respresent, a top lawyer will be \
-auto picked in ${config.auto_pick_lawyer} hours since the case started.`);
+    if (channel_case.plea === null) {
+      return PreconditionResult.fromError(cmd, `The lawyer must be give their plea before this \
+case can go any further.\n\nIf a plea is not given in ${config.auto_pick_lawyer} hours, the \
+lawyer will be replaced automatically by another top lawyer.`);
     }
 
     return PreconditionResult.fromSuccess();
