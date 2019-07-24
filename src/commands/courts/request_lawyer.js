@@ -46,7 +46,7 @@ module.exports = new class RequestLawyer extends Command {
           defaultValue: config.default_lawyer_request
         })
       ],
-      description: 'Sets the lawyer of a court case.',
+      description: 'Sets the lawyer of a court case to the requested member.',
       groupName: 'courts',
       names: ['request_lawyer', 'set_lawyer']
     });
@@ -57,13 +57,17 @@ module.exports = new class RequestLawyer extends Command {
       channel, channel_case
     } = await this.get_channel(msg.channel, msg.author, args.amount, args.member);
 
-    if (!channel) {
+    if (channel_case.laywer_id === args.member.id) {
+      return CommandResult.fromError('This user is already your lawyer.');
+    } else if (!channel) {
       return CommandResult.fromError('This user has their DMs disabled and there is no main \
 channel in this server.');
     }
 
+    const prefix = `${discord.tag(msg.author).boldified}, `;
+
     await discord.create_msg(
-      msg.channel, `${args.member.mention} has been informed of your request.`
+      msg.channel, `${prefix}${args.member.mention} has been informed of your request.`
     );
 
     const result = await discord.verify_channel_msg(
@@ -78,6 +82,8 @@ channel in this server.');
     ).then(x => x.promise);
 
     if (result.conflicting) {
+      await channel.createMessage(`${args.member.mention} has cancelled their lawyer request.`);
+
       return CommandResult.fromError('The previous interactive lawyer command was cancelled.');
     } else if (!result.success) {
       return CommandResult.fromError('The requested lawyer didn\'t reply.');
@@ -120,6 +126,6 @@ channel in this server.');
     return client.createMessage(c_case.channel_id, `${lawyer.mention} has accepted \
 ${defendant.mention}'s lawyer request.\n\n${lawyer.mention}, you have \
 ${config.auto_pick_lawyer} hours to give a plea using \`${config.prefix}plea <plea>\` \
-or else you will be automatically replaced with another lawyer.`);
+or you will be automatically replaced with another lawyer.`);
   }
 }();

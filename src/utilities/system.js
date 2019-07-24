@@ -50,16 +50,16 @@ module.exports = {
 
     if (!channel) {
       return;
-    }
-
-    const prosecutor = guild.members.get(channel_case.plaintiff_id);
-
-    if (!prosecutor) {
+    } else if (!guild.members.has(channel_case.plaintiff_id)) {
       return;
     }
 
     return channel.editPermission(
-      prosecutor.id, this.bitfield, 0, 'member', `Lawyer was picked (${channel_case.lawyer_id})`
+      channel_case.plaintiff_id,
+      this.bitfield,
+      0,
+      'member',
+      `Lawyer was picked (${channel_case.lawyer_id})`
     );
   },
 

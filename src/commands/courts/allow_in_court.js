@@ -22,7 +22,13 @@ const discord = require('../../utilities/discord.js');
 module.exports = new class AllowInCourt extends Command {
   constructor() {
     super({
-      preconditions: ['court_only', 'court_case', 'judge_creator', 'case_lawyer_set'],
+      preconditions: [
+        'court_only',
+        'court_case',
+        'judge_creator',
+        'lawyer_set',
+        'plea_set'
+      ],
       args: [
         new Argument({
           example: 'Stipendi',
