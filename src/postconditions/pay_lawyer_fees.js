@@ -60,7 +60,7 @@ class PayLawyerFees extends Postcondition {
 
     db.add_cash(lawyer.id, guild.id, rate, false);
     await system.dm_cash(
-      lawyer, guild, rate / to_cents, `being the lawyer${ending}`, null, `from ${user.mention} for`
+      lawyer, guild, rate / to_cents, `being the lawyer ${ending}`, null, `from ${user.mention} for`
     );
 
     const action = 'been billed';
