@@ -77,6 +77,7 @@ Timer(async () => {
     for (let i = 0; i < cases.length; i++) {
       const c_case = cases[i];
       const case_verdict = db.get_verdict(c_case.id);
+      console.log(case_verdict)
 
       if (case_verdict && case_verdict.verdict !== verdict.pending) {
         continue;
