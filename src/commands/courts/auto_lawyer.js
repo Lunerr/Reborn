@@ -48,7 +48,9 @@ module.exports = new class AutoLawyer extends Command {
     const channel_case = db.get_channel_case(msg.channel.id);
 
     if (channel_case.lawyer_id !== null) {
-      return CommandResult.fromError('There already is a lawyer in this case.');
+      const lawyer = await client.getRESTUser(channel_case.lawyer_id);
+
+      return CommandResult.fromError(`You already have ${discord.tag(lawyer)} as your lawyer.`);
     }
 
     return this.mutex.sync(msg.channel.id, async () => {
