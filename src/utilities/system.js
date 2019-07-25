@@ -84,7 +84,7 @@ module.exports = {
       .sort((a, b) => b.cash - a.cash)
       .slice(0, max);
 
-    return top.reduce((a, b) => a + b.cash, 0) * percent;
+    return top.reduce((a, b) => a + b.cash, 0) / top.length * percent;
   },
 
   async accept_lawyer(defendant, lawyer, channel, c_case, type, accept = true, amount = 0) {
