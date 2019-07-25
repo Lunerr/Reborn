@@ -64,7 +64,7 @@ module.exports = new class RequestLawyer extends Command {
 
     const channel_case = db.get_channel_case(msg.channel.id);
     const fired = db.get_fired_lawyers(channel_case.id).map(x => x.member_id);
-    const excluded = this.excluded(channel_case, fired);
+    const excluded = this.excluded(channel_case, args.member, fired);
 
     if (excluded instanceof CommandResult) {
       return excluded;
