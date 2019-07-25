@@ -40,6 +40,16 @@ lawyers_table: |-
     active TINYINT NOT NULL DEFAULT 0
   )
 
+fired_case_lawyers_table: |-
+  CREATE TABLE IF NOT EXISTS fired_case_lawyers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    guild_id TEXT NOT NULL REFERENCES guilds(guild_id),
+    member_id TEXT NOT NULL,
+    case_id INTEGER NOT NULL REFERENCES cases(id),
+    created_at INTEGER NOT NULL,
+    last_modified_at INTEGER NOT NULL
+  )
+
 cases_table: |-
   CREATE TABLE IF NOT EXISTS cases (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -178,6 +188,8 @@ set_case_lawyer: UPDATE cases SET lawyer_id = ?, lawyer_hired_at = ? WHERE id = 
 set_case_plea: UPDATE cases SET plea = ? WHERE id = ?
 
 get_lawyer: SELECT * FROM lawyers WHERE member_id = ? AND guild_id = ?
+
+get_fired_lawyers: SELECT * FROM fired_case_lawyers WHERE case_id = ?
 
 set_lawyer_rate: UPDATE lawyers SET rate = ?, active = 1 WHERE member_id = ? AND guild_id = ?
 

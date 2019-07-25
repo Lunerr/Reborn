@@ -27,7 +27,14 @@ const branch = require('../enums/branch.js');
 const number = require('./number.js');
 const str = require('../utilities/string.js');
 const catch_discord = require('../utilities/catch_discord.js');
+const util = require('../utilities/util.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
+const accept_message = '{0} is offering {1} for you to be their lawyer in case #{2}.\n\nReply with \
+`yes` within 5 minutes to accept or `no` to decline to this offer.';
+const statuses = ['online', 'dnd', 'idle', 'offline'];
+const max = 10;
+const double = 2;
+const to_cents = 100;
 
 module.exports = {
   chief_roles: ['chief_justice_role', 'chief_officer_role', 'house_speaker_role'],
@@ -44,23 +51,162 @@ module.exports = {
     return Date.now() - (law.created_at + time) > 0;
   },
 
-  lawyer_picked(channel_id, guild) {
+  async lawyer_picked(channel_id, guild, lawyer) {
     const channel_case = db.get_channel_case(channel_id);
     const channel = guild.channels.get(channel_id);
 
-    if (!channel) {
-      return;
-    } else if (!guild.members.has(channel_case.plaintiff_id)) {
+    if (!channel || !guild.members.has(channel_case.plaintiff_id)) {
       return;
     }
 
-    return channel.editPermission(
+    await channel.editPermission(
       channel_case.plaintiff_id,
       this.bitfield,
       0,
       'member',
       `Lawyer was picked (${channel_case.lawyer_id})`
     );
+
+    if (lawyer.id !== channel_case.defendant_id) {
+      return channel.editPermission(
+        lawyer.id,
+        this.bitfield,
+        0,
+        'member',
+        `Lawyer of case #${channel_case.id}`
+      );
+    }
+  },
+
+  large_sum_of_money(guild, percent) {
+    return db
+      .get_guild_members(guild.id)
+      .sort((a, b) => b.cash - a.cash)
+      .slice(0, max)
+      .reduce((a, b) => a + b.cash, 0) * percent;
+  },
+
+  async accept_lawyer(defendant, lawyer, channel, c_case, accept_msg = true, amount) {
+    db.set_lawyer(lawyer.id, c_case.id);
+    await this.lawyer_picked(c_case.channel_id, channel.guild, lawyer);
+
+    if (accept_msg) {
+      await channel.createMessage(`You have successfully accepted ${defendant.mention}'s offer.`);
+    }
+
+    const judge = channel.guild.members.get(c_case.judge_id)
+      || await client.getRESTUser(c_case.channel_id);
+    const cop = channel.guild.members.get(c_case.plaintiff_id)
+      || await client.getRESTUser(c_case.plaintiff_id);
+
+    return client.createMessage(c_case.channel_id, `${judge.mention} ${cop.mention}
+${lawyer.mention} has accepted \
+${defendant.mention}'s lawyer request${accept_msg ? '' : ` at the cost of ${amount}`}.\n
+${lawyer.mention}, you have ${config.auto_pick_lawyer} hours to give a plea \
+using \`${config.prefix}plea <plea>\` or you will be automatically replaced with another lawyer.`);
+  },
+
+  get_excluded(channel_case) {
+    const exclude = [channel_case.judge_id, channel_case.plaintiff_id, channel_case.defendant_id];
+    const warrant = db.get_warrant(channel_case.warrant_id);
+
+    return exclude.concat(warrant.judge_id);
+  },
+
+  async auto_pick_lawyer(guild, channel_case, multiplier = 1, counter = 0) {
+    const lawyers = util.shuffle(db.get_guild_lawyers(guild.id));
+    const excluded = db.get_fired_lawyers(channel_case.id)
+      .map(x => x.member_id).concat(this.get_excluded(channel_case));
+    let picked = null;
+
+    for (let i = 0; i < lawyers.length; i++) {
+      const lawyer = lawyers[i];
+
+      if (excluded.includes(lawyer.member_id)) {
+        continue;
+      }
+
+      const max_amount = this.large_sum_of_money(guild, config.max_money_percent);
+
+      if (lawyer.rate > max_amount) {
+        continue;
+      }
+
+      const member = guild.members.get(lawyer.member_id);
+
+      if (member.status !== statuses[counter % statuses.length]) {
+        continue;
+      }
+
+      const channel = guild.channels.get(channel_case.channel_id);
+      const author = await client.getRESTUser(channel_case.defendant_id);
+      const res = await this._verify({
+        author, channel: { guild: { id: guild.id } }
+      }, channel, member, lawyer.rate * multiplier);
+
+      if (!res) {
+        continue;
+      }
+
+      picked = lawyer;
+      break;
+    }
+
+    if (!picked) {
+      const multi = (counter + 1) % statuses.length === 0
+        && counter !== 0 ? multiplier * double : multiplier;
+
+      return this.auto_pick_lawyer(guild, channel_case, multi, counter + 1);
+    }
+
+    return {
+      lawyer: picked, amount: picked.rate * multiplier
+    };
+  },
+
+  async _verify(msg, channel, member, amount) {
+    const {
+      channel: found_channel, channel_case
+    } = await this.get_channel(channel, member, msg.author, amount / to_cents);
+
+    if (!found_channel) {
+      return false;
+    }
+
+    const result = await discord.verify_channel_msg(
+      msg,
+      found_channel,
+      null,
+      null,
+      x => x.author.id === member.id
+        && (x.content.toLowerCase() === 'yes' || x.content.toLowerCase() === 'no'),
+      `auto_lawyer-${channel_case.id}`,
+      config.lawyer_accept_time
+    ).then(x => x.promise);
+
+    if (!result.success || result.reply.content.toLowerCase() === 'no') {
+      return false;
+    }
+
+    return true;
+  },
+
+  async get_channel(channel, member, author, amount) {
+    const channel_case = db.get_channel_case(channel.id);
+    let found_channel = await member.user.getDMChannel();
+    const dm_result = await discord.dm(member.user, str.format(
+      accept_message,
+      discord.tag(author).boldified, number.format(amount), channel_case.id
+    ), channel.guild);
+
+    if (!dm_result) {
+      found_channel = discord.get_main_channel(channel.guild.id);
+    }
+
+    return {
+      channel: found_channel,
+      channel_case
+    };
   },
 
   get_top_lawyers(guild) {
@@ -81,7 +227,7 @@ module.exports = {
 
   find_lawyer(guild, exclude = []) {
     const cases = db.fetch_cases(guild.id);
-    const lawyers = this.get_top_lawyers(guild);
+    const lawyers = db.get_guild_lawyers(guild.id);
     let lawyer;
 
     for (let i = 0; i < lawyers.length; i++) {
@@ -114,7 +260,7 @@ module.exports = {
     }
 
     if (!lawyer) {
-      lawyer = (lawyers[Math.floor(Math.random() * lawyers.length)] || {}).member_id;
+      lawyer = lawyers[Math.floor(Math.random() * lawyers.length)];
     }
 
     return lawyer || null;

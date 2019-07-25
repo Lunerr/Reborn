@@ -18,6 +18,7 @@
 'use strict';
 const { Command, CommandResult } = require('patron.js');
 const { config } = require('../../services/data.js');
+const client = require('../../services/client.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
 const db = require('../../services/database.js');
@@ -37,15 +38,21 @@ module.exports = new class RepresentMyself extends Command {
 
     if (channel_case.lawyer_id === msg.author.id) {
       return CommandResult.fromError('You are already representing yourself in this case.');
+    } else if (channel_case.lawyer_id !== null) {
+      const lawyer = await client.getRESTUser(channel_case.lawyer_id);
+
+      return CommandResult.fromError(
+        `You already have ${discord.tag(lawyer).boldified} as your lawyer.`
+      );
     }
 
     db.set_lawyer(msg.author.id, channel_case.channel_id);
-    system.lawyer_picked(channel_case.channel_id, msg.channel.guild);
+    await system.lawyer_picked(channel_case.channel_id, msg.channel.guild, msg.author);
 
     const prefix = `${discord.tag(msg.author).boldified}, `;
 
     return discord.create_msg(
-      msg.channel, `${prefix}, You are now representing yourself in this case.
+      msg.channel, `${prefix}You are now representing yourself in this case.
 \nYou have ${config.auto_pick_lawyer} hours to give a plea using \`${config.prefix}plea <plea>\` \
 or you will be automatically replaced with a lawyer.`
     );

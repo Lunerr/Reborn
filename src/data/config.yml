@@ -59,6 +59,12 @@ restart: git pull && pm2 restart 0
 # Time that a lawyer has to accept the request
 lawyer_accept_time: 3e5
 
+# Interval when auto laywer is picked
+auto_pick_lawyer_time: 3e5
+
+# Percent used to calculate what is too large based off of the current economy
+max_money_percent: 0.25
+
 # Default value of a request amount
 default_lawyer_request: 1e3
 

@@ -256,16 +256,16 @@ module.exports = {
 
         return {};
       })
-      .then(() => wrap_with_cancel(this._timeout_promise)(msg, fn, key, key_append, obj, time))
+      .then(() => wrap_with_cancel(this._timeout_promise)(fn, key, key_append, obj, time))
       .then(resolve);
 
     return obj;
   },
 
-  _timeout_promise(msg, fn, key, key_append, obj, time) {
+  _timeout_promise(fn, key, key_append, obj, time) {
     return new Promise(async res => {
       const timeout = setTimeout(() => {
-        msg_collector.remove(msg.id);
+        msg_collector.remove(key);
         res({ success: false });
       }, time ? time : config.verify_timeout);
 

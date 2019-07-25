@@ -275,6 +275,10 @@ module.exports = {
     return queries.get_guild_lawyers.all(guild_id);
   },
 
+  get_fired_lawyers(case_id) {
+    return queries.get_fired_lawyers.all(case_id);
+  },
+
   set_rate(guild_id, member_id, rate, convert = true) {
     this.get_lawyer(guild_id, member_id);
 

@@ -48,11 +48,11 @@ If you are sure you wish to proceed with the arrest given the aforementioned ter
 and have reviewed the necessary information, please type \`yes\`.`;
 const opening_msg = `{0} VS {1}
 
-{2} will be presiding over this court proceeding. {1}'s provided lawyer is {3}
+{2} will be presiding over this court proceeding.
 
-The defense is accused of violating the following law: {4}
+The defense is accused of violating the following law: {3}
 
-{5}
+{4}
 
 In order to promote a just and free society, we must be biased towards **INNOCENCE!**
 
@@ -60,7 +60,7 @@ If you find the slightest bit of inconsistent evidence, contradictory testimony,
 in the prosecution's points, **DO NOT DELIVER A GUILTY VERDICT!**
 
 When rendering **ANY VERDICT** other than a guilty verdict, you will receive an \
-additional {6} in compensation.`;
+additional {5} in compensation.`;
 const lawyer_dm = 'You have been sent to trial (case #{0}) under warrant \
 #{1} by {2}.\nAs part of your rights you are allowed to a \
 lawyer which can be set using `{3}request_lawyer @User amount`. If you are unsure \
@@ -190,10 +190,7 @@ module.exports = new class Arrest extends Command {
       guild.id, `${channel_name_cop}-VS-${channel_name_def}`,
       0, `Case for ${channel_name_cop}-VS-${channel_name_def}`, category
     );
-    const found_lawyer = system.find_lawyer(
-      guild, [warrant.judge_id, officer.id, defendant.id, judge.id]
-    );
-    const edits = [judge.id, defendant.id, client.user.id, found_lawyer];
+    const edits = [judge.id, defendant.id, client.user.id];
 
     await Promise.all(edits.map(x => channel.editPermission(
       x, this.bitfield, 0, 'member', 'Adding members to the court case'
@@ -206,10 +203,9 @@ module.exports = new class Arrest extends Command {
     const format = this.format_evidence(warrant.evidence);
     const evidence = Array.isArray(format) ? format[0] : format;
     const innocence_bias = number.format(config.judge_case * config.innocence_bias);
-    const lawyer = guild.members.get(found_lawyer) || await client.getRESTUser(found_lawyer);
     const content = str.format(
       opening_msg,
-      officer.mention, defendant.mention, judge.mention, lawyer.mention, law.name,
+      officer.mention, defendant.mention, judge.mention, law.name,
       warrant.evidence ? `${warrant.request === 1 ? 'Messages' : 'Evidence'}: ${evidence}` : '',
       innocence_bias
     );
@@ -224,7 +220,7 @@ module.exports = new class Arrest extends Command {
     await this.send_cmds(channel);
     await sent.pin();
     await this.close(
-      channel, warrant, defendant, judge.id, officer.id, trial_role, jailed, found_lawyer
+      channel, warrant, defendant, judge.id, officer.id, trial_role, jailed
     );
   }
 
@@ -266,13 +262,12 @@ module.exports = new class Arrest extends Command {
     return [initial].concat(rest);
   }
 
-  async close(channel, warrant, defendant, judge_id, plaintiff_id, role, jailed, found_lawyer) {
+  async close(channel, warrant, defendant, judge_id, plaintiff_id, role, jailed) {
     const c_case = {
       guild_id: channel.guild.id,
       channel_id: channel.id,
       warrant_id: warrant.id,
       law_id: warrant.law_id,
-      lawyer_id: found_lawyer,
       defendant_id: defendant.id,
       judge_id,
       plaintiff_id
