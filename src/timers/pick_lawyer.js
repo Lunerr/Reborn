@@ -24,6 +24,7 @@ const Timer = require('../utilities/timer.js');
 const system = require('../utilities/system.js');
 const discord = require('../utilities/discord.js');
 const lawyer_enum = require('../enums/lawyer.js');
+const verdict = require('../enums/verdict.js');
 const expiration = 864e5;
 const bit = 2048;
 
@@ -75,9 +76,9 @@ Timer(async () => {
 
     for (let i = 0; i < cases.length; i++) {
       const c_case = cases[i];
-      const verdict = db.get_verdict(c_case.id);
+      const case_verdict = db.get_verdict(c_case.id);
 
-      if (verdict) {
+      if (case_verdict && case_verdict.verdict !== verdict.pending) {
         continue;
       }
 
