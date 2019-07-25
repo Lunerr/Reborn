@@ -74,7 +74,7 @@ module.exports = new class RequestLawyer extends Command {
     this.running[msg.channel.id] = true;
 
     const { channel } = await system.get_channel(msg.channel, args.member, msg.author, args.amount);
-    const check = await this.checks(channel_case, channel, args.member);
+    const check = await this.checks(channel_case, channel);
 
     if (check instanceof CommandResult) {
       return check;
