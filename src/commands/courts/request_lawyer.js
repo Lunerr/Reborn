@@ -82,7 +82,8 @@ module.exports = new class RequestLawyer extends Command {
     const result = await this.verify(msg, args.member, channel, channel_case);
 
     if (result.conflicting) {
-      await channel.createMessage(`${args.member.mention} has cancelled their lawyer request.`);
+      await discord.create_msg(msg.channel, `${msg.author.mention} has cancelled their \
+lawyer request.`);
 
       return CommandResult.fromError('The previous interactive lawyer command was cancelled.');
     } else if (!result.success) {
@@ -99,9 +100,16 @@ module.exports = new class RequestLawyer extends Command {
       );
     }
 
-    await channel.createMessage(`You have successfully declined ${args.member.mention}'s offer.`);
+    await discord.create_msg(msg.channel, `You have successfully declined \
+${msg.author.mention}'s offer.`);
 
-    return CommandResult.fromError('The requested lawyer declined your offer.');
+    return this.dm_err(msg.author, 'The requested lawyer declined your offer.', msg.channel.guild);
+  }
+
+  async dm_err(user, content, guild) {
+    await discord.dm_fallback(user, content, guild);
+
+    return CommandResult.fromError(content);
   }
 
   excluded(channel_case, member, exclude = []) {
