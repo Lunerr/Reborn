@@ -58,7 +58,7 @@ module.exports = new class RepresentMyself extends Command {
       );
     }
 
-    db.set_lawyer(msg.author.id, channel_case.channel_id, lawyer_enum.self);
+    db.set_lawyer(msg.author.id, channel_case.id, lawyer_enum.self);
     await system.lawyer_picked(channel_case.channel_id, msg.channel.guild, msg.author);
 
     const prefix = `${discord.tag(msg.author).boldified}, `;
