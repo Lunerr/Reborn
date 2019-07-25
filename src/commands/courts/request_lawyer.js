@@ -44,7 +44,6 @@ module.exports = new class RequestLawyer extends Command {
           key: 'amount',
           name: 'amount',
           type: 'cash',
-          defaultValue: config.default_lawyer_request,
           preconditions: ['min', 'cash'],
           preconditionOptions: [{ minimum: min_amount }]
         })

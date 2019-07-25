@@ -68,9 +68,6 @@ auto_pick_lawyer_time: 3e5
 # Percent used to calculate what is too large based off of the current economy
 max_money_percent: 0.25
 
-# Default value of a request amount
-default_lawyer_request: 1e3
-
 # When a lawyer gets auto picked in hours
 auto_pick_lawyer: 24
 
