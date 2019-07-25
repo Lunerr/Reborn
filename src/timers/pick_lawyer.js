@@ -24,7 +24,6 @@ const Timer = require('../utilities/timer.js');
 const system = require('../utilities/system.js');
 const discord = require('../utilities/discord.js');
 const lawyer_enum = require('../enums/lawyer.js');
-const verdict = require('../enums/verdict.js');
 const expiration = 864e5;
 const bit = 2048;
 
@@ -77,9 +76,9 @@ Timer(async () => {
     for (let i = 0; i < cases.length; i++) {
       const c_case = cases[i];
       const case_verdict = db.get_verdict(c_case.id);
-      console.log(case_verdict, c_case.id)
+      const channel = guild.channels.get(c_case.channel_id);
 
-      if (case_verdict && case_verdict.verdict !== verdict.pending) {
+      if (case_verdict || !channel) {
         continue;
       }
 
@@ -100,8 +99,6 @@ Timer(async () => {
 
       await auto_lawyer_cmd.mutex.sync(c_case.channel_id, async () => {
         auto_lawyer_cmd.running[c_case.channel_id] = true;
-
-        const channel = guild.channels.get(c_case.channel_id);
 
         if (no_plea) {
           await no_plea_fn(guild, channel, c_case);
