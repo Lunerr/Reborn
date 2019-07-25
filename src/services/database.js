@@ -249,8 +249,8 @@ module.exports = {
     return queries.set_last_dm.run(time, member_id, guild_id, type);
   },
 
-  set_lawyer(lawyer_id, case_id, time = Date.now()) {
-    return queries.set_case_lawyer.run(lawyer_id, time, case_id);
+  set_lawyer(lawyer_id, case_id, type, time = Date.now()) {
+    return queries.set_case_lawyer.run(lawyer_id, time, type, case_id);
   },
 
   set_case_plea(case_id, plea) {
@@ -271,12 +271,32 @@ module.exports = {
     return exists;
   },
 
+  get_held_cash(c_case, amount, insert = true) {
+    let exists = queries.get_held_cash.run(c_case.id);
+
+    if (!exists && insert) {
+      this.insert('held_cash', {
+        guild_id: c_case.guild_id,
+        member_id: c_case.defendant_id,
+        case_id: c_case.id,
+        amount
+      });
+      exists = queries.get_held_cash.run(c_case.id);
+    }
+
+    return exists;
+  },
+
   get_guild_lawyers(guild_id) {
     return queries.get_guild_lawyers.all(guild_id);
   },
 
   get_fired_lawyers(case_id) {
     return queries.get_fired_lawyers.all(case_id);
+  },
+
+  set_case_cost(case_id, cost) {
+    return queries.set_case_cost.run(cost, case_id);
   },
 
   set_rate(guild_id, member_id, rate, convert = true) {

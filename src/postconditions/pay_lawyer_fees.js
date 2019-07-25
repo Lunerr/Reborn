@@ -6,6 +6,7 @@ const handler = require('../services/handler.js');
 const system = require('../utilities/system.js');
 const number = require('../utilities/number.js');
 const verdict = require('../enums/verdict.js');
+const lawyer_plea = require('../enums/lawyer.js');
 const to_cents = 100;
 const split = 2;
 
@@ -16,28 +17,32 @@ class PayLawyerFees extends Postcondition {
 
   async run(msg, result) {
     if (result.success !== false) {
-      if (!result.lawyer_id || result.lawyer_id === result.defendant_id) {
+      if (result.lawyer_id === result.defendant_id) {
         return;
       }
+
+      const held = result.cost;
+      const def = await client.getRESTUser(result.defendant_id);
+
+      db.add_cash(result.defendant_id, result.guild_id, held, false);
+      await system.dm_cash(
+        def,
+        msg.channel.guild,
+        held / to_cents,
+        `case #${result.id} has reached a verdict`, 'been given your', 'back because'
+      );
 
       const lawyer = db.get_lawyer(msg.channel.guild.id, result.lawyer_id);
-
-      if (lawyer.rate === 0) {
-        return;
-      }
-
       const name = await handler.parseCommand(msg, config.prefix.length)
         .then(x => x.command.names[0]);
       const lawyer_user = await client.getRESTUser(lawyer.member_id);
 
       if (name === 'guilty') {
-        const def_cash = db.get_cash(result.defendant_id, msg.channel.guild.id, false);
-        const user = await client.getRESTUser(result.defendant_id);
-
-        return this.take_cash(result, user, msg.channel.guild, def_cash, lawyer.rate, lawyer_user);
+        return this.guilty(result, msg.channel.guild, def, lawyer_user);
       }
 
-      const half = lawyer.rate / split;
+      const bonus = held * (1 + config.lawyer_innocence_bonus);
+      const half = bonus / split;
       const warrant = db.get_warrant(result.warrant_id);
       const judge = await client.getRESTUser(warrant.judge_id);
       const officer = await client.getRESTUser(warrant.officer_id);
@@ -50,6 +55,16 @@ class PayLawyerFees extends Postcondition {
         result, officer, msg.channel.guild, officer_bal, half, lawyer_user
       ));
     }
+  }
+
+  async guilty(c_case, guild, defendant, lawyer_user) {
+    const { cost } = c_case;
+
+    if (c_case.request === lawyer_plea.auto) {
+      return this.take_cash(c_case, defendant, guild, 0, cost, lawyer_user);
+    }
+
+    return this.take_cash(c_case, defendant, guild, cost, cost, lawyer_user);
   }
 
   async take_cash(c_case, user, guild, balance, rate, lawyer) {

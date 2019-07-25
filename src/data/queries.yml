@@ -65,7 +65,20 @@ cases_table: |-
     lawyer_id TEXT,
     lawyer_hired_at INTEGER,
     plea TINYINT,
+    cost INTEGER NOT NULL DEFAULT 0,
+    request TINYINT NOT NULL DEFAULT 2,
     inactive_count TINYINT NOT NULL DEFAULT 0
+  )
+
+held_cash_table: |-
+  CREATE TABLE IF NOT EXISTS held_cash (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    case_id TEXT NOT NULL REFERENCES cases(id),
+    guild_id TEXT NOT NULL REFERENCES guilds(guild_id),
+    member_id TEXT NOT NULL,
+    amount INTEGER NOT NULL,
+    created_at INTEGER NOT NULL,
+    last_modified_at INTEGER NOT NULL
   )
 
 verdicts_table: |-
@@ -183,7 +196,11 @@ set_cash: UPDATE members SET cash = ? WHERE member_id = ? AND guild_id = ?
 
 set_law_edited_at: UPDATE laws SET edited_at = ? WHERE id = ?
 
-set_case_lawyer: UPDATE cases SET lawyer_id = ?, lawyer_hired_at = ? WHERE id = ?
+set_case_lawyer: UPDATE cases SET lawyer_id = ?, lawyer_hired_at = ?, request = ? WHERE id = ?
+
+set_case_cost: UPDATE cases SET cost = ? WHERE id = ?
+
+get_held_cash: SELECT * FROM held_cash WHERE case_id = ?
 
 set_case_plea: UPDATE cases SET plea = ? WHERE id = ?
 

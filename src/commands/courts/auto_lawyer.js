@@ -18,10 +18,11 @@
 'use strict';
 const { Command, CommandResult, MultiMutex } = require('patron.js');
 const system = require('../../utilities/system.js');
-const number = require('../../utilities/number.js');
 const discord = require('../../utilities/discord.js');
 const db = require('../../services/database.js');
 const client = require('../../services/client.js');
+const reg = require('../../services/registry.js');
+const lawyer_enum = require('../../enums/lawyer.js');
 
 module.exports = new class AutoLawyer extends Command {
   constructor() {
@@ -36,8 +37,12 @@ module.exports = new class AutoLawyer extends Command {
   }
 
   async run(msg) {
+    const req_cmd = reg.commands.find(x => x.names[0] === 'request_lawyer');
+
     if (this.running[msg.channel.id]) {
       return CommandResult.fromError('An auto lawyer request is currently running for this case.');
+    } else if (req_cmd.running[msg.channel.id]) {
+      return CommandResult.fromError('A request lawyer is currently running for this case.');
     }
 
     const channel_case = db.get_channel_case(msg.channel.id);
@@ -53,12 +58,21 @@ module.exports = new class AutoLawyer extends Command {
 
       await discord.create_msg(msg.channel, `${prefix}The auto lawyer process has begun.`);
 
-      const { lawyer, amount } = await system.auto_pick_lawyer(msg.channel.guild, channel_case);
+      const { lawyer, amount } = await system.auto_pick_lawyer(
+        msg.channel.guild, channel_case, false
+      );
       const member = msg.channel.guild.members.get(lawyer.member_id)
         || await client.getRESTUser(lawyer.member_id);
 
+      await discord.dm(
+        member.user ? member.user : member,
+        `You are now the lawyer of ${msg.member.mention} in case #${channel_case.id}.`,
+        msg.channel.guild
+      );
       await system.accept_lawyer(
-        msg.author, member, msg.channel, channel_case, false, number.format(amount, true)
+        msg.author, member,
+        msg.channel, channel_case,
+        lawyer_enum.auto, false, amount
       );
       this.running[msg.channel.id] = false;
     });

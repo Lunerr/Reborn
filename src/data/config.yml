@@ -56,6 +56,9 @@ time_units: {
 
 restart: git pull && pm2 restart 0
 
+# Additional money granted to the lawyer if they get an not guilty verdict
+lawyer_innocence_bonus: 0.5
+
 # Time that a lawyer has to accept the request
 lawyer_accept_time: 3e5
 

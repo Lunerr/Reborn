@@ -81,7 +81,8 @@ module.exports = new class ApproveDetainment extends Command {
         warrant_channel, judge_role, trial_role, jailed_role, court_category
       } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
       const arrest = registry.commands.find(x => x.names[0] === 'arrest');
-      const judge = arrest.get_judge(msg.channel.guild, warrant, judge_role);
+      const copy = Object.assign(warrant, { judge_id: msg.author.id });
+      const judge = arrest.get_judge(msg.channel.guild, copy, judge_role);
 
       if (!judge) {
         return CommandResult.fromError('There is no judge to serve the case.');

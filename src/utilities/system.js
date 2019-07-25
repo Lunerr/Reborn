@@ -79,31 +79,58 @@ module.exports = {
   },
 
   large_sum_of_money(guild, percent) {
-    return db
+    const top = db
       .get_guild_members(guild.id)
       .sort((a, b) => b.cash - a.cash)
-      .slice(0, max)
-      .reduce((a, b) => a + b.cash, 0) * percent;
+      .slice(0, max);
+
+    return top.reduce((a, b) => a + b.cash, 0) * percent;
   },
 
-  async accept_lawyer(defendant, lawyer, channel, c_case, accept_msg = true, amount) {
-    db.set_lawyer(lawyer.id, c_case.id);
-    await this.lawyer_picked(c_case.channel_id, channel.guild, lawyer);
+  async accept_lawyer(defendant, lawyer, channel, c_case, type, accept = true, amount = 0) {
+    db.set_lawyer(lawyer.id, c_case.id, type);
+    db.set_case_cost(c_case.id, amount);
 
-    if (accept_msg) {
+    if (accept) {
       await channel.createMessage(`You have successfully accepted ${defendant.mention}'s offer.`);
     }
 
-    const judge = channel.guild.members.get(c_case.judge_id)
-      || await client.getRESTUser(c_case.channel_id);
-    const cop = channel.guild.members.get(c_case.plaintiff_id)
-      || await client.getRESTUser(c_case.plaintiff_id);
+    const guild = client.guilds.get(c_case.guild_id);
+    const user_def = defendant.user ? defendant.user : defendant;
 
-    return client.createMessage(c_case.channel_id, `${judge.mention} ${cop.mention}
-${lawyer.mention} has accepted \
-${defendant.mention}'s lawyer request${accept_msg ? '' : ` at the cost of ${amount}`}.\n
+    if (amount) {
+      const bonus = number.format(amount * config.lawyer_innocence_bonus, true);
+
+      await discord.dm(
+        lawyer.user ? lawyer.user : lawyer,
+        `You will receive a ${bonus} bonus for your legal services for ${discord.tag(user_def)} \
+if a not guilty verdict is reached in case #${c_case.id}.`,
+        guild
+      );
+      await this.lawyer_picked(c_case.channel_id, guild, lawyer);
+      db.add_cash(defendant.id, c_case.guild_id, -amount, false);
+      await this.dm_cash(
+        user_def,
+        guild,
+        amount / to_cents,
+        `of legal fees for covering your lawyer. You will receive your money after the verdict is \
+delivered in case #${c_case.id}`,
+        'been charged',
+        'because'
+      );
+    }
+
+    const judge = guild.members.get(c_case.judge_id) || await client.getRESTUser(c_case.channel_id);
+    const cop = guild.members.get(c_case.plaintiff_id)
+      || await client.getRESTUser(c_case.plaintiff_id);
+    const format = number.format(amount, true);
+
+    return client.createMessage(
+      c_case.channel_id, `${judge.mention} ${cop.mention}\n${lawyer.mention} has accepted \
+${defendant.mention}'s lawyer request${amount ? ` at the cost of ${format}` : ''}.\n
 ${lawyer.mention}, you have ${config.auto_pick_lawyer} hours to give a plea \
-using \`${config.prefix}plea <plea>\` or you will be automatically replaced with another lawyer.`);
+using \`${config.prefix}plea <plea>\` or you will be automatically replaced with another lawyer.`
+    );
   },
 
   get_excluded(channel_case) {
@@ -113,7 +140,7 @@ using \`${config.prefix}plea <plea>\` or you will be automatically replaced with
     return exclude.concat(warrant.judge_id);
   },
 
-  async auto_pick_lawyer(guild, channel_case, multiplier = 1, counter = 0) {
+  async auto_pick_lawyer(guild, channel_case, timer = true, multiplier = 1, counter = 0) {
     const lawyers = util.shuffle(db.get_guild_lawyers(guild.id));
     const excluded = db.get_fired_lawyers(channel_case.id)
       .map(x => x.member_id).concat(this.get_excluded(channel_case));
@@ -141,7 +168,7 @@ using \`${config.prefix}plea <plea>\` or you will be automatically replaced with
       const channel = guild.channels.get(channel_case.channel_id);
       const author = await client.getRESTUser(channel_case.defendant_id);
       const res = await this._verify({
-        author, channel: { guild: { id: guild.id } }
+        author, channel: { guild: { id: guild.id } }, content: `!auto_lawyer${timer ? '_auto' : ''}`
       }, channel, member, lawyer.rate * multiplier);
 
       if (!res) {
@@ -156,7 +183,7 @@ using \`${config.prefix}plea <plea>\` or you will be automatically replaced with
       const multi = (counter + 1) % statuses.length === 0
         && counter !== 0 ? multiplier * double : multiplier;
 
-      return this.auto_pick_lawyer(guild, channel_case, multi, counter + 1);
+      return this.auto_pick_lawyer(guild, channel_case, timer, multi, counter + 1);
     }
 
     return {

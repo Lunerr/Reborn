@@ -24,6 +24,7 @@ const msg_collector = require('../services/message_collector.js');
 const util = require('../utilities/util.js');
 const str = require('../utilities/string.js');
 const db = require('../services/database.js');
+const handler = require('../services/handler.js');
 const create_message = catch_discord((...args) => client.createMessage(...args));
 const fetch = require('node-fetch');
 const max_fetch = 100;
@@ -247,6 +248,12 @@ module.exports = {
       }
     };
     const key = `${msg.author.id}-${msg.channel.guild.id}${key_append ? `-${key_append}` : ''}`;
+    const cmd = await handler.parseCommand(msg, config.prefix.length);
+    let cmd_name = '';
+
+    if (cmd.success) {
+      [cmd_name] = cmd.command.names;
+    }
 
     Promise.resolve()
       .then(() => {
@@ -256,13 +263,13 @@ module.exports = {
 
         return {};
       })
-      .then(() => wrap_with_cancel(this._timeout_promise)(fn, key, key_append, obj, time))
+      .then(() => wrap_with_cancel(this._timeout_promise)(fn, key, key_append, cmd_name, obj, time))
       .then(resolve);
 
     return obj;
   },
 
-  _timeout_promise(fn, key, key_append, obj, time) {
+  _timeout_promise(fn, key, key_append, cmd_name, obj, time) {
     return new Promise(async res => {
       const timeout = setTimeout(() => {
         msg_collector.remove(key);
@@ -275,7 +282,7 @@ module.exports = {
           res({
             success: true, reply
           });
-        }, key, key_append, obj
+        }, key, key_append, cmd_name, obj
       );
     });
   },

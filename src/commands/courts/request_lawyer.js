@@ -18,10 +18,14 @@
 'use strict';
 const { Argument, Command, CommandResult } = require('patron.js');
 const { config } = require('../../services/data.js');
+const db = require('../../services/database.js');
 const client = require('../../services/client.js');
+const reg = require('../../services/registry.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
+const lawyer_enum = require('../../enums/lawyer.js');
 const min_amount = 0;
+const to_cents = 100;
 
 module.exports = new class RequestLawyer extends Command {
   constructor() {
@@ -32,13 +36,14 @@ module.exports = new class RequestLawyer extends Command {
           example: '"Good guy"',
           key: 'member',
           name: 'member',
-          type: 'member'
+          type: 'member',
+          preconditions: ['no_bot', 'no_self']
         }),
         new Argument({
           example: '1000',
           key: 'amount',
           name: 'amount',
-          type: 'amount',
+          type: 'cash',
           defaultValue: config.default_lawyer_request,
           preconditions: ['min', 'cash'],
           preconditionOptions: [{ minimum: min_amount }]
@@ -48,24 +53,31 @@ module.exports = new class RequestLawyer extends Command {
       groupName: 'courts',
       names: ['request_lawyer', 'set_lawyer']
     });
+    this.running = {};
   }
 
   async run(msg, args) {
-    const {
-      channel, channel_case
-    } = await system.get_channel(msg.channel, args.member, msg.author, args.amount);
+    const auto_cmd = reg.commands.find(x => x.names[0] === 'auto_lawyer');
 
-    if (channel_case.laywer_id === args.member.id) {
-      return CommandResult.fromError('This user is already your lawyer.');
-    } else if (channel_case.lawyer_id !== null) {
-      const lawyer = await client.getRESTUser(channel_case.lawyer_id);
+    if (auto_cmd.running[msg.channel.id]) {
+      return CommandResult.fromError('An auto request is already running for this case.');
+    }
 
-      return CommandResult.fromError(
-        `You already have ${discord.tag(lawyer).boldified} as your lawyer.`
-      );
-    } else if (!channel) {
-      return CommandResult.fromError('This user has their DMs disabled and there is no main \
-channel in this server.');
+    const channel_case = db.get_channel_case(msg.channel.id);
+    const fired = db.get_fired_lawyers(channel_case.id).map(x => x.member_id);
+    const excluded = this.check_exclude(channel_case, fired);
+
+    if (excluded instanceof CommandResult) {
+      return excluded;
+    }
+
+    this.running[msg.channel.id] = true;
+
+    const { channel } = await system.get_channel(msg.channel, args.member, msg.author, args.amount);
+    const check = await this.checks(channel_case, channel, args.member);
+
+    if (check instanceof CommandResult) {
+      return check;
     }
 
     const result = await this.verify(msg, args.member, channel, channel_case);
@@ -81,12 +93,55 @@ channel in this server.');
     const lower_content = result.reply.content.toLowerCase();
 
     if (lower_content === 'yes') {
-      return system.accept_lawyer(msg.author, args.member, channel, channel_case);
+      return system.accept_lawyer(
+        msg.author, args.member,
+        channel, channel_case,
+        lawyer_enum.request, true, args.amount * to_cents
+      );
     }
 
     await channel.createMessage(`You have successfully declined ${args.member.mention}'s offer.`);
 
     return CommandResult.fromError('The requested lawyer declined your offer.');
+  }
+
+  excluded(channel_case, member, exclude = []) {
+    if (exclude.includes(member.id)) {
+      return CommandResult.fromError(
+        'This user cannot be your lawyer due to previously failing to do their job.'
+      );
+    }
+
+    const warrant = db.get_warrant(channel_case.warrant_id);
+
+    if (member.id === channel_case.judge_id) {
+      return CommandResult.fromError('The presiding judge cannot be your lawyer.');
+    } else if (member.id === channel_case.plaintiff_id) {
+      return CommandResult.fromError('The prosecuting officer cannot be your lawyer.');
+    } else if (member.id === warrant.judge_id) {
+      return CommandResult.fromError('The approving judge cannot be your lawyer.');
+    }
+  }
+
+  async checks(channel_case, channel, member) {
+    if (channel_case.laywer_id === member.id) {
+      this.running[channel_case.channel_id] = false;
+
+      return CommandResult.fromError('This user is already your lawyer.');
+    } else if (channel_case.lawyer_id !== null) {
+      this.running[channel_case.channel_id] = false;
+
+      const lawyer = await client.getRESTUser(channel_case.lawyer_id);
+
+      return CommandResult.fromError(
+        `You already have ${discord.tag(lawyer).boldified} as your lawyer.`
+      );
+    } else if (!channel) {
+      this.running[channel_case.channel_id] = false;
+
+      return CommandResult.fromError('This user has their DMs disabled and there is no main \
+channel in this server.');
+    }
   }
 
   async verify(msg, member, channel, channel_case) {
@@ -96,7 +151,7 @@ channel in this server.');
       msg.channel, `${prefix}${member.mention} has been informed of your request.`
     );
 
-    return discord.verify_channel_msg(
+    const res = discord.verify_channel_msg(
       msg,
       channel,
       null,
@@ -106,5 +161,9 @@ channel in this server.');
       `lawyer-${channel_case.id}`,
       config.lawyer_accept_time
     ).then(x => x.promise);
+
+    this.running[msg.channel.id] = false;
+
+    return res;
   }
 }();

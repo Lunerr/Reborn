@@ -129,7 +129,9 @@ async function custom_cmd(msg) {
 }
 
 client.on('messageCreate', catch_discord(async msg => {
-  await msg_collector.check(msg);
+  if (msg.author && !msg.author.bot) {
+    await msg_collector.check(msg);
+  }
 
   if (!msg.author || msg.author.bot) {
     return;

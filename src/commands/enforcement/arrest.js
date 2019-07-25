@@ -227,13 +227,30 @@ module.exports = new class Arrest extends Command {
   send_cmds(channel) {
     const group = reg.groups.find(x => x.name === 'verdicts');
     const obj = discord.embed({
-      title: 'The Verdict Commands', description: ''
+      fields: [
+        {
+          name: 'The Verdict Commands', value: '', inline: false
+        },
+        {
+          name: 'The Lawyer Commands', value: '', inline: false
+        }
+      ]
     });
 
     for (let i = 0; i < group.commands.length; i++) {
       const cmd = group.commands[i];
 
-      obj.embed.description += `\`${config.prefix}${cmd.names[0]}\`: ${cmd.description}\n`;
+      obj.embed.fields[0].value += `\`${config.prefix}${cmd.names[0]}\`: ${cmd.description}\n`;
+    }
+
+    const lawyer_cmds = reg.groups
+      .find(x => x.name === 'courts').commands
+      .filter(x => x.description.toLowerCase().includes('set'));
+
+    for (let i = 0; i < lawyer_cmds.length; i++) {
+      const cmd = lawyer_cmds[i];
+
+      obj.embed.fields[1].value += `\`${config.prefix}${cmd.names[0]}\`: ${cmd.description}\n`;
     }
 
     return channel.createMessage(obj);

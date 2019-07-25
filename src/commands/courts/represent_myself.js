@@ -19,9 +19,11 @@
 const { Command, CommandResult } = require('patron.js');
 const { config } = require('../../services/data.js');
 const client = require('../../services/client.js');
+const reg = require('../../services/registry.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
 const db = require('../../services/database.js');
+const lawyer_enum = require('../../enums/lawyer.js');
 
 module.exports = new class RepresentMyself extends Command {
   constructor() {
@@ -34,6 +36,16 @@ module.exports = new class RepresentMyself extends Command {
   }
 
   async run(msg) {
+    const req_cmd = reg.commands.find(x => x.names[0] === 'request_lawyer');
+    const auto_cmd = reg.commands.find(x => x.names[0] === 'auto_lawyer');
+    const req = req_cmd.running[msg.channel.id];
+
+    if (auto_cmd.running[msg.channel.id] || req) {
+      return CommandResult.fromError(
+        `A lawyer is already being ${req ? 'requested' : 'automatically found'} for this case.`
+      );
+    }
+
     const channel_case = db.get_channel_case(msg.channel.id);
 
     if (channel_case.lawyer_id === msg.author.id) {
@@ -46,7 +58,7 @@ module.exports = new class RepresentMyself extends Command {
       );
     }
 
-    db.set_lawyer(msg.author.id, channel_case.channel_id);
+    db.set_lawyer(msg.author.id, channel_case.channel_id, lawyer_enum.self);
     await system.lawyer_picked(channel_case.channel_id, msg.channel.guild, msg.author);
 
     const prefix = `${discord.tag(msg.author).boldified}, `;
