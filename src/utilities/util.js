@@ -25,11 +25,11 @@ module.exports = {
     const { days, hours, minutes, seconds } = number.msToTime(time);
     const total_hours = (days * hours_per_day) + hours;
 
-    if (total_hours) {
+    if (total_hours > 1) {
       return `${total_hours} hours${minutes ? ` and ${minutes} minutes` : ''}`;
-    } else if (minutes) {
+    } else if (minutes > 1) {
       return `${minutes} minutes${seconds ? ` and ${seconds} seconds` : ''}`;
-    } else if (seconds || !soon) {
+    } else if (seconds > 1 || !soon) {
       return `${seconds} seconds`;
     }
 
