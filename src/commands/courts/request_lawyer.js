@@ -65,9 +65,10 @@ module.exports = new class RequestLawyer extends Command {
     const channel_case = db.get_channel_case(msg.channel.id);
     const fired = db.get_fired_lawyers(channel_case.id).map(x => x.member_id);
     const excluded = this.excluded(channel_case, args.member, fired);
+    const pre = await this.preexisting(channel_case, args.member);
 
-    if (excluded instanceof CommandResult) {
-      return excluded;
+    if (excluded instanceof CommandResult || pre instanceof CommandResult) {
+      return excluded instanceof CommandResult ? excluded : pre;
     }
 
     this.running[msg.channel.id] = true;
@@ -90,9 +91,7 @@ lawyer request.`);
       return CommandResult.fromError('The requested lawyer didn\'t reply.');
     }
 
-    const lower_content = result.reply.content.toLowerCase();
-
-    if (lower_content === 'yes') {
+    if (result.reply.content.toLowerCase() === 'yes') {
       return system.accept_lawyer(
         msg.author, args.member,
         channel, channel_case,
@@ -130,7 +129,7 @@ ${msg.author.mention}'s offer.`);
     }
   }
 
-  async checks(channel_case, channel, member) {
+  async preexisting(channel_case, member) {
     if (channel_case.laywer_id === member.id) {
       this.running[channel_case.channel_id] = false;
 
@@ -143,7 +142,11 @@ ${msg.author.mention}'s offer.`);
       return CommandResult.fromError(
         `You already have ${discord.tag(lawyer).boldified} as your lawyer.`
       );
-    } else if (!channel) {
+    }
+  }
+
+  async checks(channel_case, channel) {
+    if (!channel) {
       this.running[channel_case.channel_id] = false;
 
       return CommandResult.fromError('This user has their DMs disabled and there is no main \
