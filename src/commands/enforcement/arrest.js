@@ -335,10 +335,18 @@ module.exports = new class Arrest extends Command {
         remove_from_array(judge, x => x.id === ids[i]);
       }
 
-      const active = judge.filter(discord.is_online);
+      let active = judge.filter(discord.is_online);
 
       if (active.length >= 1) {
         judge = active;
+      } else {
+        active = judge.filter(x => x.status === 'idle');
+
+        if (active.length >= 1) {
+          judge = active;
+        } else {
+          active = judge.filter(x => x.status === 'offline');
+        }
       }
     }
 
