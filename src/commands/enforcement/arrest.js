@@ -64,8 +64,8 @@ additional {5} in compensation.`;
 const lawyer_dm = 'You have been sent to trial (case #{0}) under warrant \
 #{1} by {2}.\nAs part of your rights you are allowed to a \
 lawyer which can be set using `{3}request_lawyer @User amount`. If you are unsure \
-of which lawyer to choose you can use `{3}auto_lawyer` which will choose the \
-**__TOP__** lawyer that consents and is online. Lastly, if you feel that you are capable of \
+of which lawyer to choose you can use `{3}auto_lawyer` which will choose a \
+lawyer that consents and is online. Lastly, if you feel that you are capable of \
 representing yourself, you may do so with `{3}represent_myself`.\n\nIf you don\'t \
 use any of these commands within {4} hours, your lawyer will be auto picked.';
 const max_len = 14e2;
