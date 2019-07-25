@@ -20,6 +20,7 @@ const { Precondition, PreconditionResult } = require('patron.js');
 const { config } = require('../../services/data.js');
 const db = require('../../services/database.js');
 const util = require('../../utilities/util.js');
+const conversion = 36e5;
 
 module.exports = new class PleaSet extends Precondition {
   constructor() {
@@ -28,14 +29,15 @@ module.exports = new class PleaSet extends Precondition {
 
   async run(cmd, msg) {
     const channel_case = db.get_channel_case(msg.channel.id);
+    const ms = config.auto_pick_lawyer * conversion;
     const time_left = util.get_time(
-      channel_case.created_at + config.auto_pick_lawyer - Date.now(), true
+      channel_case.created_at + ms - Date.now(), true
     );
 
     if (channel_case.plea === null) {
       return PreconditionResult.fromError(cmd, `The lawyer must be give their plea before this \
 case can go any further.\n\nIf a plea is not given in ${time_left}, the \
-lawyer will be replaced automatically by another top lawyer.`);
+lawyer will be automatically replaced.`);
     }
 
     return PreconditionResult.fromSuccess();
