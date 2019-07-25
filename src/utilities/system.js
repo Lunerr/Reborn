@@ -109,14 +109,19 @@ if a not guilty verdict is reached in case #${c_case.id}.`,
       );
       await this.lawyer_picked(c_case.channel_id, guild, lawyer);
       db.add_cash(defendant.id, c_case.guild_id, -amount, false);
+
+      const cop = await client.getRESTUser(c_case.plaintiff_id);
+      const warrant = db.get_warrant(c_case.warrant_id);
+      const judge = await client.getRESTUser(warrant.judge_id);
+
       await this.dm_cash(
         user_def,
         guild,
         amount / to_cents,
-        `of legal fees for covering your lawyer. You will receive your money after the verdict is \
-delivered in case #${c_case.id}`,
-        'been charged',
-        'because'
+        `of legal fees for covering your lawyer in case #${c_case.id}. The offier (${cop.mention}) \
+and the approving judge (${judge.mention}) will cover the legal fees if you are not convicted of \
+the crime`,
+        'been charged', 'because'
       );
     }
 
