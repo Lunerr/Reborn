@@ -18,8 +18,45 @@
 'use strict';
 const client = require('../services/client.js');
 const db = require('../services/database.js');
+const system = require('../utilities/system.js');
+const reg = require('../services/registry.js');
+const discord = require('../utilities/discord.js');
+const lawyer_enum = require('../enums/lawyer.js');
+
+async function get_lawyer(c_case, defendant, guild) {
+  const channel = guild.channels.get(c_case.channel_id);
+
+  if (!channel) {
+    return;
+  }
+
+  await discord.create_msg(channel, 'The auto lawyer process has automatically begun due to \
+the defendant of the case leaving the server.');
+
+  const { lawyer, amount } = await system.auto_pick_lawyer(guild, c_case);
+  const member = guild.members.get(lawyer.member_id) || await client.getRESTUser(lawyer.member_id);
+
+  await discord.dm(
+    member.user ? member.user : member,
+    `You are now the lawyer of ${defendant.mention} in case #${c_case.id}.`,
+    guild
+  );
+  await system.accept_lawyer(defendant, member, channel, c_case, lawyer_enum.auto, false, amount);
+}
 
 client.on('guildMemberRemove', async (guild, member) => {
+  const { active, c_case } = system.has_active_case(guild.id, member.id);
+
+  if (active && member.id === c_case.defendant_id && c_case.lawyer_id === null) {
+    const cmd = reg.commands.find(x => x.names[0] === 'auto_lawyer');
+
+    await cmd.mutex.sync(c_case.channel_id, async () => {
+      cmd.running[c_case.channel_id] = true;
+      await get_lawyer(c_case, member, guild);
+      cmd.running[c_case.channel_id] = false;
+    });
+  }
+
   if (!Array.isArray(member.roles)) {
     return;
   }
