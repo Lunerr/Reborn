@@ -9,7 +9,7 @@
     "eris": "github:abalabahaha/eris#dev",
     "js-yaml": "^3.13.1",
     "node-fetch": "^2.6.0",
-    "patron.js": "github:Asshley/patron.js",
+    "patron.js": "github:LJNeon/patron.js",
     "ws": "^7.0.0"
   },
   "optionalDependencies": {
