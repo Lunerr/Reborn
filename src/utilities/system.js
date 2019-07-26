@@ -92,7 +92,8 @@ module.exports = {
     db.set_case_cost(c_case.id, amount);
 
     if (accept) {
-      await channel.createMessage(`You have successfully accepted ${defendant.mention}'s offer.`);
+      await discord.create_msg(channel, `You have successfully accepted \
+${defendant.mention}'s offer.`);
     }
 
     const guild = client.guilds.get(c_case.guild_id);
@@ -115,12 +116,11 @@ if a not guilty verdict is reached in case #${c_case.id}.`,
       const judge = await client.getRESTUser(warrant.judge_id);
 
       await this.dm_cash(
-        user_def,
-        guild,
+        user_def, guild,
         amount / to_cents,
-        `of legal fees for covering your lawyer in case #${c_case.id}. The offier (${cop.mention}) \
-and the approving judge (${judge.mention}) will cover the legal fees if you are not convicted of \
-the crime`,
+        `of potential legal fees for covering your lawyer in case #${c_case.id}. The officer \
+(${cop.mention}) and the approving judge (${judge.mention}) will cover the legal fees if you \
+are not convicted of the crime`,
         'been charged', 'because'
       );
     }

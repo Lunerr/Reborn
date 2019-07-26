@@ -22,19 +22,29 @@ class PayLawyerFees extends Postcondition {
       }
 
       const held = result.cost;
+      const warrant = db.get_warrant(result.warrant_id);
+      const judge = await client.getRESTUser(warrant.judge_id);
+      const officer = await client.getRESTUser(warrant.officer_id);
       const def = await client.getRESTUser(result.defendant_id);
-
-      db.add_cash(result.defendant_id, result.guild_id, held, false);
-      await system.dm_cash(
-        def,
-        msg.channel.guild,
-        held / to_cents,
-        `case #${result.id} has reached a verdict`, 'been given your', 'back because'
-      );
-
-      const lawyer = db.get_lawyer(msg.channel.guild.id, result.lawyer_id);
       const name = await handler.parseCommand(msg, config.prefix.length)
         .then(x => x.command.names[0]);
+      const grant = warrant.request === 0;
+
+      if (name !== 'guilty') {
+        db.add_cash(result.defendant_id, result.guild_id, held, false);
+        await system.dm_cash(
+          def,
+          msg.channel.guild,
+          held / to_cents,
+          `case #${result.id} has reached a not guilty verdict. The legal fees have been billed \
+to the ${grant ? 'granting' : 'approving'} judge (${judge.mention}) and the \
+${grant ? 'arresting' : 'detaining'} officer (${officer.mention})`,
+          'been given your',
+          'back because'
+        );
+      }
+
+      const lawyer = db.get_lawyer(msg.channel.guild.id, result.lawyer_id);
       const lawyer_user = await client.getRESTUser(lawyer.member_id);
 
       if (name === 'guilty') {
@@ -43,16 +53,13 @@ class PayLawyerFees extends Postcondition {
 
       const bonus = held * (1 + config.lawyer_innocence_bonus);
       const half = bonus / split;
-      const warrant = db.get_warrant(result.warrant_id);
-      const judge = await client.getRESTUser(warrant.judge_id);
-      const officer = await client.getRESTUser(warrant.officer_id);
       const judge_bal = db.get_cash(warrant.judge_id, msg.channel.guild.id, false);
       const officer_bal = db.get_cash(warrant.officer_id, msg.channel.guild.id, false);
 
       return this.take_cash(
-        result, judge, msg.channel.guild, judge_bal, half, lawyer_user
+        result, judge, msg.channel.guild, judge_bal, half, lawyer_user, true
       ).then(() => this.take_cash(
-        result, officer, msg.channel.guild, officer_bal, half, lawyer_user
+        result, officer, msg.channel.guild, officer_bal, half, lawyer_user, true
       ));
     }
   }
@@ -67,7 +74,7 @@ class PayLawyerFees extends Postcondition {
     return this.take_cash(c_case, defendant, guild, cost, cost, lawyer_user);
   }
 
-  async take_cash(c_case, user, guild, balance, rate, lawyer) {
+  async take_cash(c_case, user, guild, balance, rate, lawyer, allow_debt = false) {
     const case_verdict = db.get_verdict(c_case.id);
     const guilty = case_verdict.verdict === verdict.guilty;
     const case_result = guilty ? 'guilty' : 'not guilty';
@@ -81,7 +88,9 @@ class PayLawyerFees extends Postcondition {
     const action = 'been billed';
     let reason = `legal fees ${ending}`;
 
-    if (balance >= rate) {
+    if (balance >= rate || allow_debt) {
+      reason += ` and you have failed to successfully \
+${user.id === c_case.plaintiff_id ? 'arrest' : 'grant a warrant for'} the defendant`;
       db.add_cash(user.id, guild.id, -rate, false);
 
       return system.dm_cash(user, guild, -rate / to_cents, reason, action, 'in');
