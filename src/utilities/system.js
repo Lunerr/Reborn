@@ -257,47 +257,6 @@ using \`${config.prefix}plea <plea>\` or you will be automatically replaced with
       });
   },
 
-  find_lawyer(guild, exclude = []) {
-    const cases = db.fetch_cases(guild.id);
-    const lawyers = db.get_guild_lawyers(guild.id);
-    let lawyer;
-
-    for (let i = 0; i < lawyers.length; i++) {
-      if (exclude.includes(lawyers[i].member_id)) {
-        continue;
-      }
-
-      const member = guild.members.get(lawyers[i].member_id);
-
-      if (!discord.is_online(member)) {
-        continue;
-      }
-
-      let active_case_count = 0;
-
-      for (let j = 0; j < cases.length; j++) {
-        const c_case = cases[j];
-        const case_verdict = db.get_verdict(c_case.id);
-        const pending_case = case_verdict && case_verdict !== verdict.pending;
-
-        if (c_case.lawyer_id === lawyers[i].member_id && pending_case) {
-          active_case_count++;
-        }
-      }
-
-      if (active_case_count < config.max_active_lawyer_cases) {
-        lawyer = lawyers[i].member_id;
-        break;
-      }
-    }
-
-    if (!lawyer) {
-      lawyer = lawyers[Math.floor(Math.random() * lawyers.length)];
-    }
-
-    return lawyer || null;
-  },
-
   dm_cash(user, guild, amount, reason, action, sep = 'for') {
     let outcome;
 
