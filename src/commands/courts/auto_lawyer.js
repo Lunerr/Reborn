@@ -17,6 +17,7 @@
  */
 'use strict';
 const { Command, CommandResult, MultiMutex } = require('patron.js');
+const { constants: { error_color } } = require('../../services/data.js');
 const system = require('../../utilities/system.js');
 const discord = require('../../utilities/discord.js');
 const db = require('../../services/database.js');
@@ -53,9 +54,7 @@ module.exports = new class AutoLawyer extends Command {
       return CommandResult.fromError(`You already have ${discord.tag(lawyer)} as your lawyer.`);
     }
 
-    return this.mutex.sync(msg.channel.id, async () => {
-      this.running[msg.channel.id] = true;
-
+    return this.mutex.sync(msg.channel.id, () => this.auto(channel_case, msg.channel, async () => {
       const prefix = `${discord.tag(msg.author).boldified}, `;
 
       await discord.create_msg(msg.channel, `${prefix}The auto lawyer process has begun.`);
@@ -71,12 +70,28 @@ module.exports = new class AutoLawyer extends Command {
         `You are now the lawyer of ${msg.member.mention} in case #${channel_case.id}.`,
         msg.channel.guild
       );
-      await system.accept_lawyer(
+
+      return system.accept_lawyer(
         msg.author, member,
         msg.channel, channel_case,
         lawyer_enum.auto, false, amount
       );
-      this.running[msg.channel.id] = false;
-    });
+    }));
+  }
+
+  async auto(c_case, channel, fn) {
+    let result;
+
+    try {
+      this.running[c_case.channel_id] = true;
+      result = await fn();
+    } catch (e) {
+      await discord.create_msg(channel, `An error has occured while running the auto lawyer process
+\n${e.message}`, error_color);
+    } finally {
+      this.running[c_case.channel_id] = false;
+    }
+
+    return result;
   }
 }();

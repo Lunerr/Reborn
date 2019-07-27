@@ -97,16 +97,15 @@ Timer(async () => {
         continue;
       }
 
-      await auto_lawyer_cmd.mutex.sync(c_case.channel_id, async () => {
-        auto_lawyer_cmd.running[c_case.channel_id] = true;
+      await auto_lawyer_cmd.mutex.sync(
+        c_case.channel_id, () => auto_lawyer_cmd.auto(c_case, channel, async () => {
+          if (no_plea) {
+            await no_plea_fn(guild, channel, c_case);
+          }
 
-        if (no_plea) {
-          await no_plea_fn(guild, channel, c_case);
-        }
-
-        await new_lawyer(channel, c_case, guild, no_plea);
-        auto_lawyer_cmd.running[c_case.channel_id] = false;
-      });
+          return new_lawyer(channel, c_case, guild, no_plea);
+        })
+      );
     }
   }
 }, config.auto_pick_lawyer_time);
