@@ -176,7 +176,7 @@ using \`${config.prefix}plea <plea>\` or you will be automatically replaced with
 
       const member = guild.members.get(lawyer.member_id);
 
-      if (member.status !== statuses[counter % statuses.length]) {
+      if (!member || member.status !== statuses[counter % statuses.length]) {
         continue;
       }
 
