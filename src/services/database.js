@@ -239,6 +239,10 @@ module.exports = {
     return queries.set_law_in_effect.run(law_id);
   },
 
+  set_active_lawyer(guild_id, member_id) {
+    return queries.set_active_lawyer.run(member_id, guild_id);
+  },
+
   update_impeachment(guild_id, member_id, time) {
     this.get_impeachment(guild_id, member_id);
 

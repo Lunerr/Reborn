@@ -87,9 +87,19 @@ module.exports = {
     return top.reduce((a, b) => a + b.cash, 0) / top.length * percent;
   },
 
-  async accept_lawyer(defendant, lawyer, channel, c_case, type, accept = true, amount = 0) {
+  _update_lawyer(c_case, amount, lawyer, type) {
     db.set_lawyer(lawyer.id, c_case.id, type);
     db.set_case_cost(c_case.id, amount);
+
+    const found = db.get_lawyer(c_case.guild_id, lawyer.id, false);
+
+    if (!found) {
+      db.set_active_lawyer(c_case.guild_id, lawyer.id);
+    }
+  },
+
+  async accept_lawyer(defendant, lawyer, channel, c_case, type, accept = true, amount = 0) {
+    this._update_lawyer(c_case, amount, lawyer, type);
 
     if (accept) {
       await discord.create_msg(channel, `You have successfully accepted \

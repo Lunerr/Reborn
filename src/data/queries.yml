@@ -210,6 +210,8 @@ get_fired_lawyers: SELECT * FROM fired_case_lawyers WHERE case_id = ?
 
 set_lawyer_rate: UPDATE lawyers SET rate = ?, active = 1 WHERE member_id = ? AND guild_id = ?
 
+set_active_lawyer: UPDATE lawyers SET active = 1 ? WHERE member_id = ? AND guild_id = ?
+
 set_inactive_lawyer: UPDATE lawyers SET active = 0 WHERE member_id = ? AND guild_id = ?
 
 get_guild_lawyers: SELECT * FROM lawyers WHERE guild_id = ?
