@@ -24,7 +24,7 @@ class PayLawyerFees extends Postcondition {
       const held = result.cost;
       const warrant = db.get_warrant(result.warrant_id);
       const judge = await client.getRESTUser(warrant.judge_id);
-      const officer = await client.getRESTUser(warrant.officer_id);
+      const officer = await client.getRESTUser(result.plaintiff_id);
       const def = await client.getRESTUser(result.defendant_id);
       const name = await handler.parseCommand(msg, config.prefix.length)
         .then(x => x.command.names[0]);
