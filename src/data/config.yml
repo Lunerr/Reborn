@@ -68,6 +68,9 @@ auto_pick_lawyer_time: 3e5
 # Percent used to calculate what is too large based off of the current economy
 max_money_percent: 0.25
 
+# Number of times a user can change their lawyer (doesn't account for auto lawyer due to no plea/lawyer)
+lawyer_change_count: 3
+
 # When a lawyer gets auto picked in hours
 auto_pick_lawyer: 24
 

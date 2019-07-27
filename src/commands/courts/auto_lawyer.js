@@ -17,7 +17,7 @@
  */
 'use strict';
 const { Command, CommandResult, MultiMutex } = require('patron.js');
-const { constants: { error_color } } = require('../../services/data.js');
+const { config, constants: { error_color } } = require('../../services/data.js');
 const system = require('../../utilities/system.js');
 const discord = require('../../utilities/discord.js');
 const db = require('../../services/database.js');
@@ -47,11 +47,15 @@ module.exports = new class AutoLawyer extends Command {
     }
 
     const channel_case = db.get_channel_case(msg.channel.id);
+    const remaining = config.lawyer_change_count - (channel_case.lawyer_count + 1);
 
     if (channel_case.lawyer_id !== null) {
       const lawyer = await client.getRESTUser(channel_case.lawyer_id);
+      const res = await system.change_lawyer(channel_case, msg.channel, lawyer);
 
-      return CommandResult.fromError(`You already have ${discord.tag(lawyer)} as your lawyer.`);
+      if (res instanceof CommandResult) {
+        return res;
+      }
     }
 
     return this.mutex.sync(msg.channel.id, () => this.auto(channel_case, msg.channel, async () => {
@@ -59,17 +63,20 @@ module.exports = new class AutoLawyer extends Command {
 
       await discord.create_msg(msg.channel, `${prefix}The auto lawyer process has begun.`);
 
-      const { lawyer, amount } = await system.auto_pick_lawyer(
+      const { lawyer: { member_id: id }, amount } = await system.auto_pick_lawyer(
         msg.channel.guild, channel_case, false
       );
-      const member = msg.channel.guild.members.get(lawyer.member_id)
-        || await client.getRESTUser(lawyer.member_id);
+      const member = msg.channel.guild.members.get(id) || await client.getRESTUser(id);
 
       await discord.dm(
         member.user ? member.user : member,
         `You are now the lawyer of ${msg.member.mention} in case #${channel_case.id}.`,
         msg.channel.guild
       );
+      await discord.create_msg(msg.channel, `${prefix}You have successfully set your lawyer. \
+You ${remaining === 0 ? 'cannot change your lawyer anymore' : `may change your lawyer up to \
+${remaining} more times`}.`);
+      db.update_lawyer_count(channel_case.id, channel_case.lawyer_count + 1);
 
       return system.accept_lawyer(
         msg.author, member,

@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-const { MultiMutex } = require('patron.js');
+const { MultiMutex, CommandResult } = require('patron.js');
 const { Member } = require('eris');
 const { config } = require('../services/data.js');
 const client = require('../services/client.js');
@@ -24,6 +24,7 @@ const discord = require('./discord.js');
 const db = require('../services/database.js');
 const verdict = require('../enums/verdict.js');
 const branch = require('../enums/branch.js');
+const lawyer_enum = require('../enums/lawyer.js');
 const number = require('./number.js');
 const str = require('../utilities/string.js');
 const catch_discord = require('../utilities/catch_discord.js');
@@ -145,6 +146,22 @@ are not convicted of the crime`,
 ${defendant.mention}'s lawyer request${amount ? ` at the cost of ${format}` : ''}.\n
 ${lawyer.mention}, you have ${config.auto_pick_lawyer} hours to give a plea \
 using \`${config.prefix}plea <plea>\` or you will be automatically replaced with another lawyer.`
+    );
+  },
+
+  change_lawyer(c_case, channel, old_lawyer) {
+    if (c_case.lawyer_count >= config.lawyer_change_count) {
+      const user = c_case.defendant_id === old_lawyer.id ? 'yourself' : discord.tag(old_lawyer);
+
+      return CommandResult.fromError(`You already have ${user} as your lawyer \
+and you cannot change it anymore.`);
+    }
+
+    db.set_case_plea(c_case.id, null);
+    db.set_lawyer(null, c_case.id, lawyer_enum.auto);
+
+    return channel.editPermission(
+      old_lawyer.id, 0, this.bitfield, 'member', 'Requested a lawyer change'
     );
   },
 

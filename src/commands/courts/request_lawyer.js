@@ -65,7 +65,7 @@ module.exports = new class RequestLawyer extends Command {
     const channel_case = db.get_channel_case(msg.channel.id);
     const fired = db.get_fired_lawyers(channel_case.id).map(x => x.member_id);
     const excluded = this.excluded(channel_case, args.member, fired);
-    const pre = await this.preexisting(channel_case, args.member);
+    const pre = await this.preexisting(channel_case, msg.channel, args.member);
 
     if (excluded instanceof CommandResult || pre instanceof CommandResult) {
       return excluded instanceof CommandResult ? excluded : pre;
@@ -83,7 +83,7 @@ module.exports = new class RequestLawyer extends Command {
     const result = await this.verify(msg, args.member, channel, channel_case);
 
     if (result.conflicting) {
-      await discord.create_msg(msg.channel, `${msg.author.mention} has cancelled their \
+      await discord.create_msg(channel, `${msg.author.mention} has cancelled their \
 lawyer request.`);
 
       return CommandResult.fromError('The previous interactive lawyer command was cancelled.');
@@ -92,23 +92,33 @@ lawyer request.`);
     }
 
     if (result.reply.content.toLowerCase() === 'yes') {
-      return system.accept_lawyer(
-        msg.author, args.member,
-        channel, channel_case,
-        lawyer_enum.request, true, args.amount * to_cents
-      );
+      return this.success(msg, channel, channel_case, args.member, args.amount);
     }
 
-    await discord.create_msg(msg.channel, `You have successfully declined \
+    await discord.create_msg(channel, `You have successfully declined \
 ${msg.author.mention}'s offer.`);
 
-    return this.dm_err(msg.author, 'The requested lawyer declined your offer.', msg.channel.guild);
+    return CommandResult.fromError('The requested lawyer declined your offer.');
   }
 
-  async dm_err(user, content, guild) {
-    await discord.dm_fallback(user, content, guild);
+  async success(msg, channel, channel_case, member, amount) {
+    const prefix = `${discord.tag(msg.author).boldified}, `;
+    const left = config.lawyer_change_count - (channel_case.lawyer_count + 1);
 
-    return CommandResult.fromError(content);
+    await discord.create_msg(msg.channel, `${prefix}You have successfully set your lawyer. \
+You ${left === 0 ? 'cannot change your lawyer anymore' : `may change your lawyer up to \
+${left} more times`}.`);
+    db.update_lawyer_count(channel_case.id, channel_case.lawyer_count + 1);
+
+    return system.accept_lawyer(
+      msg.author,
+      member,
+      channel,
+      channel_case,
+      lawyer_enum.request,
+      true,
+      amount * to_cents
+    );
   }
 
   excluded(channel_case, member, exclude = []) {
@@ -129,19 +139,36 @@ ${msg.author.mention}'s offer.`);
     }
   }
 
-  async preexisting(channel_case, member) {
+  async preexisting(channel_case, channel, member) {
     if (channel_case.laywer_id === member.id) {
       this.running[channel_case.channel_id] = false;
 
       return CommandResult.fromError('This user is already your lawyer.');
     } else if (channel_case.lawyer_id !== null) {
-      this.running[channel_case.channel_id] = false;
+      const existing = await client.getRESTUser(channel_case.lawyer_id);
+      const res = system.change_lawyer(channel_case, channel, existing);
 
-      const lawyer = await client.getRESTUser(channel_case.lawyer_id);
+      if (res instanceof CommandResult) {
+        this.running[channel_case.channel_id] = false;
 
-      return CommandResult.fromError(
-        `You already have ${discord.tag(lawyer).boldified} as your lawyer.`
-      );
+        return res;
+      }
+
+      if (channel_case.cost !== 0) {
+        db.add_cash(channel_case.defendant_id, channel_case.guild_id, channel_case.cost, false);
+
+        const def = await client.getRESTUser(channel_case.defendant_id);
+        const amount = channel_case.cost / to_cents;
+
+        return system.dm_cash(
+          def,
+          channel.guild,
+          amount,
+          'you have requested to change lawyers',
+          'been given your',
+          'back because'
+        );
+      }
     }
   }
 

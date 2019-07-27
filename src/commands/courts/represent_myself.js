@@ -47,26 +47,30 @@ module.exports = new class RepresentMyself extends Command {
     }
 
     const channel_case = db.get_channel_case(msg.channel.id);
+    const left = config.lawyer_change_count - (channel_case.lawyer_count + 1);
 
     if (channel_case.lawyer_id === msg.author.id) {
       return CommandResult.fromError('You are already representing yourself in this case.');
     } else if (channel_case.lawyer_id !== null) {
       const lawyer = await client.getRESTUser(channel_case.lawyer_id);
+      const result = system.change_lawyer(channel_case, msg.channel, lawyer);
 
-      return CommandResult.fromError(
-        `You already have ${discord.tag(lawyer).boldified} as your lawyer.`
-      );
+      if (result instanceof CommandResult) {
+        return result;
+      }
     }
-
-    db.set_lawyer(msg.author.id, channel_case.id, lawyer_enum.self);
-    await system.lawyer_picked(channel_case.channel_id, msg.channel.guild, msg.author);
 
     const prefix = `${discord.tag(msg.author).boldified}, `;
 
+    db.set_lawyer(msg.author.id, channel_case.id, lawyer_enum.self);
+    db.update_lawyer_count(channel_case.id, channel_case.lawyer_count + 1);
+    await system.lawyer_picked(channel_case.channel_id, msg.channel.guild, msg.author);
+
     return discord.create_msg(
-      msg.channel, `${prefix}You are now representing yourself in this case.
-\nYou have ${config.auto_pick_lawyer} hours to give a plea using \`${config.prefix}plea <plea>\` \
-or you will be automatically replaced with a lawyer.`
+      msg.channel, `${prefix}You are now representing yourself in this case. \
+You ${left === 0 ? 'cannot change your lawyer anymore' : `may change your lawyer up to ${left} \
+more times`}.\nYou have ${config.auto_pick_lawyer} hours to give a plea using \`${config.prefix}\
+plea <plea>\` or you will be automatically replaced with a lawyer.`
     );
   }
 }();
