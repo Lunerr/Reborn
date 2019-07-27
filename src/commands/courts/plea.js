@@ -51,18 +51,16 @@ module.exports = new class Plea extends Command {
     if (channel_case.plea !== null) {
       const found_plea = keys.find(x => plea[x] === channel_case.plea);
 
-      if (args.plea !== empty_argument) {
-        return CommandResult.fromError(`The plea has already been set to \`${found_plea}\`.`);
+      if (args.plea === empty_argument) {
+        return discord.create_msg(msg.channel, `${prefix}The plea is \`${found_plea}\`.`);
       }
-
-      return discord.create_msg(msg.channel, `${prefix}The plea is \`${found_plea}\`.`);
     }
 
     const lower = (args.plea === empty_argument ? '' : args.plea).toLowerCase();
     const found = keys.find(x => x === lower);
 
     if (!found) {
-      const list = str.list(keys);
+      const list = str.list(keys, 'or');
 
       return CommandResult.fromError(
         `You have provided an invalid plea. The plea must be one of: \`${list}\`.`
