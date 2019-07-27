@@ -483,7 +483,7 @@ who recently got impeached`);
     for (let i = 0; i < cases.length; i++) {
       const c_case = cases[i];
 
-      if (c_case.lawyer_id !== lawyer_id) {
+      if (c_case.lawyer_id !== lawyer_id || c_case.defendant_id === lawyer_id) {
         continue;
       }
 
