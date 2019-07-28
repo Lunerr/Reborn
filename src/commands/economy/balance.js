@@ -46,6 +46,13 @@ module.exports = new class Balance extends Command {
       title: `${discord.tag(args.member.user)}'s Balance`,
       description: `**Balance:** ${number.format(cash)}`
     });
+    const c_case = db.get_channel_case(msg.channel.id);
+
+    if (c_case && c_case.cost) {
+      embed.footer = {
+        text: `Your held balance in this case: ${number.format(c_case.cost)}`
+      };
+    }
 
     return msg.channel.createMessage(embed);
   }
