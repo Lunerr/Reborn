@@ -279,22 +279,6 @@ module.exports = {
     return exists;
   },
 
-  get_held_cash(c_case, amount, insert = true) {
-    let exists = queries.get_held_cash.run(c_case.id);
-
-    if (!exists && insert) {
-      this.insert('held_cash', {
-        guild_id: c_case.guild_id,
-        member_id: c_case.defendant_id,
-        case_id: c_case.id,
-        amount
-      });
-      exists = queries.get_held_cash.run(c_case.id);
-    }
-
-    return exists;
-  },
-
   get_guild_lawyers(guild_id) {
     return queries.get_guild_lawyers.all(guild_id);
   },
