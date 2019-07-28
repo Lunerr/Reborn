@@ -98,9 +98,9 @@ async function lost_judge(member, guild) {
       continue;
     }
 
-    console.log(c_case.judge_id);
-
     const case_verdict = db.get_verdict(c_case.id);
+
+    console.log(case_verdict);
 
     if (case_verdict) {
       continue;
