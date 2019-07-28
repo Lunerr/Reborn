@@ -87,7 +87,7 @@ ${remaining} more times`}.`);
 
   async lawyer_set(channel_case, channel) {
     const lawyer = await client.getRESTUser(channel_case.lawyer_id);
-    const res = await system.change_lawyer(channel_case, channel, lawyer);
+    const res = await system.change_lawyer(channel_case, channel, lawyer, lawyer_enum.auto);
 
     if (res instanceof CommandResult) {
       return res;

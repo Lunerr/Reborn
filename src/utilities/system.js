@@ -56,17 +56,19 @@ module.exports = {
     const channel_case = db.get_channel_case(channel_id);
     const channel = guild.channels.get(channel_id);
 
-    if (!channel || !guild.members.has(channel_case.plaintiff_id)) {
+    if (!channel) {
       return;
     }
 
-    await channel.editPermission(
-      channel_case.plaintiff_id,
-      this.bitfield,
-      0,
-      'member',
-      `Lawyer was picked (${channel_case.lawyer_id})`
-    );
+    if (guild.members.has(channel_case.plaintiff_id)) {
+      await channel.editPermission(
+        channel_case.plaintiff_id,
+        this.bitfield,
+        0,
+        'member',
+        `Lawyer was picked (${channel_case.lawyer_id})`
+      );
+    }
 
     if (lawyer.id !== channel_case.defendant_id) {
       return channel.editPermission(
@@ -99,6 +101,37 @@ module.exports = {
     }
   },
 
+  async _paid_money(c_case, lawyer, guild, defendant, amount, type) {
+    const user_def = defendant.user ? defendant.user : defendant;
+    const bonus = number.format(amount * config.lawyer_innocence_bonus, true);
+
+    await discord.dm(
+      lawyer.user ? lawyer.user : lawyer,
+      `You will receive a ${bonus} bonus for your legal services for ${discord.tag(user_def)} \
+if a not guilty verdict is reached in case #${c_case.id}.`,
+      guild
+    );
+    await this.lawyer_picked(c_case.channel_id, guild, lawyer);
+
+    if (type !== lawyer_enum.auto) {
+      db.add_cash(defendant.id, c_case.guild_id, -amount, false);
+    }
+
+    const cop = await client.getRESTUser(c_case.plaintiff_id);
+    const warrant = db.get_warrant(c_case.warrant_id);
+    const judge = await client.getRESTUser(warrant.judge_id);
+
+    await this.dm_cash(
+      user_def, guild,
+      amount / to_cents,
+      `of potential legal fees for covering your lawyer in case #${c_case.id}. The officer \
+(${cop.mention}) and the approving judge (${judge.mention}) will cover the legal fees if you \
+are not convicted of the crime`,
+      `been ${type === lawyer_enum.auto ? 'covered' : 'charged'}`,
+      type === lawyer_enum.auto ? 'by the government, ' : 'because'
+    );
+  },
+
   async accept_lawyer(defendant, lawyer, channel, c_case, type, accept = true, amount = 0) {
     this._update_lawyer(c_case, amount, lawyer, type);
 
@@ -108,32 +141,9 @@ ${defendant.mention}'s offer.`);
     }
 
     const guild = client.guilds.get(c_case.guild_id);
-    const user_def = defendant.user ? defendant.user : defendant;
 
-    if (amount) {
-      const bonus = number.format(amount * config.lawyer_innocence_bonus, true);
-
-      await discord.dm(
-        lawyer.user ? lawyer.user : lawyer,
-        `You will receive a ${bonus} bonus for your legal services for ${discord.tag(user_def)} \
-if a not guilty verdict is reached in case #${c_case.id}.`,
-        guild
-      );
-      await this.lawyer_picked(c_case.channel_id, guild, lawyer);
-      db.add_cash(defendant.id, c_case.guild_id, -amount, false);
-
-      const cop = await client.getRESTUser(c_case.plaintiff_id);
-      const warrant = db.get_warrant(c_case.warrant_id);
-      const judge = await client.getRESTUser(warrant.judge_id);
-
-      await this.dm_cash(
-        user_def, guild,
-        amount / to_cents,
-        `of potential legal fees for covering your lawyer in case #${c_case.id}. The officer \
-(${cop.mention}) and the approving judge (${judge.mention}) will cover the legal fees if you \
-are not convicted of the crime`,
-        'been charged', 'because'
-      );
+    if (amount || amount === 0) {
+      await this._paid_money(c_case, lawyer, guild, defendant, amount, type);
     }
 
     const judge = guild.members.get(c_case.judge_id) || await client.getRESTUser(c_case.channel_id);
@@ -149,7 +159,7 @@ using \`${config.prefix}plea <plea>\` or you will be automatically replaced with
     );
   },
 
-  change_lawyer(c_case, channel, old_lawyer) {
+  change_lawyer(c_case, channel, old_lawyer, type) {
     if (c_case.lawyer_count >= config.lawyer_change_count) {
       const user = c_case.defendant_id === old_lawyer.id ? 'yourself' : discord.tag(old_lawyer);
 
@@ -158,7 +168,7 @@ and you cannot change it anymore.`);
     }
 
     db.set_case_plea(c_case.id, null);
-    db.set_lawyer(null, c_case.id, lawyer_enum.auto);
+    db.set_lawyer(null, c_case.id, type);
 
     if (c_case.defendant_id !== old_lawyer.id) {
       return channel.editPermission(

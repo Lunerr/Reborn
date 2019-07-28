@@ -146,7 +146,7 @@ ${left} more times`}.`);
       return CommandResult.fromError('This user is already your lawyer.');
     } else if (channel_case.lawyer_id !== null) {
       const existing = await client.getRESTUser(channel_case.lawyer_id);
-      const res = system.change_lawyer(channel_case, channel, existing);
+      const res = system.change_lawyer(channel_case, channel, existing, lawyer_enum.request);
 
       if (res instanceof CommandResult) {
         this.running[channel_case.channel_id] = false;

@@ -53,7 +53,7 @@ module.exports = new class RepresentMyself extends Command {
       return CommandResult.fromError('You are already representing yourself in this case.');
     } else if (channel_case.lawyer_id !== null) {
       const lawyer = await client.getRESTUser(channel_case.lawyer_id);
-      const result = system.change_lawyer(channel_case, msg.channel, lawyer);
+      const result = system.change_lawyer(channel_case, msg.channel, lawyer, lawyer_enum.self);
 
       if (result instanceof CommandResult) {
         return result;
