@@ -45,7 +45,12 @@ module.exports = new class RequestLawyer extends Command {
           name: 'amount',
           type: 'cash',
           preconditions: ['min', 'cash'],
-          preconditionOptions: [{ minimum: min_amount }, { allow_zero: true }]
+          preconditionOptions: [
+            { minimum: min_amount },
+            {
+              allow_zero: true, hold: true
+            }
+          ]
         })
       ],
       description: 'Sets the lawyer of a court case to the requested member.',
