@@ -50,8 +50,7 @@ module.exports = new class AutoLawyer extends Command {
     const remaining = config.lawyer_change_count - (channel_case.lawyer_count + 1);
 
     if (channel_case.lawyer_id !== null) {
-      const lawyer = await client.getRESTUser(channel_case.lawyer_id);
-      const res = await system.change_lawyer(channel_case, msg.channel, lawyer);
+      const res = await this.lawyer_set(channel_case, msg.channel);
 
       if (res instanceof CommandResult) {
         return res;
@@ -84,6 +83,21 @@ ${remaining} more times`}.`);
         lawyer_enum.auto, false, amount
       );
     }));
+  }
+
+  async lawyer_set(channel_case, channel) {
+    const lawyer = await client.getRESTUser(channel_case.lawyer_id);
+    const res = await system.change_lawyer(channel_case, channel, lawyer);
+
+    if (res instanceof CommandResult) {
+      return res;
+    }
+
+    db.insert('fired_case_lawyers', {
+      member_id: channel_case.lawyer_id,
+      guild_id: channel_case.guild_id,
+      case_id: channel_case.id
+    });
   }
 
   async auto(c_case, channel, fn) {

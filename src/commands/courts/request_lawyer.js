@@ -154,6 +154,12 @@ ${left} more times`}.`);
         return res;
       }
 
+      db.insert('fired_case_lawyers', {
+        member_id: channel_case.lawyer_id,
+        guild_id: channel_case.guild_id,
+        case_id: channel_case.id
+      });
+
       if (channel_case.cost !== 0) {
         db.add_cash(channel_case.defendant_id, channel_case.guild_id, channel_case.cost, false);
 
