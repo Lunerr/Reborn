@@ -66,9 +66,7 @@ async function update_channels() {
 }
 
 client.on('ready', async () => {
-  const g = client.guilds.get('290759415362224139');
-  const x = g.channels.get('605126936154472458');
-  x.editPermission(client.user.id, 2048, 0, 'member').then(() => x.createMessage('mistriald'));
+  client.deleteChannel('603346867589218304');
   client.editStatus(options.status);
   log.info('Ready!');
   await update_channels();
