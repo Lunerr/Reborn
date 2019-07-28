@@ -66,7 +66,6 @@ async function update_channels() {
 }
 
 client.on('ready', async () => {
-  await client.editChannelPermission('603346867589218304', client.user.id, 268435456, 0, 'member');
   client.editStatus(options.status);
   log.info('Ready!');
   await update_channels();
