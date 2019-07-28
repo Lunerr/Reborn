@@ -119,16 +119,16 @@ async function lost_judge(member, guild) {
     });
 
     const { defendant_id, judge_id, plaintiff_id } = c_case;
-    const { trial_role, jailed_role } = db.fetch('guilds', { guild_id: member.guild.id });
-    const judge = member.guild.members.get(judge_id) || await client.getRESTUser(judge_id);
-    const def = member.guild.members.get(defendant_id) || await client.getRESTUser(defendant_id);
-    const cop = member.guild.members.get(plaintiff_id) || await client.getRESTUser(plaintiff_id);
+    const { trial_role, jailed_role } = db.fetch('guilds', { guild_id: guild.id });
+    const judge = guild.members.get(judge_id) || await client.getRESTUser(judge_id);
+    const def = guild.members.get(defendant_id) || await client.getRESTUser(defendant_id);
+    const cop = guild.members.get(plaintiff_id) || await client.getRESTUser(plaintiff_id);
     const msg = await channel.createMessage(`${cop.mention} ${def.mention} ${judge.mention}
 This case has been marked as a mistrial due to the judge losing their judge role.`);
 
-    await free(member.guild, def, trial_role, jailed_role);
+    await free(guild, def, trial_role, jailed_role);
     await system.close_case(msg, channel);
-    await system.update_guild_case(c_case.id, member.guild);
+    await system.update_guild_case(c_case.id, guild);
   }
 }
 
