@@ -70,15 +70,13 @@ module.exports = {
       );
     }
 
-    if (lawyer.id !== channel_case.defendant_id) {
-      return channel.editPermission(
-        lawyer.id,
-        this.bitfield,
-        0,
-        'member',
-        `Lawyer of case #${channel_case.id}`
-      );
-    }
+    return channel.editPermission(
+      lawyer.id,
+      this.bitfield,
+      0,
+      'member',
+      `Lawyer of case #${channel_case.id}`
+    );
   },
 
   large_sum_of_money(guild, percent) {
