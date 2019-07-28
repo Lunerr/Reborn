@@ -159,6 +159,6 @@ client.on('guildMemberUpdate', async (guild, new_member, old_member) => {
       return a;
     }, {});
 
-  // await impeached(guild, new_member, jobs, config.impeachment_time);
+  await impeached(guild, new_member, jobs, config.impeachment_time);
   await remove_extra_roles(guild, new_member, jobs);
 });
