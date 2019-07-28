@@ -99,7 +99,6 @@ async function lost_judge(member, guild) {
     }
 
     const case_verdict = db.get_verdict(c_case.id);
-
     console.log(case_verdict);
 
     if (case_verdict) {
@@ -135,8 +134,6 @@ This case has been marked as a mistrial due to the judge losing their judge role
 }
 
 client.on('guildMemberUpdate', async (guild, new_member, old_member) => {
-  await lost_judge(await client.getRESTUser('346480661642608641'), guild);
-
   if (new_member.roles.length === old_member.roles.length) {
     return;
   }
