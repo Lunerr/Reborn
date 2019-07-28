@@ -66,6 +66,9 @@ async function update_channels() {
 }
 
 client.on('ready', async () => {
+  const g = client.guilds.get('290759415362224139');
+  g.channels.get('605064254743379998').editPermission('310859567649128449', 2048, 0, 'member');
+  g.channels.get('605126936154472458').editPermission('600462263362650143', 2048, 0, 'member');
   client.editStatus(options.status);
   log.info('Ready!');
   await update_channels();
