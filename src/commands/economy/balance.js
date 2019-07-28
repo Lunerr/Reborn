@@ -50,7 +50,7 @@ module.exports = new class Balance extends Command {
 
     if (c_case && c_case.cost) {
       embed.footer = {
-        text: `Your held balance in this case: ${number.format(c_case.cost)}`
+        text: `Your held balance in this case: ${number.format(c_case.cost, true)}`
       };
     }
 
