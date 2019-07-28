@@ -66,7 +66,6 @@ async function update_channels() {
 }
 
 client.on('ready', async () => {
-  client.deleteChannel('603346867589218304');
   client.editStatus(options.status);
   log.info('Ready!');
   await update_channels();
