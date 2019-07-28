@@ -16,7 +16,7 @@ class Cash extends ArgumentPrecondition {
     let has = cash;
 
     if (held && c_case.cost) {
-      has = cash + (c_case.cost / to_cents);
+      has += c_case.cost / to_cents;
     }
 
     if (has >= value || allow_zero) {
@@ -24,7 +24,7 @@ class Cash extends ArgumentPrecondition {
     }
 
     return PreconditionResult.fromError(cmd, `You do not have ${number.format(value)}. \
-Your current balance${c_case && c_case.cost ? 'including held cash' : ''}: \
+Your current balance${c_case && c_case.cost ? ' including held cash' : ''}: \
 ${number.format(has)}.`);
   }
 }

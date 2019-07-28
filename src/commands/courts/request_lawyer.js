@@ -48,7 +48,7 @@ module.exports = new class RequestLawyer extends Command {
           preconditionOptions: [
             { minimum: min_amount },
             {
-              allow_zero: true, hold: true
+              allow_zero: true, held: true
             }
           ]
         })
@@ -70,11 +70,14 @@ module.exports = new class RequestLawyer extends Command {
     const channel_case = db.get_channel_case(msg.channel.id);
     const fired = db.get_fired_lawyers(channel_case.id).map(x => x.member_id);
     const excluded = this.excluded(channel_case, args.member, fired);
-    const pre = await this.preexisting(channel_case, msg.channel, args.member);
 
     if (excluded instanceof CommandResult) {
       return excluded;
-    } else if (pre instanceof CommandResult) {
+    }
+
+    const pre = await this.preexisting(channel_case, msg.channel, args.member);
+
+    if (pre instanceof CommandResult) {
       return pre;
     }
 
@@ -147,7 +150,7 @@ ${left} more times`}.`);
   }
 
   async preexisting(channel_case, channel, member) {
-    if (channel_case.laywer_id === member.id) {
+    if (channel_case.lawyer_id === member.id) {
       this.running[channel_case.channel_id] = false;
 
       return CommandResult.fromError('This user is already your lawyer.');
@@ -167,7 +170,7 @@ ${left} more times`}.`);
         case_id: channel_case.id
       });
 
-      if (channel_case.cost !== 0) {
+      if (channel_case.cost !== 0 && channel_case.request !== lawyer_enum.auto) {
         db.add_cash(channel_case.defendant_id, channel_case.guild_id, channel_case.cost, false);
 
         const def = await client.getRESTUser(channel_case.defendant_id);

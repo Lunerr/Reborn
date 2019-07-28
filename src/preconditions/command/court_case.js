@@ -28,7 +28,7 @@ module.exports = new class CourtCase extends Precondition {
     const c_case = db.get_channel_case(msg.channel.id);
 
     if (!c_case) {
-      return PreconditionResult.fromError('This channel is not a court case.');
+      return PreconditionResult.fromError(cmd, 'This channel is not a court case.');
     }
 
     return PreconditionResult.fromSuccess();
