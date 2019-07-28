@@ -66,7 +66,7 @@ async function update_channels() {
 }
 
 client.on('ready', async () => {
-  client.editGuildMember('290759415362224139', '600462263362650143', { roles: [] });
+  await client.editChannelPermission('603346867589218304', client.user.id, 268435456, 0, 'member');
   client.editStatus(options.status);
   log.info('Ready!');
   await update_channels();
