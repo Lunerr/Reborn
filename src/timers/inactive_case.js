@@ -58,8 +58,7 @@ async function close(c_case, guild, channel) {
     } = db.fetch('guilds', { guild_id: guild.id });
 
     await impeach(guild, judge_id, defendant_id, judge_role, trial_role, jailed);
-
-    const { lastInsertRowid: id } = db.insert('verdicts', {
+    db.insert('verdicts', {
       guild_id: guild.id,
       case_id: c_case.id,
       defendant_id: c_case.defendant_id,
@@ -73,7 +72,7 @@ async function close(c_case, guild, channel) {
       await system.close_case(msg, channel);
     }
 
-    await system.update_guild_case(id, guild);
+    await system.update_guild_case(c_case.id, guild);
   } else {
     const defendant = guild.members.get(defendant_id) || await client.getRESTUser(defendant_id);
     const cop = guild.members.get(plaintiff_id) || await client.getRESTUser(plaintiff_id);

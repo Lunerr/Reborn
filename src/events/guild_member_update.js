@@ -88,8 +88,8 @@ async function free(guild, defendant, trial_role, jailed_role) {
   }
 }
 
-async function lost_judge(member) {
-  const cases = db.fetch_cases(member.guild.id);
+async function lost_judge(member, guild) {
+  const cases = db.fetch_cases(guild.id);
 
   for (let i = 0; i < cases.length; i++) {
     const c_case = cases[i];
@@ -104,19 +104,20 @@ async function lost_judge(member) {
       continue;
     }
 
-    const channel = member.guild.channels.get(c_case.channel_id);
+    const channel = guild.channels.get(c_case.channel_id);
 
     if (!channel) {
       continue;
     }
 
-    const { lastInsertRowid: id } = db.insert('verdicts', {
+    db.insert('verdicts', {
       guild_id: member.guild.id,
       case_id: c_case.id,
       defendant_id: c_case.defendant_id,
       verdict: verdict.mistrial,
       opinion: 'Automatically marked as a mistrial due to the judge losing their role'
     });
+
     const { defendant_id, judge_id, plaintiff_id } = c_case;
     const { trial_role, jailed_role } = db.fetch('guilds', { guild_id: member.guild.id });
     const judge = member.guild.members.get(judge_id) || await client.getRESTUser(judge_id);
@@ -127,7 +128,7 @@ This case has been marked as a mistrial due to the judge losing their judge role
 
     await free(member.guild, def, trial_role, jailed_role);
     await system.close_case(msg, channel);
-    await system.update_guild_case(id, member.guild);
+    await system.update_guild_case(c_case.id, member.guild);
   }
 }
 
@@ -140,7 +141,7 @@ client.on('guildMemberUpdate', async (guild, new_member, old_member) => {
   const judge = x => x.roles.includes(res.judge_role) || x.roles.includes(res.chief_justice_role);
 
   if (judge(old_member) && !judge(new_member)) {
-    await lost_judge(new_member);
+    await lost_judge(new_member, guild);
   }
 
   const is_chief = x => system.chief_roles.some(c => x.roles.includes(res[c]));
