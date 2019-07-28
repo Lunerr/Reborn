@@ -111,7 +111,7 @@ async function lost_judge(member, guild) {
     }
 
     db.insert('verdicts', {
-      guild_id: member.guild.id,
+      guild_id: guild.id,
       case_id: c_case.id,
       defendant_id: c_case.defendant_id,
       verdict: verdict.mistrial,
