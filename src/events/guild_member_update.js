@@ -98,9 +98,11 @@ async function lost_judge(member, guild) {
       continue;
     }
 
+    console.log(c_case.judge_id);
+
     const case_verdict = db.get_verdict(c_case.id);
 
-    if (case_verdict && case_verdict.verdict !== verdict.pending) {
+    if (case_verdict) {
       continue;
     }
 
