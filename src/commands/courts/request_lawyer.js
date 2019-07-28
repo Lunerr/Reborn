@@ -72,8 +72,10 @@ module.exports = new class RequestLawyer extends Command {
     const excluded = this.excluded(channel_case, args.member, fired);
     const pre = await this.preexisting(channel_case, msg.channel, args.member);
 
-    if (excluded instanceof CommandResult || pre instanceof CommandResult) {
-      return excluded instanceof CommandResult ? excluded : pre;
+    if (excluded instanceof CommandResult) {
+      return excluded;
+    } else if (pre instanceof CommandResult) {
+      return pre;
     }
 
     this.running[msg.channel.id] = true;
