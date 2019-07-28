@@ -37,7 +37,7 @@ module.exports = new class LawyerSet extends Precondition {
     if (channel_case.lawyer_id === null) {
       return PreconditionResult.fromError(cmd, `The lawyer must be set before this case can go any \
 further.\n\nIf the defendant does not request a lawyer or self respresent, a lawyer will be \
-automatically picked in ${remaining} hours.`);
+automatically picked in ${remaining}.`);
     }
 
     return PreconditionResult.fromSuccess();
