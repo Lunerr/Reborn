@@ -505,11 +505,12 @@ who recently got impeached`);
   get_win_percent(lawyer_id, guild) {
     const wins = this.get_case_count(lawyer_id, guild, x => x.verdict === verdict.innocent);
     const losses = this.get_case_count(lawyer_id, guild, x => x.verdict === verdict.guilty);
+    const total = wins + losses;
 
     return {
       wins,
       losses,
-      win_percent: wins === 0 ? 0 : (wins + losses) / wins
+      win_percent: total === 0 ? 0 : (wins + losses) / total
     };
   },
 
