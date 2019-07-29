@@ -523,7 +523,7 @@ who recently got impeached`);
     return {
       wins,
       losses,
-      win_percent: total === 0 ? 0 : (wins + losses) / total
+      win_percent: total === 0 ? 0 : wins / total * to_cents
     };
   },
 
