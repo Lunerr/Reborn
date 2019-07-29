@@ -95,7 +95,7 @@ async function impeach(guild, warrant, defendant, officer, roles) {
     await remove_role(guild.id, warrant.defendant_id, roles.jailed_role, 'Unapproved detain');
   }
 
-  if (officer) {
+  if (officer && officer.roles.includes(roles.officer_role)) {
     const not_impeached = new Date(Date.now() + to_week);
 
     await discord.dm(officer.user, `You have been impeached for not getting your warrant \
