@@ -23,6 +23,7 @@ const discord = require('../../utilities/discord.js');
 const number = require('../../utilities/number.js');
 const system = require('../../utilities/system.js');
 const to_percent = 100;
+const max_dec = 2;
 
 module.exports = new class Lawyer extends Command {
   constructor() {
@@ -67,8 +68,8 @@ module.exports = new class Lawyer extends Command {
     const formatted_rate = number.format(lawyer.rate, true);
     const embed = discord.embed({
       title: `${discord.tag(args.member.user)}'s Lawyer Profile`,
-      description: `**Wins**: ${record.wins}\n**Losses:** ${record.losses}
-**Win Percent:** ${record.win_percent * to_percent}%\n**Rate:** ${formatted_rate} per case`
+      description: `**Wins**: ${record.wins}\n**Losses:** ${record.losses}\n**Win Percent:** \
+${(record.win_percent * to_percent).toFixed(max_dec)}%\n**Rate:** ${formatted_rate} per case`
     });
 
     return msg.channel.createMessage(embed);
