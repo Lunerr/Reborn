@@ -182,10 +182,7 @@ and you cannot change it anymore.`);
     return exclude.concat(warrant.judge_id);
   },
 
-  async auto_pick_lawyer(guild, channel_case, timer = true, multiplier = 1, counter = 0) {
-    const lawyers = util.shuffle(db.get_guild_lawyers(guild.id));
-    const excluded = db.get_fired_lawyers(channel_case.id)
-      .map(x => x.member_id).concat(this.get_excluded(channel_case));
+  async _valid_lawyer(lawyers, guild, channel_case, excluded, timer, multiplier) {
     let picked = null;
 
     for (let i = 0; i < lawyers.length; i++) {
@@ -203,7 +200,7 @@ and you cannot change it anymore.`);
 
       const member = guild.members.get(lawyer.member_id);
 
-      if (!member || member.status !== statuses[counter % statuses.length]) {
+      if (!member) {
         continue;
       }
 
@@ -220,6 +217,22 @@ and you cannot change it anymore.`);
       picked = lawyer;
       break;
     }
+
+    return picked;
+  },
+
+  async auto_pick_lawyer(guild, channel_case, timer = true, multiplier = 1, counter = 0) {
+    const lawyers = util.shuffle(db.get_guild_lawyers(guild.id));
+    const excluded = db.get_fired_lawyers(channel_case.id)
+      .map(x => x.member_id).concat(this.get_excluded(channel_case));
+    const filtered = lawyers.filter(x => {
+      const mem = guild.members.get(x.member_id);
+
+      return mem && !mem.bot && mem.status === statuses[counter % statuses.length];
+    });
+    const picked = await this._valid_lawyer(
+      filtered, guild, channel_case, excluded, timer, multiplier
+    );
 
     if (!picked) {
       const multi = (counter + 1) % statuses.length === 0
