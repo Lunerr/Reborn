@@ -20,7 +20,7 @@ const { Argument, Command, CommandResult } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
-const send_bitfield = 2048;
+const send_bitfield = 2112;
 
 module.exports = new class AddPublicChannel extends Command {
   constructor() {
