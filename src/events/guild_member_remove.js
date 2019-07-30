@@ -31,16 +31,36 @@ the defendant of the case leaving the server.');
   await system.dm_lawyer(guild, lawyer, defendant, channel, c_case, amount);
 }
 
+function get_active_cases(defendant_id, guild_id) {
+  const cases = db.fetch_cases(guild_id).filter(x => x.defendant_id === defendant_id);
+  const arr = [];
+
+  for (let i = 0; i < cases.length; i++) {
+    const case_verdict = db.get_verdict(cases[i].id);
+
+    if (cases[i].lawyer_id === null && !case_verdict) {
+      arr.push(cases[i]);
+    }
+  }
+
+  return arr;
+}
+
 client.on('guildMemberRemove', async (guild, member) => {
-  const { active, c_case } = system.has_active_case(guild.id, member.id);
+  const cases = get_active_cases(member.id, guild.id);
 
-  if (active && member.id === c_case.defendant_id && c_case.lawyer_id === null) {
+  if (cases.length) {
     const cmd = reg.commands.find(x => x.names[0] === 'auto_lawyer');
-    const channel = guild.channels.get(c_case.channel_id);
 
-    if (channel) {
-      await cmd.mutex.sync(c_case.channel_id, () => cmd.auto(
-        c_case, channel, () => get_lawyer(c_case, channel, member, guild)
+    for (let i = 0; i < cases.length; i++) {
+      const channel = guild.channels.get(cases[i].channel_id);
+
+      if (!channel) {
+        continue;
+      }
+
+      await cmd.mutex.sync(cases[i].channel_id, () => cmd.auto(
+        cases[i], channel, () => get_lawyer(cases[i], channel, member, guild)
       ));
     }
   }
