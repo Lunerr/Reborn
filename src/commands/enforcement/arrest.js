@@ -316,11 +316,16 @@ module.exports = new class Arrest extends Command {
     }
 
     const cop = await client.getRESTUser(plaintiff_id);
+    const judge = await client.getRESTUser(judge_id);
+    const bonus = number.format(config.judge_case * config.innocence_bias);
 
     await discord.dm(defendant.user ? defendant.user : defendant, str.format(
       lawyer_dm,
       id, warrant.id, discord.tag(cop).boldified, config.prefix, config.auto_pick_lawyer
     ), channel.guild);
+    await discord.dm(judge, `You have been selected as the judge for case #${id}.\n\nIt is \
+__**CRUCIAL**__ to know that when rendering __**ANY VERDICT**__ other than a guilty verdict, \
+you will receive an additional ${bonus} in compensation.`, channel.guild);
     db.close_warrant(warrant.id);
 
     const { warrant_channel, case_channel } = db.fetch('guilds', { guild_id: channel.guild.id });
