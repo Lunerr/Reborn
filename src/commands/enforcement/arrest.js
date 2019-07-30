@@ -60,7 +60,7 @@ If you find the slightest bit of inconsistent evidence, contradictory testimony,
 in the prosecution's points, **DO NOT DELIVER A GUILTY VERDICT!**
 
 When rendering **ANY VERDICT** other than a guilty verdict, you will receive an \
-additional {5} in compensation.`;
+additional {6} in compensation.`;
 const lawyer_dm = 'You have been sent to trial (case #{0}), under warrant \
 #{1}, by {2}.\n\nAs part of your rights you are allowed to a \
 lawyer which can be set using `{3}request_lawyer @User amount`.\nIf you are unsure \
