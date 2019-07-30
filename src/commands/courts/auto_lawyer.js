@@ -20,6 +20,7 @@ const { Command, CommandResult, MultiMutex } = require('patron.js');
 const { config, constants: { error_color } } = require('../../services/data.js');
 const system = require('../../utilities/system.js');
 const discord = require('../../utilities/discord.js');
+const logger = require('../../utilities/logger.js');
 const db = require('../../services/database.js');
 const client = require('../../services/client.js');
 const reg = require('../../services/registry.js');
@@ -63,7 +64,7 @@ module.exports = new class AutoLawyer extends Command {
       await discord.create_msg(msg.channel, `${prefix}The auto lawyer process has begun.`);
 
       const { lawyer: { member_id: id }, amount } = await system.auto_pick_lawyer(
-        msg.channel.guild, channel_case, false
+        msg.channel.guild, channel_case, ''
       );
       const member = msg.channel.guild.members.get(id) || await client.getRESTUser(id);
 
@@ -107,6 +108,7 @@ ${remaining} more times`}.`);
       this.running[c_case.channel_id] = true;
       result = await fn();
     } catch (e) {
+      await logger.error(e);
       await discord.create_msg(channel, `An error has occured while running the auto lawyer process
 \n${e.message}`, error_color);
     } finally {

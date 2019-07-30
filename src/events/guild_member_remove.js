@@ -27,7 +27,7 @@ async function get_lawyer(c_case, channel, defendant, guild) {
   await discord.create_msg(channel, 'The auto lawyer process has automatically begun due to \
 the defendant of the case leaving the server.');
 
-  const { lawyer, amount } = await system.auto_pick_lawyer(guild, c_case);
+  const { lawyer, amount } = await system.auto_pick_lawyer(guild, c_case, '_remove');
   const member = guild.members.get(lawyer.member_id) || await client.getRESTUser(lawyer.member_id);
 
   await discord.dm(
@@ -46,9 +46,9 @@ client.on('guildMemberRemove', async (guild, member) => {
     const channel = guild.channels.get(c_case.channel_id);
 
     if (channel) {
-      await cmd.mutex.sync(
-        c_case.channel_id, () => cmd.auto(c_case, channel, () => get_lawyer(c_case, member, guild))
-      );
+      await cmd.mutex.sync(c_case.channel_id, () => cmd.auto(
+        c_case, channel, () => get_lawyer(c_case, channel, member, guild)
+      ));
     }
   }
 

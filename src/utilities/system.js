@@ -182,7 +182,7 @@ and you cannot change it anymore.`);
     return exclude.concat(warrant.judge_id);
   },
 
-  async _valid_lawyer(lawyers, guild, channel_case, excluded, timer, multiplier) {
+  async _valid_lawyer(lawyers, guild, channel_case, excluded, key, multiplier) {
     let picked = null;
 
     for (let i = 0; i < lawyers.length; i++) {
@@ -207,7 +207,7 @@ and you cannot change it anymore.`);
       const channel = guild.channels.get(channel_case.channel_id);
       const author = await client.getRESTUser(channel_case.defendant_id);
       const res = await this._verify({
-        author, channel: { guild: { id: guild.id } }, content: `!auto_lawyer${timer ? '_auto' : ''}`
+        author, channel: { guild }, content: `!auto_lawyer${key}`
       }, channel, member, lawyer.rate * multiplier);
 
       if (!res) {
@@ -221,7 +221,7 @@ and you cannot change it anymore.`);
     return picked;
   },
 
-  async auto_pick_lawyer(guild, channel_case, timer = true, multiplier = 1, counter = 0) {
+  async auto_pick_lawyer(guild, channel_case, key = '_auto', multiplier = 1, counter = 0) {
     const lawyers = util.shuffle(db.get_guild_lawyers(guild.id));
     const excluded = db.get_fired_lawyers(channel_case.id)
       .map(x => x.member_id).concat(this.get_excluded(channel_case));
@@ -231,14 +231,14 @@ and you cannot change it anymore.`);
       return mem && !mem.bot && mem.status === statuses[counter % statuses.length];
     });
     const picked = await this._valid_lawyer(
-      filtered, guild, channel_case, excluded, timer, multiplier
+      filtered, guild, channel_case, excluded, key, multiplier
     );
 
     if (!picked) {
       const multi = (counter + 1) % statuses.length === 0
         && counter !== 0 ? multiplier * double : multiplier;
 
-      return this.auto_pick_lawyer(guild, channel_case, timer, multi, counter + 1);
+      return this.auto_pick_lawyer(guild, channel_case, key, multi, counter + 1);
     }
 
     return {

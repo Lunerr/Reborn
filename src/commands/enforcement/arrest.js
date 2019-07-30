@@ -300,7 +300,7 @@ module.exports = new class Arrest extends Command {
 
     const cop = await client.getRESTUser(plaintiff_id);
 
-    await discord.dm(defendant, str.format(
+    await discord.dm(defendant.user ? defendant.user : defendant, str.format(
       lawyer_dm,
       id, warrant.id, discord.tag(cop).boldified, config.prefix, config.auto_pick_lawyer
     ), channel.guild);
