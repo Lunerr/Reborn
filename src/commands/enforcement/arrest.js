@@ -70,6 +70,7 @@ representing yourself, you may do so with `{3}represent_myself`.\n\nIf you don\'
 use any of these commands within {4} hours, your lawyer will be auto picked.';
 const max_len = 14e2;
 const dots = '...';
+const stats = ['online', 'dnd', 'idle', 'offline'];
 
 function get_index(string, char, max) {
   return string.slice(0, max).lastIndexOf(char);
@@ -81,6 +82,22 @@ function remove_from_array(arr, fn) {
   if (index !== -1) {
     arr.splice(index, 1);
   }
+}
+
+function get_members(arr) {
+  let members = [];
+
+  for (let i = 0; i < stats.length; i++) {
+    const status = stats[i];
+    const filtered = arr.filter(x => x.status === status);
+
+    if (filtered.length) {
+      members = filtered;
+      break;
+    }
+  }
+
+  return members;
 }
 
 module.exports = new class Arrest extends Command {
@@ -323,10 +340,8 @@ module.exports = new class Arrest extends Command {
   }
 
   get_judge(guild, warrant, judge_role, chief) {
-    let judge = guild.members.filter(
-      mbr => !system.member_in_debt(mbr, guild)
-        && (mbr.roles.includes(judge_role) | mbr.roles.includes(chief))
-    );
+    let judge = guild.members.filter(mbr => !system.member_in_debt(mbr, guild)
+        && (mbr.roles.includes(judge_role) || mbr.roles.includes(chief)));
 
     if (judge.length >= 1) {
       const ids = [warrant.judge_id, warrant.defendant_id, warrant.officer_id];
@@ -335,19 +350,7 @@ module.exports = new class Arrest extends Command {
         remove_from_array(judge, x => x.id === ids[i]);
       }
 
-      let active = judge.filter(discord.is_online);
-
-      if (active.length >= 1) {
-        judge = active;
-      } else {
-        active = judge.filter(x => x.status === 'idle');
-
-        if (active.length >= 1) {
-          judge = active;
-        } else {
-          active = judge.filter(x => x.status === 'offline');
-        }
-      }
+      judge = get_members(judge);
     }
 
     judge = judge[Math.floor(Math.random() * judge.length)];
