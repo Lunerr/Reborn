@@ -21,21 +21,14 @@ const db = require('../services/database.js');
 const system = require('../utilities/system.js');
 const reg = require('../services/registry.js');
 const discord = require('../utilities/discord.js');
-const lawyer_enum = require('../enums/lawyer.js');
 
 async function get_lawyer(c_case, channel, defendant, guild) {
   await discord.create_msg(channel, 'The auto lawyer process has automatically begun due to \
 the defendant of the case leaving the server.');
 
   const { lawyer, amount } = await system.auto_pick_lawyer(guild, c_case, '_remove');
-  const member = guild.members.get(lawyer.member_id) || await client.getRESTUser(lawyer.member_id);
 
-  await discord.dm(
-    member.user ? member.user : member,
-    `You are now the lawyer of ${defendant.mention} in case #${c_case.id}.`,
-    guild
-  );
-  await system.accept_lawyer(defendant, member, channel, c_case, lawyer_enum.auto, false, amount);
+  await system.dm_lawyer(guild, lawyer, defendant, channel, c_case, amount);
 }
 
 client.on('guildMemberRemove', async (guild, member) => {

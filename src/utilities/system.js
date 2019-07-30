@@ -79,6 +79,18 @@ module.exports = {
     );
   },
 
+  async dm_lawyer(guild, lawyer, defendant, channel, c_case, amount) {
+    const member = guild.members.get(lawyer.member_id)
+      || await client.getRESTUser(lawyer.member_id);
+
+    await discord.dm(
+      member.user ? member.user : member,
+      `You are now the lawyer of ${defendant.mention} in case #${c_case.id}.`,
+      guild
+    );
+    await this.accept_lawyer(defendant, member, channel, c_case, lawyer_enum.auto, false, amount);
+  },
+
   large_sum_of_money(guild, percent) {
     const top = db
       .get_guild_members(guild.id)

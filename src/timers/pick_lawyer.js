@@ -23,7 +23,6 @@ const reg = require('../services/registry.js');
 const Timer = require('../utilities/timer.js');
 const system = require('../utilities/system.js');
 const discord = require('../utilities/discord.js');
-const lawyer_enum = require('../enums/lawyer.js');
 const expiration = 864e5;
 const bit = 2048;
 
@@ -51,14 +50,8 @@ ${no_plea ? 'no plea being given' : 'no lawyer being set'} after 24 hours.`);
   const { lawyer, amount } = await system.auto_pick_lawyer(guild, c_case);
   const defendant = guild.members.get(c_case.defendant_id)
     || await client.getRESTUser(c_case.defendant_id);
-  const member = guild.members.get(lawyer.member_id) || await client.getRESTUser(lawyer.member_id);
 
-  await discord.dm(
-    member.user ? member.user : member,
-    `You are now the lawyer of ${defendant.mention} in case #${c_case.id}.`,
-    guild
-  );
-  await system.accept_lawyer(defendant, member, channel, c_case, lawyer_enum.auto, false, amount);
+  await system.dm_lawyer(guild, lawyer, defendant, channel, c_case, amount);
 }
 
 Timer(async () => {
