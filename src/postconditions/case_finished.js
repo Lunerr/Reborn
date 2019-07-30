@@ -22,7 +22,9 @@ class CaseFinished extends Postcondition {
         const lawyer = await client.getRESTUser(result.lawyer_id);
         const ending = name.split('_').join(' ');
 
-        await discord.dm(lawyer, `Case #${result.id} has reached a ${ending} verdict.`);
+        await discord.dm(
+          lawyer, `Case #${result.id} has reached a ${ending} verdict.`, msg.channel.guild
+        );
       }
 
       if (ignore.includes(name)) {
