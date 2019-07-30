@@ -41,8 +41,8 @@ Furthermore, if you perform this arrest, **you will need to prosecute it in cour
 This may take days. This will be time consuming. If you fail to properly prosecute the case, \
 you will be impeached.
 
-If this case proceeds to go to court and the defendant is found not guilty, \
-you will be fined {0}.
+If this case proceeds to go to court and the defendant is found __**NOT GUILTY**__, \
+you will be __**FINED**__ {0}.
 
 If you are sure you wish to proceed with the arrest given the aforementioned terms \
 and have reviewed the necessary information, please type \`yes\`.`;
