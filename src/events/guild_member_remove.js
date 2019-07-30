@@ -21,6 +21,7 @@ const db = require('../services/database.js');
 const system = require('../utilities/system.js');
 const reg = require('../services/registry.js');
 const discord = require('../utilities/discord.js');
+const lawyer_enum = require('../enums/lawyer.js');
 
 async function get_lawyer(c_case, channel, defendant, guild) {
   await discord.create_msg(channel, 'The auto lawyer process has automatically begun due to \
@@ -38,7 +39,7 @@ function get_active_cases(defendant_id, guild_id) {
   for (let i = 0; i < cases.length; i++) {
     const case_verdict = db.get_verdict(cases[i].id);
 
-    if (cases[i].lawyer_id === null && !case_verdict) {
+    if (!case_verdict && (cases[i].request === lawyer_enum.self || cases[i].lawyer_id === null)) {
       arr.push(cases[i]);
     }
   }
