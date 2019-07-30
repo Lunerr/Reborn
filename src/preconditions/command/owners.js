@@ -17,6 +17,7 @@
  */
 'use strict';
 const { Precondition, PreconditionResult } = require('patron.js');
+const { auth } = require('../../services/data.js');
 
 module.exports = new class Owners extends Precondition {
   constructor() {
@@ -25,7 +26,7 @@ module.exports = new class Owners extends Precondition {
 
   async run(cmd, msg) {
     const notOwner = !msg.member.permission.has('administrator')
-      && msg.author.id !== '310859567649128449';
+      && !auth.developer_ids.includes(msg.author.id);
 
     if (msg.channel.guild && notOwner) {
       return PreconditionResult.fromError(
