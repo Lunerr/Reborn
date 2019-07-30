@@ -114,11 +114,17 @@ module.exports = {
   async _paid_money(c_case, lawyer, guild, defendant, amount, type) {
     const user_def = defendant.user ? defendant.user : defendant;
     const bonus = number.format(amount * config.lawyer_innocence_bonus, true);
+    const cop = await client.getRESTUser(c_case.plaintiff_id);
+    const warrant = db.get_warrant(c_case.warrant_id);
+    const judge = await client.getRESTUser(warrant.judge_id);
+    const payment = `The officer (${cop.mention}) and the approving judge \
+(${judge.mention}) will cover the legal fees if {0} not convicted of the crime`;
 
     await discord.dm(
       lawyer.user ? lawyer.user : lawyer,
       `You will receive a ${bonus} bonus for your legal services for ${discord.tag(user_def)} \
-if a not guilty verdict is reached in case #${c_case.id}.`,
+if a not guilty verdict is reached in case #${c_case.id}. \
+${str.format(payment, `your client, ${discord.tag(user_def).boldified}, is`)}`,
       guild
     );
     await this.lawyer_picked(c_case.channel_id, guild, lawyer);
@@ -127,16 +133,11 @@ if a not guilty verdict is reached in case #${c_case.id}.`,
       db.add_cash(defendant.id, c_case.guild_id, -amount, false);
     }
 
-    const cop = await client.getRESTUser(c_case.plaintiff_id);
-    const warrant = db.get_warrant(c_case.warrant_id);
-    const judge = await client.getRESTUser(warrant.judge_id);
-
     await this.dm_cash(
       user_def, guild,
       amount / to_cents,
-      `of potential legal fees for covering your lawyer in case #${c_case.id}. The officer \
-(${cop.mention}) and the approving judge (${judge.mention}) will cover the legal fees if you \
-are not convicted of the crime`,
+      `of potential legal fees for covering your lawyer in case #${c_case.id}. \
+${str.format(payment, 'you are not')}`,
       `been ${type === lawyer_enum.auto ? 'covered' : 'charged'}`,
       type === lawyer_enum.auto ? 'by the government, ' : 'because'
     );
