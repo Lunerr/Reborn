@@ -129,10 +129,10 @@ guilty_granted_warrant: 250
 guilty_arrest: 250
 
 # Amount given to the approving judge if the case leads to a guilty verdict
-not_guilty_granted_warrant: -500
+not_guilty_granted_warrant: -1500
 
 # Amount given to the cop if the case leads to a guilty verdict
-not_guilty_arrest: -500
+not_guilty_arrest: -1500
 
 # Amount given if one gets impeached
 impeached: -2e3
