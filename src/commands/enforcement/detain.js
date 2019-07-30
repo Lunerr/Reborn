@@ -85,7 +85,7 @@ module.exports = new class Detain extends Command {
         return filtered;
       }
 
-      const res = await this.verify(msg, msg.member, `What law did ${args.user.mention} break?
+      const res = await this.verify(msg, msg.member, `What law did ${args.user.mention} break?\n
 **__In the event that this detainment does not lead to a conviction, YOU WILL BE FINED \
 ${number.format(Math.abs(config.not_guilty_arrest))}.__**\n
 Type \`cancel\` to cancel the command.`, args.user, filtered);
