@@ -17,11 +17,13 @@
  */
 'use strict';
 const { Argument, Command, CommandResult } = require('patron.js');
+const fetch = require('node-fetch');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
 const empty_argument = Symbol('Empty Argument');
 const max_len = 500;
 const min_len = 4;
+const max_size = 8e6;
 
 module.exports = new class AddHot extends Command {
   constructor() {
@@ -84,13 +86,25 @@ module.exports = new class AddHot extends Command {
     }
 
     if (attachments.length) {
+      const size = await this.check_size(attachments[0].proxy_url);
+
+      if (size instanceof CommandResult) {
+        return size;
+      }
+
       update.image = attachments[0].proxy_url;
     }
 
     db.insert('commands', update);
-    await discord.create_msg(
-      msg.channel, `${discord.tag(msg.author).boldified}, \
-I've created a custom command with the name ${args.name}.`
-    );
+    await discord.create_msg(msg.channel, `${discord.tag(msg.author).boldified}, \
+I've created a custom command with the name ${args.name}.`);
+  }
+
+  async check_size(url) {
+    const fetched = await fetch(url).then(x => x.buffer());
+
+    if (fetched.byteLength >= max_size) {
+      return CommandResult.fromError('The maximum image size is 8 MB.');
+    }
   }
 }();
