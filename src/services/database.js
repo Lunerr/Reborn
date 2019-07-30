@@ -295,6 +295,10 @@ module.exports = {
     return queries.reset_server.run(guild_id);
   },
 
+  reset_user(member_id, guild_id) {
+    return queries.reset_user.run(member_id, guild_id);
+  },
+
   set_rate(guild_id, member_id, rate, convert = true) {
     this.get_lawyer(guild_id, member_id);
 

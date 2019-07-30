@@ -186,6 +186,8 @@ set_cash: UPDATE members SET cash = ? WHERE member_id = ? AND guild_id = ?
 
 reset_server: UPDATE members SET cash = 0 WHERE guild_id = ?
 
+reset_user: UPDATE members SET cash = 0 WHERE member_id = ? AND guild_id = ?
+
 set_law_edited_at: UPDATE laws SET edited_at = ? WHERE id = ?
 
 update_lawyer_count: UPDATE cases SET lawyer_count = ? WHERE id = ?
