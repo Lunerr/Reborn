@@ -18,7 +18,6 @@
 'use strict';
 const { Argument, Command, CommandResult } = require('patron.js');
 const discord = require('../../utilities/discord.js');
-const str = require('../../utilities/string.js');
 const plea = require('../../enums/plea.js');
 const db = require('../../services/database.js');
 const empty_argument = Symbol('Empty Argument');
@@ -60,11 +59,10 @@ module.exports = new class Plea extends Command {
     const found = keys.find(x => x === lower);
 
     if (!found) {
-      const list = str.list(keys, 'or');
+      const [guilty, not_guilty] = keys;
 
-      return CommandResult.fromError(
-        `You have provided an invalid plea. The plea must be one of: \`${list}\`.`
-      );
+      return CommandResult.fromError(`You have provided an invalid plea. \
+The plea must be either \`${guilty}\` or \`${not_guilty}\`.`);
     }
 
     const found_plea = plea[lower];
