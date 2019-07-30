@@ -4,6 +4,7 @@ const client = require('../services/client.js');
 const db = require('../services/database.js');
 const handler = require('../services/handler.js');
 const system = require('../utilities/system.js');
+const discord = require('../utilities/discord.js');
 const verdict = require('../enums/verdict.js');
 const ignore = ['mistrial'];
 
@@ -16,6 +17,13 @@ class CaseFinished extends Postcondition {
     if (result.success !== false) {
       const name = await handler.parseCommand(msg, config.prefix.length)
         .then(x => x.command.names[0]);
+
+      if (result.lawyer_id && result.lawyer_id !== result.defendant_id) {
+        const lawyer = await client.getRESTUser(result.lawyer_id);
+        const ending = name.split('_').join(' ');
+
+        await discord.dm(lawyer, `Case #${result.id} has reached a ${ending} verdict.`);
+      }
 
       if (ignore.includes(name)) {
         return;
