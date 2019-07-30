@@ -61,7 +61,7 @@ module.exports = new class ModifyCash extends Command {
 
     await discord.create_msg(
       msg.channel,
-      `${prefix}You have successfully modified ${str} balance to ${number.format(args.amount)}.`
+      `${prefix}You have successfully set ${str} balance to ${number.format(args.amount)}.`
     );
   }
 }();
