@@ -30,7 +30,7 @@ const str = require('../utilities/string.js');
 const catch_discord = require('../utilities/catch_discord.js');
 const util = require('../utilities/util.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
-const accept_message = '{0} is offering {1} for you to be their lawyer in case #{2}.\n\nReply with \
+const accept_message = '{0} is offering you {1} to be their lawyer in case #{2}.\n\nReply with \
 `yes` within 5 minutes to accept or `no` to decline to this offer.';
 const statuses = ['online', 'dnd', 'idle', 'offline'];
 const max = 10;
