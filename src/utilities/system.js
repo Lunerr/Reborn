@@ -181,7 +181,7 @@ and you cannot change it anymore.`);
     db.set_case_plea(c_case.id, null);
     db.set_lawyer(null, c_case.id, type);
 
-    if (c_case.defendant_id !== old_lawyer.id) {
+    if (c_case.defendant_id !== old_lawyer.id && channel.guild.members.has(old_lawyer.id)) {
       return channel.editPermission(
         old_lawyer.id, 0, this.bitfield, 'member', 'Requested a lawyer change'
       );
