@@ -69,7 +69,7 @@ been added as a public channel.`
     for (let i = 0; i < jailed.length; i++) {
       const role = jailed[i];
 
-      await channel.editPermission(res[role], 0, send_bitfield, 'Overwrites for public channel');
+      await channel.editPermission(res[role], 0, send_bitfield, 'role', 'Overwrites for public channel');
     }
   }
 }();
