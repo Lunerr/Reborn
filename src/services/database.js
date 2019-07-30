@@ -153,6 +153,10 @@ module.exports = {
     return queries.approve_warrant.run(judge_id, id);
   },
 
+  get_last_table_sequence(table) {
+    return queries.get_last_sequence.get(table);
+  },
+
   get_member(member_id, guild_id) {
     let mem = queries.get_member.get(member_id, guild_id);
 

@@ -180,6 +180,8 @@ insert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT DO NOTHING
 
 upsert: INSERT INTO {0}({1}) VALUES({2}) ON CONFLICT(guild_id) DO UPDATE SET {3}
 
+get_last_sequence: SELECT * FROM sqlite_sequence WHERE name = ?
+
 add_cash: UPDATE members SET cash = cash + ? WHERE member_id = ? AND guild_id = ?
 
 set_cash: UPDATE members SET cash = ? WHERE member_id = ? AND guild_id = ?

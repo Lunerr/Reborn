@@ -46,13 +46,13 @@ you will be __**FINED**__ {0}.
 
 If you are sure you wish to proceed with the arrest given the aforementioned terms \
 and have reviewed the necessary information, please type \`yes\`.`;
-const opening_msg = `{0} VS {1}
+const opening_msg = `{0} VS {1} (Case #{2})
 
-{2} will be presiding over this court proceeding.
+{3} will be presiding over this court proceeding.
 
-The defense is accused of violating the following law: {3}
+The defense is accused of violating the following law: {4}
 
-{4}
+{5}
 
 In order to promote a just and free society, we must be biased towards **INNOCENCE!**
 
@@ -61,12 +61,12 @@ in the prosecution's points, **DO NOT DELIVER A GUILTY VERDICT!**
 
 When rendering **ANY VERDICT** other than a guilty verdict, you will receive an \
 additional {5} in compensation.`;
-const lawyer_dm = 'You have been sent to trial (case #{0}) under warrant \
-#{1} by {2}.\nAs part of your rights you are allowed to a \
-lawyer which can be set using `{3}request_lawyer @User amount`. If you are unsure \
+const lawyer_dm = 'You have been sent to trial (case #{0}), under warrant \
+#{1}, by {2}.\n\nAs part of your rights you are allowed to a \
+lawyer which can be set using `{3}request_lawyer @User amount`.\nIf you are unsure \
 of which lawyer to choose you can use `{3}auto_lawyer` which will choose a \
-lawyer that consents and is online. Lastly, if you feel that you are capable of \
-representing yourself, you may do so with `{3}represent_myself`.\n\nIf you don\'t \
+lawyer that consents.\nLastly, if you feel that you are capable of representing yourself, \
+you may do so with `{3}represent_myself`.\n\nIf you don\'t \
 use any of these commands within {4} hours, your lawyer will be auto picked.';
 const max_len = 14e2;
 const dots = '...';
@@ -220,9 +220,10 @@ module.exports = new class Arrest extends Command {
     const format = this.format_evidence(warrant.evidence);
     const evidence = Array.isArray(format) ? format[0] : format;
     const innocence_bias = number.format(config.judge_case * config.innocence_bias);
+    const last_id = db.get_last_table_sequence('cases').seq + 1;
     const content = str.format(
       opening_msg,
-      officer.mention, defendant.mention, judge.mention, law.name,
+      officer.mention, defendant.mention, last_id, judge.mention, law.name,
       warrant.evidence ? `${warrant.request === 1 ? 'Messages' : 'Evidence'}: ${evidence}` : '',
       innocence_bias
     );
