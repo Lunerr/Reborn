@@ -291,6 +291,10 @@ module.exports = {
     return queries.set_case_cost.run(cost, case_id);
   },
 
+  reset_server(guild_id) {
+    return queries.reset_server.run(guild_id);
+  },
+
   set_rate(guild_id, member_id, rate, convert = true) {
     this.get_lawyer(guild_id, member_id);
 

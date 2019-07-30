@@ -23,7 +23,8 @@ const interactive_cmds = [
   'guilty',
   'approve_detainment',
   'grant_warrant_for_arrest',
-  'detain'
+  'detain',
+  'reset_server'
 ];
 const unique_cmds = ['request_lawyer', 'auto_lawyer'];
 
