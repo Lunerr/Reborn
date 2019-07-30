@@ -73,15 +73,14 @@ module.exports = new class AutoLawyer extends Command {
         `You are now the lawyer of ${msg.member.mention} in case #${channel_case.id}.`,
         msg.channel.guild
       );
-      await discord.create_msg(msg.channel, `${prefix}You have successfully set your lawyer. \
-You ${remaining === 0 ? 'cannot change your lawyer anymore' : `may change your lawyer up to \
-${remaining} more times`}.`);
       db.update_lawyer_count(channel_case.id, channel_case.lawyer_count + 1);
 
       return system.accept_lawyer(
         msg.author, member,
         msg.channel, channel_case,
-        lawyer_enum.auto, false, amount
+        lawyer_enum.auto, `${msg.author.mention}, You have successfully set your lawyer. \
+You ${remaining === 0 ? 'cannot change your lawyer anymore' : `may change your lawyer up to \
+${remaining} more time${remaining === 1 ? '' : 's'}`}.\n\n`, false, amount
       );
     }));
   }

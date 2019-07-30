@@ -88,7 +88,9 @@ module.exports = {
       `You are now the lawyer of ${defendant.mention} in case #${c_case.id}.`,
       guild
     );
-    await this.accept_lawyer(defendant, member, channel, c_case, lawyer_enum.auto, false, amount);
+    await this.accept_lawyer(
+      defendant, member, channel, c_case, lawyer_enum.auto, '', false, amount
+    );
   },
 
   large_sum_of_money(guild, percent) {
@@ -143,7 +145,7 @@ ${str.format(payment, 'you are not')}`,
     );
   },
 
-  async accept_lawyer(defendant, lawyer, channel, c_case, type, accept = true, amount = 0) {
+  async accept_lawyer(defendant, lawyer, channel, c_case, type, cnt, accept = true, amount = 0) {
     this._update_lawyer(c_case, amount, lawyer, type);
 
     if (accept) {
@@ -161,11 +163,12 @@ ${defendant.mention}'s offer.`);
     const cop = guild.members.get(c_case.plaintiff_id)
       || await client.getRESTUser(c_case.plaintiff_id);
     const format = number.format(amount, true);
+    const def = cnt ? discord.tag(defendant.user || defendant).boldified : defendant.mention;
 
     return client.createMessage(
-      c_case.channel_id, `${judge.mention} ${cop.mention}\n${lawyer.mention} has accepted \
-${defendant.mention}'s lawyer request${amount ? ` at the cost of ${format}` : ''}.\n
-${lawyer.mention}, you have ${config.auto_pick_lawyer} hours to give a plea \
+      c_case.channel_id, `${cnt ? cnt : ''}${judge.mention} ${cop.mention}\n${lawyer.mention} has \
+accepted ${def}'s lawyer request${amount ? ` at the cost of ${format}` : ''}.\n\n${discord
+  .tag(lawyer.user || lawyer).boldified}, you have ${config.auto_pick_lawyer} hours to give a plea \
 using \`${config.prefix}plea <plea>\` or you will be automatically replaced with another lawyer.`
     );
   },

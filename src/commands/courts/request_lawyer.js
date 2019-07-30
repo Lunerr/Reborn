@@ -112,12 +112,8 @@ ${msg.author.mention}'s offer.`);
   }
 
   async success(msg, channel, channel_case, member, amount) {
-    const prefix = `${discord.tag(msg.author).boldified}, `;
     const left = config.lawyer_change_count - (channel_case.lawyer_count + 1);
 
-    await discord.create_msg(msg.channel, `${prefix}You have successfully set your lawyer. \
-You ${left === 0 ? 'cannot change your lawyer anymore' : `may change your lawyer up to \
-${left} more times`}.`);
     db.update_lawyer_count(channel_case.id, channel_case.lawyer_count + 1);
 
     return system.accept_lawyer(
@@ -126,6 +122,9 @@ ${left} more times`}.`);
       channel,
       channel_case,
       lawyer_enum.request,
+      `${msg.author.mention}, You have successfully set your lawyer. \
+You ${left === 0 ? 'cannot change your lawyer anymore' : `may change your lawyer up to \
+${left} more time${left === 1 ? '' : 's'}`}.\n\n`,
       true,
       amount * to_cents
     );
