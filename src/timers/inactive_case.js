@@ -23,6 +23,7 @@ const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
 const system = require('../utilities/system.js');
 const number = require('../utilities/number.js');
+const discord = require('../utilities/discord.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const verdict = require('../enums/verdict.js');
 const last_message_time = 432e5;
@@ -92,23 +93,19 @@ ${number.format(Math.abs(config.impeached))}, and national disgrace. `);
 }
 
 Timer(async () => {
-  const guilds = [...client.guilds.keys()];
-
-  for (let k = 0; k < guilds.length; k++) {
-    const guild = client.guilds.get(guilds[k]);
-
+  await discord.loop_guilds(async (guild, guild_id) => {
     if (!guild) {
-      continue;
+      return;
     }
 
-    const cases = db.fetch_cases(guilds[k]);
+    const cases = db.fetch_cases(guild_id);
 
     for (let i = 0; i < cases.length; i++) {
       const c_case = cases[i];
       const case_verdict = db.get_verdict(c_case.id);
       const no_lawyer = c_case.plea === null || c_case.lawyer_id === null;
 
-      if ((case_verdict && case_verdict.verdict !== verdict.pending) || no_lawyer) {
+      if (case_verdict || no_lawyer) {
         continue;
       }
 
@@ -127,5 +124,5 @@ Timer(async () => {
 
       await close(c_case, guild, channel);
     }
-  }
+  });
 }, config.auto_set_inactive_case_interval);

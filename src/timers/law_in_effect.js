@@ -16,17 +16,15 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
-const client = require('../services/client.js');
 const { config } = require('../services/data.js');
 const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
 const system = require('../utilities/system.js');
+const discord = require('../utilities/discord.js');
 
 Timer(async () => {
-  const guilds = [...client.guilds.keys()];
-
-  for (let k = 0; k < guilds.length; k++) {
-    const laws = db.fetch_laws(guilds[k]);
+  await discord.loop_guilds(async (guild, guild_id) => {
+    const laws = db.fetch_laws(guild_id);
     let edited = false;
 
     for (let i = 0; i < laws.length; i++) {
@@ -48,14 +46,8 @@ Timer(async () => {
       edited = true;
     }
 
-    if (!edited) {
-      continue;
-    }
-
-    const guild = client.guilds.get(guilds[k]);
-
-    if (!guild) {
-      continue;
+    if (!edited || !guild) {
+      return;
     }
 
     const { law_channel } = db.fetch('guilds', { guild_id: guild.id });
@@ -65,5 +57,5 @@ Timer(async () => {
     if (channel) {
       await system.update_laws(channel, fetched);
     }
-  }
+  });
 }, config.active_law);

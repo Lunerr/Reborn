@@ -128,16 +128,13 @@ in ${channel.name} (${channel.id})`);
 }
 
 Timer(async () => {
-  const keys = [...client.guilds.keys()];
-
-  for (let i = 0; i < keys.length; i++) {
-    const guild = client.guilds.get(keys[i]);
+  await discord.loop_guilds(async (guild, guild_id) => {
     const {
       cleanse, warrant_channel, law_channel, case_channel, court_category
-    } = db.fetch('guilds', { guild_id: keys[i] });
+    } = db.fetch('guilds', { guild_id });
 
     if (!guild || cleanse === 0) {
-      continue;
+      return;
     }
 
     const public_channels = db.fetch_channels(guild.id);
@@ -163,5 +160,5 @@ Timer(async () => {
 
       await purify(channel);
     }
-  }
+  });
 }, config.auto_cleanse);

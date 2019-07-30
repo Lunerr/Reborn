@@ -22,14 +22,13 @@ const { config } = require('../services/data.js');
 const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
 const verdict = require('../enums/verdict.js');
+const discord = require('../utilities/discord.js');
 const delete_channel = catch_discord(client.deleteChannel.bind(client));
 const expiration = 864e5;
 
-Timer(() => {
-  const guilds = [...client.guilds.keys()];
-
-  for (let k = 0; k < guilds.length; k++) {
-    const verdicts = db.fetch_verdicts(guilds[k]);
+Timer(async () => {
+  await discord.loop_guilds(async (guild, guild_id) => {
+    const verdicts = db.fetch_verdicts(guild_id);
 
     for (let i = 0; i < verdicts.length; i++) {
       if (verdicts[i].verdict === verdict.pending) {
@@ -38,13 +37,7 @@ Timer(() => {
 
       const time_left = verdicts[i].last_modified_at + expiration - Date.now();
 
-      if (time_left > 0) {
-        continue;
-      }
-
-      const guild = client.guilds.get(verdicts[i].guild_id);
-
-      if (!guild) {
+      if (time_left > 0 || !guild) {
         continue;
       }
 
@@ -55,5 +48,5 @@ Timer(() => {
         delete_channel(channel.id, '24 hours since the verdict was delivered');
       }
     }
-  }
+  });
 }, config.auto_verdict_time);

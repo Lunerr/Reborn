@@ -57,27 +57,18 @@ function find_mute(db_verdict) {
 }
 
 Timer(async () => {
-  const guilds = [...client.guilds.keys()];
-
-  for (let k = 0; k < guilds.length; k++) {
-    const verdicts = db.fetch_verdicts(guilds[k]);
+  await discord.loop_guilds(async (guild, guild_id) => {
+    const verdicts = db.fetch_verdicts(guild_id);
 
     for (let i = 0; i < verdicts.length; i++) {
       const served = verdicts[i].sentence === null || verdicts[i].served === 1;
-
-      if (served) {
-        continue;
-      }
-
       const time_left = verdicts[i].last_modified_at + verdicts[i].sentence - Date.now();
 
-      if (time_left > 0) {
+      if (served || time_left > 0) {
         continue;
       }
 
       db.serve_verdict(verdicts[i].id);
-
-      const guild = client.guilds.get(verdicts[i].guild_id);
 
       if (!guild) {
         continue;
@@ -90,7 +81,7 @@ Timer(async () => {
       }
 
       const defendant = guild.members.get(verdicts[i].defendant_id);
-      const { imprisoned_role } = db.fetch('guilds', { guild_id: verdicts[i].guild_id });
+      const { imprisoned_role } = db.fetch('guilds', { guild_id });
 
       if (!defendant || !imprisoned_role || !defendant.roles.includes(imprisoned_role)) {
         continue;
@@ -103,5 +94,5 @@ Timer(async () => {
 
       await dm(guild, user, c_case ? c_case.judge_id : '');
     }
-  }
+  });
 }, config.auto_unmute);

@@ -111,13 +111,9 @@ not be able to receive a government official role until ${not_impeached.toLocale
 }
 
 Timer(async () => {
-  const keys = [...client.guilds.keys()];
-
-  for (let i = 0; i < keys.length; i++) {
-    const guild = client.guilds.get(keys[i]);
-
+  await discord.loop_guild(async guild => {
     if (!guild) {
-      continue;
+      return;
     }
 
     const warrants = db.fetch_warrants(guild.id);
@@ -151,5 +147,5 @@ Timer(async () => {
       db.close_warrant(warrant.id);
       edit_case(guild, warrant);
     }
-  }
+  });
 }, config.detain_approved);

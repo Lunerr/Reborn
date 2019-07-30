@@ -31,6 +31,16 @@ const max_fetch = 100;
 const rl = 4;
 
 module.exports = {
+  async loop_guilds(fn) {
+    const guilds = [...client.guilds.keys()];
+
+    for (let i = 0; i < guilds.length; i++) {
+      const guild = client.guilds.get(guilds[i]);
+
+      await fn(guild, guilds[i], i);
+    }
+  },
+
   get_main_channel(guild_id) {
     const channels = db
       .fetch_channels(guild_id)

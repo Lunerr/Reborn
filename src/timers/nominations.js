@@ -16,7 +16,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
-const client = require('../services/client.js');
 const { config } = require('../services/data.js');
 const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
@@ -112,13 +111,9 @@ ${first} and fined ${number.format(Math.abs(config.impeached))}.`, guild);
 }
 
 Timer(async () => {
-  const keys = [...client.guilds.keys()];
-
-  for (let i = 0; i < keys.length; i++) {
-    const guild = client.guilds.get(keys[i]);
-
+  await discord.loop_guilds(async guild => {
     if (!guild) {
-      continue;
+      return;
     }
 
     const res = db.fetch('guilds', { guild_id: guild.id });
@@ -143,5 +138,5 @@ Timer(async () => {
 
       await dm(chief_keys[j], guild, count);
     }
-  }
+  });
 }, config.auto_dm_nominations);

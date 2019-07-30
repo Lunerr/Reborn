@@ -62,16 +62,12 @@ ${no_plea ? 'no plea being given' : 'no lawyer being set'} after 24 hours.`);
 }
 
 Timer(async () => {
-  const guilds = [...client.guilds.keys()];
-
-  for (let k = 0; k < guilds.length; k++) {
-    const guild = client.guilds.get(guilds[k]);
-
+  await discord.loop_guilds(async guild => {
     if (!guild) {
-      continue;
+      return;
     }
 
-    const cases = db.fetch_cases(guilds[k]);
+    const cases = db.fetch_cases(guild.id);
 
     for (let i = 0; i < cases.length; i++) {
       const c_case = cases[i];
@@ -107,5 +103,5 @@ Timer(async () => {
         })
       );
     }
-  }
+  });
 }, config.auto_pick_lawyer_time);

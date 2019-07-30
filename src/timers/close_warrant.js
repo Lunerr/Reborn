@@ -16,20 +16,16 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
-const client = require('../services/client.js');
 const { config } = require('../services/data.js');
 const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
 const system = require('../utilities/system.js');
+const discord = require('../utilities/discord.js');
 
-Timer(() => {
-  const keys = [...client.guilds.keys()];
-
-  for (let i = 0; i < keys.length; i++) {
-    const guild = client.guilds.get(keys[i]);
-
+Timer(async () => {
+  await discord.loop_guilds(async guild => {
     if (!guild) {
-      continue;
+      return;
     }
 
     const warrants = db.fetch_warrants(guild.id);
@@ -58,5 +54,5 @@ Timer(() => {
         return system.edit_warrant(w_channel, new_warrant);
       }
     }
-  }
+  });
 }, config.auto_close_warrant_interval);
