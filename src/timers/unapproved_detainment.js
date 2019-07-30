@@ -111,7 +111,7 @@ not be able to receive a government official role until ${not_impeached.toLocale
 }
 
 Timer(async () => {
-  await discord.loop_guild(async guild => {
+  await discord.loop_guilds(async guild => {
     if (!guild) {
       return;
     }
