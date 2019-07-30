@@ -66,6 +66,9 @@ async function update_channels() {
 }
 
 client.on('ready', async () => {
+  client.deleteMessage('605578484353466379', '605578846644862986');
+  client.deleteMessage('605464706865692672', '605571268712071168');
+
   client.editStatus(options.status);
   log.info('Ready!');
   await update_channels();
