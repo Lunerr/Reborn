@@ -59,9 +59,7 @@ module.exports = new class AutoLawyer extends Command {
     }
 
     this.mutex.sync(msg.channel.id, () => this.auto(channel_case, msg.channel, async () => {
-      const prefix = `${discord.tag(msg.author).boldified}, `;
-
-      await discord.create_msg(msg.channel, `${prefix}The auto lawyer process has begun.`);
+      await discord._create_prefix_msg(msg, 'The auto lawyer process has begun');
 
       const { lawyer: { member_id: id }, amount } = await system.auto_pick_lawyer(
         msg.channel.guild, channel_case, '',

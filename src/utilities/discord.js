@@ -68,6 +68,12 @@ module.exports = {
       && (msg.content.toLowerCase() === 'yes' || msg.content.toLowerCase() === 'no');
   },
 
+  _create_prefix_msg(msg, reason) {
+    const prefix = `${this.tag(msg.author).boldified}, `;
+
+    return this.create_msg(msg.channel, `${prefix}${reason}.`);
+  },
+
   async loop_guilds(fn) {
     const guilds = [...client.guilds.keys()];
 
