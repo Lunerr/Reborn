@@ -16,9 +16,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
+const { config } = require('../services/data.js');
 const discord = require('../utilities/discord.js');
 const client = require('../services/client.js');
-const { config } = require('../services/data.js');
+const system = require('../utilities/system.js');
 const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
 const catch_discord = require('../utilities/catch_discord.js');
@@ -58,41 +59,39 @@ function find_mute(db_verdict) {
 
 Timer(async () => {
   await discord.loop_guilds(async (guild, guild_id) => {
-    const verdicts = db.fetch_verdicts(guild_id);
-
-    for (let i = 0; i < verdicts.length; i++) {
-      const served = verdicts[i].sentence === null || verdicts[i].served === 1;
-      const time_left = verdicts[i].last_modified_at + verdicts[i].sentence - Date.now();
+    await system.loop_verdicts(guild_id, async x => {
+      const served = x.sentence === null || x.served === 1;
+      const time_left = x.last_modified_at + x.sentence - Date.now();
 
       if (served || time_left > 0) {
-        continue;
+        return;
       }
 
-      db.serve_verdict(verdicts[i].id);
+      db.serve_verdict(x.id);
 
       if (!guild) {
-        continue;
+        return;
       }
 
-      const still_muted = find_mute(verdicts[i]);
+      const still_muted = find_mute(x);
 
       if (still_muted) {
-        continue;
+        return;
       }
 
-      const defendant = guild.members.get(verdicts[i].defendant_id);
+      const defendant = guild.members.get(x.defendant_id);
       const { imprisoned_role } = db.fetch('guilds', { guild_id });
 
       if (!defendant || !imprisoned_role || !defendant.roles.includes(imprisoned_role)) {
-        continue;
+        return;
       }
 
       await remove_role(guild.id, defendant.id, imprisoned_role, 'Auto unmute');
 
-      const c_case = db.get_case(verdicts[i].case_id);
-      const user = await client.getRESTUser(verdicts[i].defendant_id);
+      const c_case = db.get_case(x.case_id);
+      const user = await client.getRESTUser(x.defendant_id);
 
       await dm(guild, user, c_case ? c_case.judge_id : '');
-    }
+    });
   });
 }, config.auto_unmute);

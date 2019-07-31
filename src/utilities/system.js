@@ -59,6 +59,14 @@ ${str_value}.`
     );
   },
 
+  async loop_verdicts(guild_id, fn) {
+    const verdicts = db.fetch_verdicts(guild_id);
+
+    for (let i = 0; i < verdict.length; i++) {
+      await fn(verdicts[i], i);
+    }
+  },
+
   law_in_effect(law, time) {
     return Date.now() - (law.created_at + time) > 0;
   },
