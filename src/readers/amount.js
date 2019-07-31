@@ -7,7 +7,7 @@ const numeric_values = {
 const max_dec = 2;
 
 function trunc(num, digits) {
-  const re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)");
+  const re = new RegExp(`(\\d+\\.\\d{${digits}})(\\d)`);
   const match = num.toString().match(re);
 
   return match ? Number(match[1]) : num;
