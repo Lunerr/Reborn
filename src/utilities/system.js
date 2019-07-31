@@ -50,6 +50,15 @@ module.exports = {
   fetch_limit: 100,
   mutex: new MultiMutex(),
 
+  set_db_property(msg, key, value, str_key, str_value) {
+    db.update_guild_properties(msg.channel.guild.id, { [key]: value });
+
+    return discord.create_msg(
+      msg.channel, `${discord.tag(msg.author).boldified}, I have set the ${str_key} to \
+${str_value}.`
+    );
+  },
+
   law_in_effect(law, time) {
     return Date.now() - (law.created_at + time) > 0;
   },

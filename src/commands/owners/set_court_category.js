@@ -17,8 +17,7 @@
  */
 'use strict';
 const { Argument, Command } = require('patron.js');
-const db = require('../../services/database.js');
-const discord = require('../../utilities/discord.js');
+const system = require('../../utilities/system.js');
 
 module.exports = new class SetCourtCategory extends Command {
   constructor() {
@@ -40,10 +39,8 @@ module.exports = new class SetCourtCategory extends Command {
   }
 
   async run(msg, args) {
-    db.update_guild_properties(msg.channel.guild.id, { court_category: args.channel.id });
-    await discord.create_msg(
-      msg.channel,
-      `${discord.tag(msg.author).boldified}, I have set the Court category to ${args.channel.name}.`
+    await system.set_db_property(
+      msg, 'court_category', args.channel.id, 'Court category', args.channel.name
     );
   }
 }();

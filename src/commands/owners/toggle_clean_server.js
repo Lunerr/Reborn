@@ -17,8 +17,7 @@
  */
 'use strict';
 const { Argument, Command } = require('patron.js');
-const db = require('../../services/database.js');
-const discord = require('../../utilities/discord.js');
+const system = require('../../utilities/system.js');
 
 module.exports = new class ToggleCleanServer extends Command {
   constructor() {
@@ -39,10 +38,8 @@ module.exports = new class ToggleCleanServer extends Command {
   }
 
   async run(msg, args) {
-    db.update_guild_properties(msg.channel.guild.id, { cleanse: args.bool ? 1 : 0 });
-    await discord.create_msg(
-      msg.channel, `${discord.tag(msg.author).boldified}, I have \
-${args.bool ? 'enabled' : 'disabled'} the cleansing feature.`
+    await system.set_db_property(
+      msg, 'cleanse', args.bool ? 1 : 0, 'cleanse feature', `be ${args.bool ? 'en' : 'dis'}abled`
     );
   }
 }();

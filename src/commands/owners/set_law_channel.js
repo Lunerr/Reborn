@@ -18,7 +18,6 @@
 'use strict';
 const { Argument, Command } = require('patron.js');
 const db = require('../../services/database.js');
-const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
 
 module.exports = new class SetLawChannel extends Command {
@@ -40,10 +39,8 @@ module.exports = new class SetLawChannel extends Command {
   }
 
   async run(msg, args) {
-    db.update_guild_properties(msg.channel.guild.id, { law_channel: args.channel.id });
-    await discord.create_msg(
-      msg.channel,
-      `${discord.tag(msg.author).boldified}, I have set the law channel to ${args.channel.mention}.`
+    await system.set_db_property(
+      msg, 'law_channel', args.channel.id, 'Law channel', args.channel.mention
     );
 
     const laws = db.fetch_laws(msg.channel.guild.id).filter(x => x.active === 1);

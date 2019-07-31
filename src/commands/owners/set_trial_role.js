@@ -17,8 +17,7 @@
  */
 'use strict';
 const { Argument, Command } = require('patron.js');
-const db = require('../../services/database.js');
-const discord = require('../../utilities/discord.js');
+const system = require('../../utilities/system.js');
 
 module.exports = new class SetTrialRole extends Command {
   constructor() {
@@ -40,10 +39,8 @@ module.exports = new class SetTrialRole extends Command {
   }
 
   async run(msg, args) {
-    db.update_guild_properties(msg.channel.guild.id, { trial_role: args.role.id });
-    await discord.create_msg(
-      msg.channel,
-      `${discord.tag(msg.author).boldified}, I have set the Trial role to ${args.role.mention}.`
+    await system.set_db_property(
+      msg, 'trial_role', args.role.id, 'Trial role', args.role.mention
     );
   }
 }();
