@@ -69,6 +69,16 @@ ${str_value}.`
     });
   },
 
+  insert_automated_verdict(guild_id, c_case, case_verdict, opinion) {
+    return db.insert('verdicts', {
+      guild_id,
+      case_id: c_case.id,
+      defendant_id: c_case.defendant_id,
+      verdict: case_verdict,
+      opinion
+    });
+  },
+
   law_in_effect(law, time) {
     return Date.now() - (law.created_at + time) > 0;
   },

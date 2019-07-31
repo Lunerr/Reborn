@@ -110,13 +110,12 @@ async function lost_judge(member, guild) {
       continue;
     }
 
-    db.insert('verdicts', {
-      guild_id: guild.id,
-      case_id: c_case.id,
-      defendant_id: c_case.defendant_id,
-      verdict: verdict.mistrial,
-      opinion: 'Automatically marked as a mistrial due to the judge losing their role'
-    });
+    system.insert_automated_verdict(
+      guild.id,
+      c_case,
+      verdict.mistrial,
+      'Automatically marked as a mistrial due to the judge losing their role'
+    );
 
     const { defendant_id, judge_id, plaintiff_id } = c_case;
     const { trial_role, jailed_role } = db.fetch('guilds', { guild_id: guild.id });

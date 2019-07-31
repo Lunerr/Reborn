@@ -59,13 +59,9 @@ async function close(c_case, guild, channel) {
     } = db.fetch('guilds', { guild_id: guild.id });
 
     await impeach(guild, judge_id, defendant_id, judge_role, trial_role, jailed);
-    db.insert('verdicts', {
-      guild_id: guild.id,
-      case_id: c_case.id,
-      defendant_id: c_case.defendant_id,
-      verdict: verdict.inactive,
-      opinion: 'Auto closed due to inactivity'
-    });
+    system.insert_automated_verdict(
+      guild.id, c_case, verdict.inactive, 'Auto closed due to inactivity'
+    );
 
     if (channel && channel.permissionsOf(client.user.id).has('sendMessages')) {
       const msg = await channel.createMessage(`${judge.mention}\n${inactive_msg}`);
