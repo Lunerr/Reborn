@@ -15,8 +15,7 @@ class CaseFinished extends Postcondition {
 
   async run(msg, result) {
     if (result.success !== false) {
-      const name = await handler.parseCommand(msg, config.prefix.length)
-        .then(x => x.command.names[0]);
+      const name = await handler.get_cmd_name(msg);
 
       if (result.lawyer_id && result.lawyer_id !== result.defendant_id) {
         const lawyer = await client.getRESTUser(result.lawyer_id);

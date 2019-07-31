@@ -17,10 +17,15 @@
  */
 'use strict';
 const { Handler } = require('patron.js');
-const { options } = require('./data.js');
+const { options, config } = require('./data.js');
 const registry = require('./registry.js');
-
-module.exports = new Handler({
+const handler = new Handler({
   ...options.handler,
   registry
 });
+
+handler.get_cmd_name = function(msg) {
+  return this.parseCommand(msg, config.prefix.length).then(x => x.command.names[0]);
+};
+
+module.exports = handler;
