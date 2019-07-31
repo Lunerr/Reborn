@@ -63,6 +63,11 @@ module.exports = {
     return author.id === person.id ? 'your' : `${this.tag(person).boldified}'s`;
   },
 
+  _verify_fn(msg, member) {
+    return msg.author.id === member.id
+      && (msg.content.toLowerCase() === 'yes' || msg.content.toLowerCase() === 'no');
+  },
+
   async loop_guilds(fn) {
     const guilds = [...client.guilds.keys()];
 

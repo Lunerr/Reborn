@@ -39,8 +39,7 @@ module.exports = new class ResetServer extends Command {
       msg.channel,
       reset_msg,
       null,
-      x => x.author.id === msg.author.id
-        && (x.content.toLowerCase() === 'yes' || x.content.toLowerCase() === 'no')
+      x => discord._verify_fn(x, msg.author)
     ).then(x => x.promise);
 
     if (verified.conflicting) {

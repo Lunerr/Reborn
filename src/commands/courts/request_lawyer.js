@@ -220,8 +220,7 @@ channel in this server.');
       channel,
       null,
       null,
-      x => x.author.id === member.id
-        && (x.content.toLowerCase() === 'yes' || x.content.toLowerCase() === 'no'),
+      new_msg => discord._verify_fn(new_msg, member),
       `lawyer-${channel_case.id}`,
       config.lawyer_accept_time
     ).then(x => x.promise);
