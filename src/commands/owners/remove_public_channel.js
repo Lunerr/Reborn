@@ -18,7 +18,6 @@
 'use strict';
 const { Argument, Command, CommandResult } = require('patron.js');
 const db = require('../../services/database.js');
-const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
 
 module.exports = new class RemovePublicChannel extends Command {
@@ -48,9 +47,6 @@ module.exports = new class RemovePublicChannel extends Command {
     }
 
     db.remove_channel(args.channel.id);
-    await discord.create_msg(
-      msg.channel, `${discord.tag(msg.author).boldified}, ${args.channel.mention} has been \
-removed as a public channel.`
-    );
+    await system._public_channel(msg, args.channel, 'removed');
   }
 }();

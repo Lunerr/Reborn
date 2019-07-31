@@ -16,8 +16,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
-const db = require('../../services/database.js');
 const { Precondition, PreconditionResult } = require('patron.js');
+const system = require('../../utilities/system.js');
 
 module.exports = new class UsableCourt extends Precondition {
   constructor() {
@@ -25,11 +25,10 @@ module.exports = new class UsableCourt extends Precondition {
   }
 
   async run(cmd, msg) {
-    const { court_category } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
-    const channel = msg.channel.guild.channels.get(court_category);
+    const { success, reason } = system.get_court_channel(msg.channel.guild);
 
-    if (!court_category || !channel) {
-      return PreconditionResult.fromError(cmd, 'The Court category channel needs to be set.');
+    if (!success) {
+      return PreconditionResult.fromError(cmd, reason);
     }
 
     return PreconditionResult.fromSuccess();

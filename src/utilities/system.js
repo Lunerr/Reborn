@@ -65,6 +65,38 @@ module.exports = {
 I've ${type} a custom command with the name ${name}.`);
   },
 
+  _public_channel(msg, channel, type) {
+    return discord.create_msg(
+      msg.channel, `${discord.tag(msg.author).boldified}, ${channel.mention} has \
+been ${type} as a public channel.`
+    );
+  },
+
+  _court_channel(msg, member, type) {
+    return discord.create_msg(
+      msg.channel,
+      `${discord.tag(msg.author).boldified}, ${member.mention} has been ${type} the court.`
+    );
+  },
+
+  get_court_channel(guild) {
+    const { court_category } = db.fetch('guilds', { guild_id: guild.id });
+    const channel = guild.channels.get(court_category);
+
+    if (!court_category || !channel) {
+      return {
+        court_category,
+        success: false,
+        reason: 'The Court category channel needs to be set.'
+      };
+    }
+
+    return {
+      court_category,
+      success: true
+    };
+  },
+
   set_db_property(msg, key, value, str_key, str_value) {
     db.update_guild_properties(msg.channel.guild.id, { [key]: value });
 
@@ -80,6 +112,16 @@ ${str_value}.`
 
       for (let i = 0; i < verdicts.length; i++) {
         await fn(guild, id, verdicts[i]);
+      }
+    });
+  },
+
+  async loop_guild_warrants(fn) {
+    return discord.loop_guilds(async (guild, id) => {
+      const warrants = db.fetch_warrants(id);
+
+      for (let i = 0; i < warrants.length; i++) {
+        await fn(guild, id, warrants[i]);
       }
     });
   },

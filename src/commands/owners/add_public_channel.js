@@ -18,7 +18,6 @@
 'use strict';
 const { Argument, Command, CommandResult } = require('patron.js');
 const db = require('../../services/database.js');
-const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
 const bitfield = 2112;
 
@@ -55,10 +54,7 @@ module.exports = new class AddPublicChannel extends Command {
 
     db.insert('public_channels', channel);
     await this.add_overwrites(msg.channel.guild, args.channel);
-    await discord.create_msg(
-      msg.channel, `${discord.tag(msg.author).boldified}, ${args.channel.mention} has \
-been added as a public channel.`
-    );
+    await system._public_channel(msg, args.channel, 'added');
   }
 
   async add_overwrites(guild, channel) {

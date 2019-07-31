@@ -97,15 +97,14 @@ Timer(async () => {
     const cases = db.fetch_cases(guild_id);
 
     for (let i = 0; i < cases.length; i++) {
-      const c_case = cases[i];
-      const case_verdict = db.get_verdict(c_case.id);
-      const no_lawyer = c_case.plea === null || c_case.lawyer_id === null;
+      const case_verdict = db.get_verdict(cases[i].id);
+      const no_lawyer = cases[i].plea === null || cases[i].lawyer_id === null;
 
       if (case_verdict || no_lawyer) {
         continue;
       }
 
-      const channel = guild.channels.get(c_case.channel_id);
+      const channel = guild.channels.get(cases[i].channel_id);
 
       if (!channel) {
         continue;
@@ -118,7 +117,7 @@ Timer(async () => {
         continue;
       }
 
-      await close(c_case, guild, channel);
+      await close(cases[i], guild, channel);
     }
   });
 }, config.auto_set_inactive_case_interval);

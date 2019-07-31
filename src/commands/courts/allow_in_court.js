@@ -17,7 +17,7 @@
  */
 'use strict';
 const { Argument, Command } = require('patron.js');
-const discord = require('../../utilities/discord.js');
+const system = require('../../utilities/system.js');
 
 module.exports = new class AllowInCourt extends Command {
   constructor() {
@@ -49,9 +49,6 @@ module.exports = new class AllowInCourt extends Command {
     await msg.channel.editPermission(
       args.member.id, this.bitfield, 0, 'member', `Added to the court case ${msg.channel.name}`
     );
-    await discord.create_msg(
-      msg.channel,
-      `${discord.tag(msg.author).boldified}, ${args.member.mention} has been added to the court.`
-    );
+    await system._court_channel(msg, args.member, 'added to');
   }
 }();

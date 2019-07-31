@@ -20,39 +20,28 @@ const { config } = require('../services/data.js');
 const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
 const system = require('../utilities/system.js');
-const discord = require('../utilities/discord.js');
 
 Timer(async () => {
-  await discord.loop_guilds(async guild => {
-    if (!guild) {
+  await system.loop_guild_warrants(async (guild, guild_id, warrant) => {
+    if (warrant.executed === 1) {
       return;
     }
 
-    const warrants = db.fetch_warrants(guild.id);
+    const time_left = Date.now() - (warrant.created_at + config.auto_close_warrant);
 
-    for (let j = 0; j < warrants.length; j++) {
-      const warrant = warrants[j];
+    if (time_left < 0) {
+      return;
+    }
 
-      if (warrant.executed === 1) {
-        continue;
-      }
+    db.close_warrant(warrant.id);
 
-      const time_left = Date.now() - (warrant.created_at + config.auto_close_warrant);
+    const { warrant_channel } = db.fetch('guilds', { guild_id: guild.id });
+    const w_channel = guild.channels.get(warrant_channel);
 
-      if (time_left < 0) {
-        continue;
-      }
+    if (w_channel) {
+      const new_warrant = Object.assign(warrant, { executed: 1 });
 
-      db.close_warrant(warrant.id);
-
-      const { warrant_channel } = db.fetch('guilds', { guild_id: guild.id });
-      const w_channel = guild.channels.get(warrant_channel);
-
-      if (w_channel) {
-        const new_warrant = Object.assign(warrant, { executed: 1 });
-
-        return system.edit_warrant(w_channel, new_warrant);
-      }
+      return system.edit_warrant(w_channel, new_warrant);
     }
   });
 }, config.auto_close_warrant_interval);

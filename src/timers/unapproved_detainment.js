@@ -111,41 +111,32 @@ not be able to receive a government official role until ${not_impeached.toLocale
 }
 
 Timer(async () => {
-  await discord.loop_guilds(async guild => {
-    if (!guild) {
+  await system.loop_guild_warrants(async (guild, guild_id, warrant) => {
+    const done = warrant.executed === 1 || warrant.request === 0 || warrant.approved === 1;
+
+    if (!guild || done) {
       return;
     }
 
-    const warrants = db.fetch_warrants(guild.id);
+    const time = warrant.extended_time ? extended_expiration : expiration;
+    const time_left = warrant.created_at + time - Date.now();
+    const {
+      judge_role, jailed_role, officer_role, chief_justice_role
+    } = db.fetch('guilds', { guild_id: guild.id });
+    const officer = guild.members.get(warrant.officer_id);
 
-    for (let j = 0; j < warrants.length; j++) {
-      const warrant = warrants[j];
+    if (time_left > 0) {
+      const judges = get_judges(guild, judge_role, chief_justice_role);
 
-      if (warrant.executed === 1 || warrant.request === 0 || warrant.approved === 1) {
-        continue;
-      }
-
-      const time = warrant.extended_time ? extended_expiration : expiration;
-      const time_left = warrant.created_at + time - Date.now();
-      const {
-        judge_role, jailed_role, officer_role, chief_justice_role
-      } = db.fetch('guilds', { guild_id: guild.id });
-      const officer = guild.members.get(warrant.officer_id);
-
-      if (time_left > 0) {
-        const judges = get_judges(guild, judge_role, chief_justice_role);
-
-        await dm(warrant, time_left, officer, judges, guild);
-        continue;
-      }
-
-      const defendant = guild.members.get(warrant.defendant_id);
-
-      await impeach(guild, warrant, defendant, officer, {
-        jailed_role, officer_role
-      });
-      db.close_warrant(warrant.id);
-      edit_case(guild, warrant);
+      return dm(warrant, time_left, officer, judges, guild);
     }
+
+    const defendant = guild.members.get(warrant.defendant_id);
+
+    await impeach(guild, warrant, defendant, officer, {
+      jailed_role, officer_role
+    });
+    db.close_warrant(warrant.id);
+    edit_case(guild, warrant);
   });
 }, config.detain_approved);

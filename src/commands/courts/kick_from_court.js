@@ -17,7 +17,7 @@
  */
 'use strict';
 const { Argument, Command } = require('patron.js');
-const discord = require('../../utilities/discord.js');
+const system = require('../../utilities/system.js');
 
 module.exports = new class KickFromCourt extends Command {
   constructor() {
@@ -42,9 +42,6 @@ module.exports = new class KickFromCourt extends Command {
     await msg.channel.deletePermission(
       args.member.id, `Removed from the court case ${msg.channel.name}`
     );
-    await discord.create_msg(
-      msg.channel,
-      `${discord.tag(msg.author).boldified}, ${args.member.mention} has been kicked from court.`
-    );
+    await system._court_channel(msg, args.member, 'kicked from');
   }
 }();
