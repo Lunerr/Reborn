@@ -122,7 +122,7 @@ module.exports = {
     const warrant = db.get_warrant(c_case.warrant_id);
     const judge = await client.getRESTUser(warrant.judge_id);
     const payment = `The officer (${cop.mention}) and the approving judge \
-(${judge.mention}) will cover the legal fees if {0} not convicted of the crime`;
+(${judge.mention}) will cover the legal fees if {0} not convicted of the crime.`;
 
     await discord.dm(
       lawyer.user ? lawyer.user : lawyer,
@@ -445,6 +445,35 @@ who recently got impeached`);
     }
 
     return null;
+  },
+
+  async get_lawyer_payment(c_case, guilty) {
+    if (c_case.lawwyer_id === c_case.defendant_id || c_case.lawyer_id === null) {
+      return '';
+    }
+
+    let amount = c_case.cost;
+    const lawyer = await client.getRESTUser(c_case.lawyer_id);
+    const defendant = await client.getRESTUser(c_case.defendant_id);
+    const append = `for being the lawyer of case #${c_case.id}.`;
+
+    if (guilty) {
+      return `\n\n${lawyer.mention}, has been rewarded with \
+${number.format(amount, true)} from the defendant, ${defendant.mention}, ${append}`;
+    }
+
+    amount = amount * (1 + config.lawyer_innocence_bonus) / double;
+
+    const split = number.format(amount, true);
+    const warrant = db.get_warrant(c_case.warrant_id);
+    const officer = await client.getRESTUser(c_case.plaintiff_id);
+    const judge = await client.getRESTUser(warrant.judge_id);
+    const detainment = warrant.request === 1;
+    const arrest = detainment ? 'detaining' : 'arresting';
+    const grant = detainment ? 'approving' : 'granting';
+
+    return `\n\n${lawyer.mention}, has been rewarded with ${split} from the ${grant} judge \
+(${judge.mention}) and the ${arrest} officer (${officer.mention}) ${append}`;
   },
 
   async get_active_cases(guild_id, defendant_id, fn) {

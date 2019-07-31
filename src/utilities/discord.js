@@ -301,13 +301,15 @@ module.exports = {
 
         return {};
       })
-      .then(() => wrap_with_cancel(this._timeout_promise)(fn, key, key_append, cmd_name, obj, time))
+      .then(() => wrap_with_cancel(this._timeout_promise)(
+        fn, key, key_append, channel.id, cmd_name, obj, time
+      ))
       .then(resolve);
 
     return obj;
   },
 
-  _timeout_promise(fn, key, key_append, cmd_name, obj, time) {
+  _timeout_promise(fn, key, key_append, channel_id, cmd_name, obj, time) {
     return new Promise(async res => {
       const timeout = setTimeout(() => {
         msg_collector.remove(key);
@@ -315,7 +317,7 @@ module.exports = {
       }, time ? time : config.verify_timeout);
 
       msg_collector.add(
-        m => fn(m), reply => {
+        m => m.channel.id === channel_id && fn(m), reply => {
           clearTimeout(timeout);
           res({
             success: true, reply

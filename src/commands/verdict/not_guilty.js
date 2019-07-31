@@ -72,12 +72,11 @@ module.exports = new class NotGuilty extends Command {
     const prefix = `${discord.tag(msg.author).boldified}, `;
     const def = defendant || await client.getRESTUser(defendant_id);
     const amount = config.judge_case * (1 + config.innocence_bias);
+    const append = await system.get_lawyer_payment(c_case, false);
 
-    await discord.create_msg(
-      msg.channel,
-      `${prefix}The court has found ${def.mention} not guilty.\n\n${msg.member.mention}, you have \
-been rewarded with ${number.format(amount)} for delivering the verdict in case #${c_case.id}.`
-    );
+    await discord.create_msg(msg.channel, `${prefix}The court has found ${def.mention} not \
+guilty.\n\n${msg.member.mention}, you have been rewarded with ${number.format(amount)} for \
+delivering the verdict in case #${c_case.id}.${append}`);
     await system.close_case(msg, msg.channel);
 
     return c_case;

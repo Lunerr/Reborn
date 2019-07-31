@@ -65,9 +65,11 @@ from prosecuting the defendant again.',
       await system.free_from_court(msg.channel.guild.id, defendant_id, [trial_role, jailed_role]);
     }
 
+    const append = await system.get_lawyer_payment(c_case, false);
+
     await discord.create_msg(msg.channel, `${prefix}This court case has been declared as a \
-mistrial.\n\n\
-No verdict has been delivered in case #${c_case.id} and the accused may be prosecuted again.`);
+mistrial.\n\nNo verdict has been delivered in case #${c_case.id} and the accused may be \
+prosecuted again.${append}`);
     await system.close_case(msg, msg.channel);
 
     return c_case;

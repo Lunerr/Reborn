@@ -116,11 +116,13 @@ misdemeanors of this crime before a prison sentence is permissible.');
     const ending = `${law.mandatory_felony || (!law.mandatory_felony && repeated) ? `sentenced to \
 ${time} in prison${repeated ? ` for repeatedly breaking the law \`${law.name}\` \
 (${law.id})` : ''}` : 'charged with committing a misdemeanor'}.`;
+    const c_case = db.get_case(case_id);
+    const append = await system.get_lawyer_payment(c_case, true);
 
     await discord.create_msg(
       msg.channel, `${def.mention} has been found guilty and ${ending}\n\n${msg.member.mention}, \
 you have been rewarded with ${number.format(config.judge_case)} for delivering the verdict in \
-case #${case_id}.`
+case #${case_id}.${append}`
     );
     await system.close_case(msg, msg.channel);
   }
