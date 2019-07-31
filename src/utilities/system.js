@@ -167,9 +167,10 @@ ${defendant.mention}'s offer.`);
 
     return client.createMessage(
       c_case.channel_id, `${cnt ? cnt : ''}${judge.mention} ${cop.mention}\n${lawyer.mention} has \
-accepted ${def}'s lawyer request${amount ? ` at the cost of ${format}` : ''}.\n\n${discord
-  .tag(lawyer.user || lawyer).boldified}, you have ${config.auto_pick_lawyer} hours to give a plea \
-using \`${config.prefix}plea <plea>\` or you will be automatically replaced with another lawyer.`
+accepted ${def}'s lawyer request${amount || amount === 0 ? ` at the cost of ${format}` : ''}.\n
+${discord.tag(lawyer.user || lawyer).boldified}, you have ${config.auto_pick_lawyer} hours to give \
+a plea using \`${config.prefix}plea <plea>\` or you will be automatically replaced with another \
+lawyer.`
     );
   },
 
