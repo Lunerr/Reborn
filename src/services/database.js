@@ -296,10 +296,14 @@ module.exports = {
   },
 
   reset_server(guild_id) {
+    queries.reset_server_rate.run(guild_id);
+
     return queries.reset_server.run(guild_id);
   },
 
   reset_user(member_id, guild_id) {
+    queries.reset_user_rate.run(member_id, guild_id);
+
     return queries.reset_user.run(member_id, guild_id);
   },
 
