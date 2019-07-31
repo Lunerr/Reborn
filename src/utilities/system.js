@@ -817,8 +817,23 @@ ${number.format(amount, true)} from the defendant, ${defendant.mention}, ${appen
     };
   },
 
+  _sync_send_channels(channel, key, fn) {
+    return this.mutex.sync(`${channel.guild.id}-${key}`, () => fn());
+  },
+
+  async _parse_sendable_msg(channel, arr) {
+    const msgs = await discord.fetch_msgs(channel, this.fetch_limit);
+    const [most_recent] = msgs;
+    const id = this.parse_id(most_recent || { embeds: [] });
+    const index = arr.findIndex(x => x.id === id);
+
+    return {
+      msgs, index
+    };
+  },
+
   async edit_warrant(channel, warrant) {
-    return this.mutex.sync(`${channel.guild.id}-warrants`, async () => {
+    return this._sync_send_channels(channel, 'warrants', async () => {
       const msgs = await discord.fetch_msgs(channel);
       const { id, executed } = warrant;
       const found = msgs.find(x => this.parse_id(x) === id);
@@ -843,11 +858,8 @@ ${number.format(amount, true)} from the defendant, ${defendant.mention}, ${appen
   },
 
   async update_warrants(channel, warrants) {
-    return this.mutex.sync(`${channel.guild.id}-warrants`, async () => {
-      const msgs = await discord.fetch_msgs(channel, this.fetch_limit);
-      const [most_recent] = msgs;
-      const id = this.parse_id(most_recent || { embeds: [] });
-      const index = warrants.findIndex(x => x.id === id);
+    return this._sync_send_channels(channel, 'warrants', async () => {
+      const { msgs, index } = await this._parse_sendable_msg(channel, warrants);
 
       return this.send_objects(msgs, index, warrants, channel, x => this.format_warrant(
         channel.guild, x, x.id, x.executed
@@ -880,7 +892,7 @@ ${number.format(amount, true)} from the defendant, ${defendant.mention}, ${appen
   },
 
   async edit_case(channel, c_case) {
-    return this.mutex.sync(`${channel.guild.id}-cases`, async () => {
+    return this._sync_send_channels(channel, 'cases', async () => {
       const msgs = await discord.fetch_msgs(channel);
       const found = msgs.find(x => this.parse_id(x) === c_case.id);
 
@@ -903,11 +915,8 @@ ${number.format(amount, true)} from the defendant, ${defendant.mention}, ${appen
   },
 
   async update_cases(channel, cases) {
-    return this.mutex.sync(`${channel.guild.id}-cases`, async () => {
-      const msgs = await discord.fetch_msgs(channel, this.fetch_limit);
-      const [most_recent] = msgs;
-      const id = this.parse_id(most_recent || { embeds: [] });
-      const index = cases.findIndex(x => x.id === id);
+    return this._sync_send_channels(channel, 'cases', async () => {
+      const { msgs, index } = await this._parse_sendable_msg(channel, cases);
 
       return this.send_objects(
         msgs, index, cases, channel, x => this.format_case(channel.guild, x)
