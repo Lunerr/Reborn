@@ -68,7 +68,9 @@ cases_table: |-
     cost INTEGER NOT NULL DEFAULT 0,
     request TINYINT NOT NULL DEFAULT 2,
     inactive_count TINYINT NOT NULL DEFAULT 0,
-    lawyer_count INTEGER NOT NULL DEFAULT 0
+    lawyer_count INTEGER NOT NULL DEFAULT 0,
+    def_left TINYINT NOT NULL DEFAULT 0,
+    lawyer_state TINYINT NOT NULL DEFAULT 0
   )
 
 verdicts_table: |-
@@ -197,6 +199,10 @@ reset_user_rate: UPDATE lawyers SET rate = 0 WHERE member_id = ? AND guild_id = 
 set_law_edited_at: UPDATE laws SET edited_at = ? WHERE id = ?
 
 update_lawyer_count: UPDATE cases SET lawyer_count = ? WHERE id = ?
+
+set_def_case_left: UPDATE cases SET def_left = 1 WHERE id = ?
+
+set_lawyer_state: UPDATE cases SET lawyer_state = ? WHERE id = ?
 
 set_case_lawyer: UPDATE cases SET lawyer_id = ?, lawyer_hired_at = ?, request = ? WHERE id = ?
 

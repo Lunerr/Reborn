@@ -29,6 +29,11 @@ the defendant of the case leaving the server.');
 
   const { lawyer, amount } = await system.auto_pick_lawyer(guild, c_case, '_remove');
 
+  if (c_case.def_left !== 1) {
+    db.set_def_case_left(c_case.id);
+    c_case.def_left = 1;
+  }
+
   await system.dm_lawyer(guild, lawyer, defendant, channel, c_case, amount);
 }
 

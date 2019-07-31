@@ -48,7 +48,7 @@ module.exports = new class Balance extends Command {
     });
     const c_case = db.get_channel_case(msg.channel.id);
 
-    if (c_case && c_case.cost) {
+    if (c_case && c_case.cost && msg.author.id === c_case.defendant_id) {
       embed.embed.footer = {
         text: `Your held balance in this case: ${number.format(c_case.cost, true)}`
       };

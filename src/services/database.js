@@ -295,6 +295,14 @@ module.exports = {
     return queries.set_case_cost.run(cost, case_id);
   },
 
+  set_def_case_left(case_id) {
+    return queries.set_def_case_left.run(case_id);
+  },
+
+  set_lawyer_state(state, case_id) {
+    return queries.set_lawyer_state.run(state, case_id);
+  },
+
   reset_server(guild_id) {
     queries.reset_server_rate.run(guild_id);
 

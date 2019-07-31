@@ -25,6 +25,7 @@ const db = require('../services/database.js');
 const verdict = require('../enums/verdict.js');
 const branch = require('../enums/branch.js');
 const lawyer_enum = require('../enums/lawyer.js');
+const lawyer_state = require('../enums/lawyer_state.js');
 const number = require('./number.js');
 const str = require('../utilities/string.js');
 const catch_discord = require('../utilities/catch_discord.js');
@@ -181,6 +182,8 @@ lawyer.`
 
       return CommandResult.fromError(`You already have ${user} as your lawyer \
 and you cannot change it anymore.`);
+    } else if (c_case.def_left === 1) {
+      return CommandResult.fromError('You cannot change lawyers due to leaving mid-trial.');
     }
 
     db.set_case_plea(c_case.id, null);
@@ -248,6 +251,9 @@ and you cannot change it anymore.`);
 
       return mem && !mem.bot && mem.status === statuses[counter % statuses.length];
     });
+
+    db.set_lawyer_state(lawyer_state.started, c_case.id);
+
     const picked = await this._valid_lawyer(
       filtered, guild, c_case, excluded, key, multiplier, time
     );
@@ -258,6 +264,8 @@ and you cannot change it anymore.`);
 
       return this.auto_pick_lawyer(guild, c_case, key, time, multi, counter + 1);
     }
+
+    db.set_lawyer_state(lawyer_state.finished, c_case.id);
 
     return {
       lawyer: picked, amount: picked.rate * multiplier
