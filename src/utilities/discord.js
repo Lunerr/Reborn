@@ -28,9 +28,37 @@ const handler = require('../services/handler.js');
 const create_message = catch_discord((...args) => client.createMessage(...args));
 const fetch = require('node-fetch');
 const max_fetch = 100;
+const bulk_del_time = 12e8;
 const rl = 4;
 
 module.exports = {
+  async delete_msgs(channel, msgs, reason) {
+    const now = Date.now();
+    const bulk_del = msgs.filter(x => now - x.timestamp < bulk_del_time);
+    const single_del = msgs.filter(x => !bulk_del.some(c => c.id === x.id));
+    const chunked = util.chunk(bulk_del.map(x => x.id), max_fetch);
+
+    for (let i = 0; i < chunked.length; i++) {
+      await channel.deleteMessages(chunked[i]).catch(() => null);
+
+      if (i % rl === 0) {
+        await util.delay();
+      }
+    }
+
+    for (let i = 0; i < single_del.length; i++) {
+      await channel.deleteMessage(single_del[i].id, reason).catch(() => null);
+
+      if (i % rl === 0) {
+        await util.delay();
+      }
+    }
+
+    return {
+      bulk_del, single_del
+    };
+  },
+
   async loop_guilds(fn) {
     const guilds = [...client.guilds.keys()];
 

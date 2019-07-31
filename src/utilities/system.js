@@ -629,10 +629,10 @@ who recently got impeached`);
     return false;
   },
 
-  async prune(channel) {
+  async prune(channel, reason = '') {
     const messages = await discord.fetch_msgs(channel);
 
-    await channel.deleteMessages(messages.map(x => x.id)).catch(() => null);
+    await discord.delete_msgs(channel, messages, reason);
   },
 
   format_laws(laws) {
@@ -680,7 +680,7 @@ who recently got impeached`);
       const to_prune = await this.should_prune(channel, laws, fn);
 
       if (to_prune) {
-        await this.prune(channel);
+        await this.prune(channel, 'Clearing old laws for new laws');
 
         const msgs = this.format_laws(laws);
 

@@ -23,11 +23,8 @@ const db = require('../services/database.js');
 const Timer = require('../utilities/timer.js');
 const discord = require('../utilities/discord.js');
 const log = require('../utilities/logger.js');
-const util = require('../utilities/util.js');
 const expiration = 18e5;
 const mutex = new MultiMutex();
-const chunk_size = 100;
-const bulk_del_time = 12e8;
 const bad_words = [
   'neg',
   'nig',
@@ -72,17 +69,6 @@ const bad_words = [
 ];
 const reg = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g;
 const msg_limit = 2e3;
-const rl = 4;
-
-function chunk(arr, size) {
-  const chunked = [];
-
-  for (let i = 0; i < arr.length; i += size) {
-    chunked.push(arr.slice(i, i + size));
-  }
-
-  return chunked;
-}
 
 async function purify(channel) {
   return mutex.sync(channel.id, async () => {
@@ -96,25 +82,9 @@ async function purify(channel) {
         || x.attachments.length
         || reg.test(x.content))
     );
-    const bulk_del = to_delete.filter(x => now - x.timestamp < bulk_del_time);
-    const single_del = to_delete.filter(x => !bulk_del.some(c => c.id === x.id));
-    const chunked = chunk(bulk_del.map(x => x.id), chunk_size);
-
-    for (let i = 0; i < chunked.length; i++) {
-      await channel.deleteMessages(chunked[i]).catch(() => null);
-
-      if (i % rl === 0) {
-        await util.delay();
-      }
-    }
-
-    for (let i = 0; i < single_del.length; i++) {
-      await channel.deleteMessage(single_del[i].id, 'Contained profane content').catch(() => null);
-
-      if (i % rl === 0) {
-        await util.delay();
-      }
-    }
+    const {
+      bulk_del, single_del
+    } = await discord.delete_msgs(channel, to_delete, 'Profane content');
 
     if (bulk_del.length || single_del.length) {
       const single = single_del.length ? `and deleted ${single_del.length} messages manually ` : '';
