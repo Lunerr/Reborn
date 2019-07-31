@@ -51,13 +51,14 @@ module.exports = new class Misdemeanors extends Command {
     const count = system.get_felon_count(msg.channel.guild.id, args.user.id, args.law);
     const felon = count >= config.repeat_felon_count;
     const self = msg.author.id === args.user.id;
-    const start = self ? 'you are' : `${args.user.mention} is`;
+    const user_tag = discord.tag(args.user).boldified;
+    const start = self ? 'you are' : `${user_tag} is`;
     const append = felon ? `${start} subject to serving a sentence the next time \
-${self ? 'you' : args.user.mention} breaks the law ${args.law.name} (${args.law.id}) again.` : '';
+${self ? 'you' : user_tag} breaks the law ${args.law.name} (${args.law.id}) again.` : '';
     const embed = discord.embed({
       title: `${discord.tag(args.user)}'s Felon Count`,
-      description: `${self ? 'Your' : `${discord.tag(msg.author).boldified}'s`} felon count is \
-${count} for the law ${args.law.name} (${args.law.id}).\n\n${append}.`
+      description: `${self ? 'Your' : `${user_tag}'s`} felon count is \
+${count} for the law **${args.law.name}** (${args.law.id}).\n\n${append}`
     });
 
     return msg.channel.createMessage(embed);
