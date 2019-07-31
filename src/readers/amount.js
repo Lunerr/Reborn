@@ -11,7 +11,7 @@ function trunc(num, digits) {
   const match = num.toString().match(re);
 
   return match ? Number(match[1]) : num;
-};
+}
 
 class Amount extends TypeReader {
   constructor() {
