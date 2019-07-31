@@ -59,6 +59,10 @@ module.exports = {
     };
   },
 
+  get_tag_or_self(author, person) {
+    return author.id === person.id ? 'your' : `${this.tag(person).boldified}`;
+  },
+
   async loop_guilds(fn) {
     const guilds = [...client.guilds.keys()];
 

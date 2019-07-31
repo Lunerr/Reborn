@@ -40,10 +40,7 @@ module.exports = new class SetHouseSpeakerRole extends Command {
   }
 
   async run(msg, args) {
-    db.update('guilds', {
-      guild_id: msg.channel.guild.id,
-      house_speaker_role: args.role.id
-    });
+    db.update_guild_properties(msg.channel.guild.id, { house_speaker_role: args.role.id });
     await discord.create_msg(
       msg.channel,
       `${discord.tag(msg.author).boldified}, I have set the \

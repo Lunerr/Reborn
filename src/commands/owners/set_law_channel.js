@@ -40,10 +40,7 @@ module.exports = new class SetLawChannel extends Command {
   }
 
   async run(msg, args) {
-    db.update('guilds', {
-      guild_id: msg.channel.guild.id,
-      law_channel: args.channel.id
-    });
+    db.update_guild_properties(msg.channel.guild.id, { law_channel: args.channel.id });
     await discord.create_msg(
       msg.channel,
       `${discord.tag(msg.author).boldified}, I have set the law channel to ${args.channel.mention}.`

@@ -109,6 +109,13 @@ module.exports = {
     )).get())[0] !== 0;
   },
 
+  update_guild_properties(guild_id, props) {
+    return this.update('guilds', {
+      guild_id,
+      ...props
+    });
+  },
+
   close_case(id) {
     return queries.close_case.run(id);
   },

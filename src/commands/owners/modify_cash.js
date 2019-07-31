@@ -57,7 +57,7 @@ module.exports = new class ModifyCash extends Command {
     db.set_cash(args.user.id, msg.channel.guild.id, args.amount);
 
     const prefix = `${discord.tag(msg.author).boldified}, `;
-    const str = args.user.id === msg.author.id ? 'your' : `${discord.tag(args.user).boldified}'s`;
+    const str = discord.get_tag_or_self(msg.author, args.user);
 
     await discord.create_msg(
       msg.channel,

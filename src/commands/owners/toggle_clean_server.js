@@ -39,10 +39,7 @@ module.exports = new class ToggleCleanServer extends Command {
   }
 
   async run(msg, args) {
-    db.update('guilds', {
-      guild_id: msg.channel.guild.id,
-      cleanse: args.bool ? 1 : 0
-    });
+    db.update_guild_properties(msg.channel.guild.id, { cleanse: args.bool ? 1 : 0 });
     await discord.create_msg(
       msg.channel, `${discord.tag(msg.author).boldified}, I have \
 ${args.bool ? 'enabled' : 'disabled'} the cleansing feature.`

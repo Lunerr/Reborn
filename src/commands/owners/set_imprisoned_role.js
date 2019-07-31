@@ -40,10 +40,7 @@ module.exports = new class SetImprisonedRole extends Command {
   }
 
   async run(msg, args) {
-    db.update('guilds', {
-      guild_id: msg.channel.guild.id,
-      imprisoned_role: args.role.id
-    });
+    db.update_guild_properties(msg.channel.guild.id, { imprisoned_role: args.role.id });
     await discord.create_msg(
       msg.channel, `${discord.tag(msg.author).boldified}, I have set the Imprisoned role to \
 ${args.role.mention}.`

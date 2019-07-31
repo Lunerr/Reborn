@@ -40,10 +40,7 @@ module.exports = new class SetCourtCategory extends Command {
   }
 
   async run(msg, args) {
-    db.update('guilds', {
-      guild_id: msg.channel.guild.id,
-      court_category: args.channel.id
-    });
+    db.update_guild_properties(msg.channel.guild.id, { court_category: args.channel.id });
     await discord.create_msg(
       msg.channel,
       `${discord.tag(msg.author).boldified}, I have set the Court category to ${args.channel.name}.`
