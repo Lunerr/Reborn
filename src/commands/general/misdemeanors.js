@@ -43,7 +43,7 @@ module.exports = new class Misdemeanors extends Command {
       ],
       description: 'View the amount of misdemeanors a person has.',
       groupName: 'general',
-      names: ['misdemeanors', 'mister_meaners', 'mr_meaners']
+      names: ['misdemeanors', 'mister_meaners', 'mr_meaners', 'mrmeaners']
     });
   }
 
@@ -57,7 +57,7 @@ ${self ? 'you' : args.user.mention} breaks the law ${args.law.name} (${args.law.
     const embed = discord.embed({
       title: `${discord.tag(args.user)}'s Felon Count`,
       description: `${self ? 'Your' : `${discord.tag(msg.author).boldified}'s`} felon count is \
-${count} for the law ${args.law.name} (${args.law.id})${append}`
+${count} for the law ${args.law.name} (${args.law.id}).\n\n${append}.`
     });
 
     return msg.channel.createMessage(embed);
