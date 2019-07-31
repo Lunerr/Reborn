@@ -18,7 +18,7 @@
 'use strict';
 const { Argument, Command, CommandResult } = require('patron.js');
 const db = require('../../services/database.js');
-const discord = require('../../utilities/discord.js');
+const system = require('../../utilities/system.js');
 
 module.exports = new class RemoveHot extends Command {
   constructor() {
@@ -52,9 +52,6 @@ module.exports = new class RemoveHot extends Command {
     }
 
     db.close_command(cmd.id);
-    await discord.create_msg(
-      msg.channel, `${discord.tag(msg.author).boldified}, I've removed the custom command \
-with the name ${args.name}.`
-    );
+    await system._hot_cmd(msg, args.name, 'removed');
   }
 }();

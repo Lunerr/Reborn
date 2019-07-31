@@ -42,10 +42,9 @@ module.exports = new class AddPublicChannel extends Command {
   }
 
   async run(msg, args) {
-    const channels = db.fetch_channels(msg.channel.guild.id);
-    const existing = channels.some(x => x.channel_id === args.channel.id && x.active === 1);
+    const result = system._existing_pub_channel(msg.channel.guild.id, args.channel);
 
-    if (existing) {
+    if (result.existing) {
       return CommandResult.fromError('This channel is already a public channel');
     }
 

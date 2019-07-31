@@ -50,6 +50,21 @@ module.exports = {
   fetch_limit: 100,
   mutex: new MultiMutex(),
 
+  _existing_pub_channel(guild_id, channel) {
+    const channels = db.fetch_channels(guild_id);
+    const existing = channels.find(x => x.channel_id === channel.id && x.active === 1);
+
+    return {
+      channels,
+      existing: existing || false
+    };
+  },
+
+  _hot_cmd(msg, name, type) {
+    return discord.create_msg(msg.channel, `${discord.tag(msg.author).boldified}, \
+I've ${type} a custom command with the name ${name}.`);
+  },
+
   set_db_property(msg, key, value, str_key, str_value) {
     db.update_guild_properties(msg.channel.guild.id, { [key]: value });
 

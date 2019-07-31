@@ -58,7 +58,9 @@ module.exports = new class ApproveDetainment extends Command {
   }
 
   async run(msg, args) {
-    return this.mutex.sync(`${msg.channel.guild.id}-${args.warrant.id}`, async () => {
+    const key = `${msg.channel.guild.id}-${args.warrant.id}`;
+
+    return this.mutex.sync(key, async () => {
       const warrant = db.get_warrant(args.warrant.id);
 
       if (warrant.request !== 1) {
@@ -69,12 +71,12 @@ module.exports = new class ApproveDetainment extends Command {
         return CommandResult.fromError('You cannot approve a detainment that\'s against you.');
       }
 
-      const res = await discord.verify(
+      const result = await discord.verify(
         msg, str.format(content, number.format(Math.abs(config.not_guilty_granted_warrant)))
       );
 
-      if (!res.success) {
-        return res;
+      if (!result.success) {
+        return result;
       }
 
       const {

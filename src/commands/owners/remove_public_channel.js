@@ -19,6 +19,7 @@
 const { Argument, Command, CommandResult } = require('patron.js');
 const db = require('../../services/database.js');
 const discord = require('../../utilities/discord.js');
+const system = require('../../utilities/system.js');
 
 module.exports = new class RemovePublicChannel extends Command {
   constructor() {
@@ -40,10 +41,9 @@ module.exports = new class RemovePublicChannel extends Command {
   }
 
   async run(msg, args) {
-    const channels = db.fetch_channels(msg.channel.guild.id);
-    const existing = channels.find(x => x.channel_id === args.channel.id && x.active === 1);
+    const result = system._existing_pub_channel(msg.channel.guild.id, args.channel);
 
-    if (!existing) {
+    if (!result.existing) {
       return CommandResult.fromError(`${args.channel.mention} is not a public channel.`);
     }
 
