@@ -638,8 +638,7 @@ ${number.format(amount, true)} from the defendant, ${defendant.mention}, ${appen
     ));
   },
 
-  mute_felon(guild_id, defendant_id, law) {
-    let mute = false;
+  get_felon_count(guild_id, defendant_id, law) {
     const verdicts = db
       .fetch_member_verdicts(guild_id, defendant_id)
       .filter(x => x.verdict === verdict.guilty);
@@ -647,19 +646,20 @@ ${number.format(amount, true)} from the defendant, ${defendant.mention}, ${appen
 
     for (let i = 0; i < verdicts.length; i++) {
       const user_case = db.get_case(verdicts[i].case_id);
-      const { name } = db.get_law(user_case.law_id);
+      const { id } = db.get_law(user_case.law_id);
 
-      if (name === law.name) {
+      if (id === law.id) {
         count++;
-      }
-
-      if (count >= config.repeat_felon_count) {
-        mute = true;
-        break;
       }
     }
 
-    return mute;
+    return count;
+  },
+
+  mute_felon(guild_id, defendant_id, law) {
+    const felon_count = this.get_felon_count(guild_id, defendant_id, law);
+
+    return felon_count >= config.repeat_felon_count;
   },
 
   get_win_percent(lawyer_id, guild) {
