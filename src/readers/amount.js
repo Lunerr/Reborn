@@ -6,13 +6,20 @@ const numeric_values = {
 };
 const max_dec = 2;
 
+function trunc(num, digits) {
+  const re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)");
+  const match = num.toString().match(re);
+
+  return match ? Number(match[1]) : num;
+};
+
 class Amount extends TypeReader {
   constructor() {
     super({ type: 'amount' });
   }
 
   async read(cmd, msg, arg, args, input) {
-    let value = Number(Number.parseFloat(input).toFixed(max_dec));
+    let value = trunc(Number.parseFloat(input), max_dec);
 
     if (Number.isNaN(value) === false) {
       if (input.toLowerCase().endsWith('k')) {
