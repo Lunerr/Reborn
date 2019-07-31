@@ -36,6 +36,7 @@ You can __**IMPEACH OTHER MEMBERS**__ if they engage in corruption.
 THE MEMBERS OF THE SERVER HAVE COMPLETE CONTROL OF THE SERVER.
 ABSOLUTE LIBERTY FOR ALL.
 \`\`\``;
+const bitfield = 2048;
 
 client.on('guildMemberAdd', async (guild, member) => {
   await discord.dm(member.user, msg, guild);
@@ -75,9 +76,13 @@ client.on('guildMemberAdd', async (guild, member) => {
     }
 
     const has_case = system.has_active_case(guild.id, member.id);
+    const channel = guild.channels.get(has_case.c_case.channel_id);
 
-    if (has_case.active) {
-      await add_role(guild.id, member.id, trial_role, `Has an active case (${has_case.c_case.id})`);
+    if (has_case.active && channel) {
+      const reason = `Rejoined and has an active case (${has_case.c_case.id})`;
+
+      await channel.editPermission(member.id, bitfield, 0, 'member', reason);
+      await add_role(guild.id, member.id, trial_role, reason);
     }
   }
 });
