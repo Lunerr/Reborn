@@ -44,10 +44,22 @@ failing to make a plea using \`${config.prefix}plea\`. A new lawyer will be hire
   }
 }
 
-async function new_lawyer(channel, c_case, guild, no_plea, resume = false) {
+async function new_lawyer(channel, c_case, guild, no_plea, reason, resume = false) {
   if (!resume) {
+    let fmt = reason;
+
+    if (!reason) {
+      if (no_plea) {
+        fmt = 'no plea being given';
+      } else {
+        fmt = 'no lawyer being set';
+      }
+
+      fmt += ' after 24 hours';
+    }
+
     await discord.create_msg(channel, `The auto lawyer process has automatically begun due to \
-${no_plea ? 'no plea being given' : 'no lawyer being set'} after 24 hours.`);
+${fmt}.`);
   }
 
   const { lawyer, amount } = await system.auto_pick_lawyer(guild, c_case);
@@ -62,7 +74,15 @@ ${no_plea ? 'no plea being given' : 'no lawyer being set'} after 24 hours.`);
   await system.dm_lawyer(guild, lawyer, defendant, channel, c_case, amount);
 }
 
-async function sync(cmd, c_case, no_plea, guild, channel) {
+async function sync(cmd, c_case, guild, channel) {
+  const no_plea = c_case.lawyer_id && !c_case.plea
+    && Date.now() - c_case.lawyer_hired_at > expiration;
+  const no_lawyer = !c_case.lawyer_id && Date.now() - c_case.created_at > expiration;
+
+  if (!no_plea && !no_lawyer) {
+    return;
+  }
+
   cmd.mutex.sync(c_case.channel_id, () => cmd.auto(c_case, channel, async () => {
     if (no_plea) {
       await no_plea_fn(guild, channel, c_case);
@@ -98,19 +118,21 @@ Timer(async () => {
 
       if (c_case.lawyer_state === lawyer_state.started) {
         return auto_lawyer_cmd.mutex.sync(c_case.channel_id, () => auto_lawyer_cmd.auto(
-          c_case, channel, () => new_lawyer(channel, c_case, guild, null, true)
+          c_case, channel, () => new_lawyer(channel, c_case, guild, null, null, true)
         ));
       }
 
-      const no_plea = c_case.lawyer_id && !c_case.plea
-        && Date.now() - c_case.lawyer_hired_at > expiration;
-      const no_lawyer = !c_case.lawyer_id && Date.now() - c_case.created_at > expiration;
+      const left = !c_case.lawyer_id && !guild.members.has(c_case.defendant_id);
 
-      if (!no_plea && !no_lawyer) {
-        continue;
+      if (left) {
+        return auto_lawyer_cmd.mutex.sync(c_case.channel_id, () => auto_lawyer_cmd.auto(
+          c_case, channel, () => new_lawyer(
+            channel, c_case, guild, false, 'the defendant not being in the server'
+          )
+        ));
       }
 
-      sync(auto_lawyer_cmd, c_case, no_plea, guild, channel);
+      sync(auto_lawyer_cmd, c_case, guild, channel);
     }
   });
 }, config.auto_pick_lawyer_time);
