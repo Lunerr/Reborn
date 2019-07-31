@@ -103,7 +103,7 @@ ${remaining} more time${remaining === 1 ? '' : 's'}`}.\n\n`, false, amount
   async auto(c_case, channel, fn) {
     this.running[c_case.channel_id] = true;
 
-    fn().catch(e => {
+    fn().catch(async e => {
       await logger.error(e);
       await discord.create_msg(channel, `An error has occured while running the auto lawyer process
 \n${e.message}`, error_color);
