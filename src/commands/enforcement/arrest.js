@@ -50,9 +50,9 @@ const opening_msg = `{0} VS {1} (Case #{2})
 
 {3} will be presiding over this court proceeding.
 
-The defense is accused of violating the following law: {4}
+The defense is accused of violating the following law: {4} ({5})
 
-{5}
+{6}
 
 In order to promote a just and free society, we must be biased towards **INNOCENCE!**
 
@@ -60,7 +60,7 @@ If you find the slightest bit of inconsistent evidence, contradictory testimony,
 in the prosecution's points, **DO NOT DELIVER A GUILTY VERDICT!**
 
 When rendering **ANY VERDICT** other than a guilty verdict, you will receive an \
-additional {6} in compensation.`;
+additional {7} in compensation.`;
 const lawyer_dm = 'You have been sent to trial (case #{0}), under warrant \
 #{1}, by {2}.\n\nAs part of your rights you are allowed to a \
 lawyer which can be set using `{3}request_lawyer @User amount`.\nIf you are unsure \
@@ -223,7 +223,7 @@ module.exports = new class Arrest extends Command {
     const last_id = db.get_last_table_sequence('cases').seq + 1;
     const content = str.format(
       opening_msg,
-      officer.mention, defendant.mention, last_id, judge.mention, law.name,
+      officer.mention, defendant.mention, last_id, judge.mention, law.name, law.id,
       warrant.evidence ? `${warrant.request === 1 ? 'Messages' : 'Evidence'}: ${evidence}` : '',
       innocence_bias
     );
