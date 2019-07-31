@@ -59,12 +59,14 @@ ${str_value}.`
     );
   },
 
-  async loop_verdicts(guild_id, fn) {
-    const verdicts = db.fetch_verdicts(guild_id);
+  async loop_guild_verdicts(fn) {
+    return discord.loop_guilds(async (guild, id) => {
+      const verdicts = db.fetch_verdicts(id);
 
-    for (let i = 0; i < verdict.length; i++) {
-      await fn(verdicts[i], i);
-    }
+      for (let i = 0; i < verdicts.length; i++) {
+        await fn(guild, id, verdict);
+      }
+    });
   },
 
   law_in_effect(law, time) {

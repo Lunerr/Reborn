@@ -58,40 +58,38 @@ function find_mute(db_verdict) {
 }
 
 Timer(async () => {
-  await discord.loop_guilds(async (guild, guild_id) => {
-    await system.loop_verdicts(guild_id, async x => {
-      const served = x.sentence === null || x.served === 1;
-      const time_left = x.last_modified_at + x.sentence - Date.now();
+  await system.loop_guild_verdicts(async (guild, guild_id, x) => {
+    const served = x.sentence === null || x.served === 1;
+    const time_left = x.last_modified_at + x.sentence - Date.now();
 
-      if (served || time_left > 0) {
-        return;
-      }
+    if (served || time_left > 0) {
+      return;
+    }
 
-      db.serve_verdict(x.id);
+    db.serve_verdict(x.id);
 
-      if (!guild) {
-        return;
-      }
+    if (!guild) {
+      return;
+    }
 
-      const still_muted = find_mute(x);
+    const still_muted = find_mute(x);
 
-      if (still_muted) {
-        return;
-      }
+    if (still_muted) {
+      return;
+    }
 
-      const defendant = guild.members.get(x.defendant_id);
-      const { imprisoned_role } = db.fetch('guilds', { guild_id });
+    const defendant = guild.members.get(x.defendant_id);
+    const { imprisoned_role } = db.fetch('guilds', { guild_id });
 
-      if (!defendant || !imprisoned_role || !defendant.roles.includes(imprisoned_role)) {
-        return;
-      }
+    if (!defendant || !imprisoned_role || !defendant.roles.includes(imprisoned_role)) {
+      return;
+    }
 
-      await remove_role(guild.id, defendant.id, imprisoned_role, 'Auto unmute');
+    await remove_role(guild.id, defendant.id, imprisoned_role, 'Auto unmute');
 
-      const c_case = db.get_case(x.case_id);
-      const user = await client.getRESTUser(x.defendant_id);
+    const c_case = db.get_case(x.case_id);
+    const user = await client.getRESTUser(x.defendant_id);
 
-      await dm(guild, user, c_case ? c_case.judge_id : '');
-    });
+    await dm(guild, user, c_case ? c_case.judge_id : '');
   });
 }, config.auto_unmute);
