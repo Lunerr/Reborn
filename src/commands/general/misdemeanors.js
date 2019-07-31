@@ -26,7 +26,7 @@ module.exports = new class Misdemeanors extends Command {
     super({
       args: [
         new Argument({
-          example: '2',
+          example: 'CP',
           type: 'law',
           name: 'law',
           key: 'law',
