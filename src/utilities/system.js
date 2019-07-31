@@ -64,7 +64,7 @@ ${str_value}.`
       const verdicts = db.fetch_verdicts(id);
 
       for (let i = 0; i < verdicts.length; i++) {
-        await fn(guild, id, verdict);
+        await fn(guild, id, verdicts[i]);
       }
     });
   },
