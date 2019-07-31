@@ -37,23 +37,9 @@ the defendant of the case leaving the server.');
   await system.dm_lawyer(guild, lawyer, defendant, channel, c_case, amount);
 }
 
-function get_active_cases(defendant_id, guild_id) {
-  const cases = db.fetch_cases(guild_id).filter(x => x.defendant_id === defendant_id);
-  const arr = [];
-
-  for (let i = 0; i < cases.length; i++) {
-    const case_verdict = db.get_verdict(cases[i].id);
-
-    if (!case_verdict && (cases[i].request === lawyer_enum.self || cases[i].lawyer_id === null)) {
-      arr.push(cases[i]);
-    }
-  }
-
-  return arr;
-}
-
-client.on('guildMemberRemove', async (guild, member) => {
-  const cases = get_active_cases(member.id, guild.id);
+async function sync_cases(guild, member) {
+  const fn = x => x.request === lawyer_enum.self || x.lawyer_id === null;
+  const cases = await system.get_active_cases(guild.id, member.id, fn);
 
   if (cases.length) {
     const cmd = reg.commands.find(x => x.names[0] === 'auto_lawyer');
@@ -70,6 +56,10 @@ client.on('guildMemberRemove', async (guild, member) => {
       ));
     }
   }
+}
+
+client.on('guildMemberRemove', async (guild, member) => {
+  await sync_cases(guild, member);
 
   if (!Array.isArray(member.roles)) {
     return;
