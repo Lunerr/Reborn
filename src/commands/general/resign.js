@@ -35,18 +35,18 @@ module.exports = new class Resign extends Command {
 
   async run(msg) {
     const res = db.fetch('guilds', { guild_id: msg.channel.guild.id });
-    const roles = system.gov_roles.concat(system.chief_roles).filter(
+    const has_roles = system.gov_roles.concat(system.chief_roles).filter(
       x => res[x] && msg.channel.guild.roles.has(res[x]) && msg.member.roles.includes(res[x])
     );
 
-    if (!roles.length) {
+    if (!has_roles.length) {
       return CommandResult.fromError('You don\'t have any government official roles.');
     }
 
     const copy = msg.member.roles.slice();
 
-    for (let i = 0; i < roles.length; i++) {
-      const role = roles[i];
+    for (let i = 0; i < has_roles.length; i++) {
+      const role = has_roles[i];
       const index = msg.member.roles.indexOf(res[role]);
 
       if (index !== -1) {
