@@ -56,8 +56,8 @@ module.exports = new class Misdemeanors extends Command {
     const append = felon ? `\n\n${start} subject to serving a sentence the next time \
 ${self ? 'you' : user_tag} breaks the law ${args.law.name} (${args.law.id}) again.` : '';
     const embed = discord.embed({
-      title: `${discord.tag(args.user)}'s Felon Count`,
-      description: `${self ? 'Your' : `${user_tag}'s`} felon count is \
+      title: `${discord.tag(args.user)}'s Misdemeanor Count`,
+      description: `${self ? 'Your' : `${user_tag}'s`} misdemeanor count is \
 ${count} for the law **${args.law.name}** (${args.law.id}).${append}`
     });
 
