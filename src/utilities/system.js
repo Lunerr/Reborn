@@ -447,10 +447,9 @@ who recently got impeached`);
     return null;
   },
 
-  has_active_case(guild_id, defendant_id) {
+  async get_active_cases(guild_id, defendant_id, fn) {
     const cases = db.fetch_cases(guild_id);
-    let active = false;
-    let c_case = null;
+    const active = [];
 
     for (let i = 0; i < cases.length; i++) {
       if (cases[i].defendant_id !== defendant_id) {
@@ -458,23 +457,28 @@ who recently got impeached`);
       }
 
       const case_verdict = db.get_verdict(cases[i].id);
-      const no_verdict = !case_verdict || case_verdict.verdict === verdict.pending;
+      const no_verdict = !case_verdict;
+      const fn_passed = !fn || await fn(cases[i]);
 
-      if (no_verdict) {
-        active = true;
-        c_case = cases[i];
-        break;
+      if (no_verdict && fn_passed) {
+        active.push(cases[i]);
       }
     }
 
+    return active;
+  },
+
+  async has_active_case(guild_id, defendant_id) {
+    const cases = await this.get_active_cases(guild_id, defendant_id);
+
     return {
-      c_case,
-      active
+      c_case: cases[0] || null,
+      active: cases.length !== 0
     };
   },
 
   async free_from_court(guild_id, defendant_id, roles) {
-    const { active } = this.has_active_case(guild_id, defendant_id);
+    const { active } = await this.has_active_case(guild_id, defendant_id);
     const free = !active;
 
     if (free) {

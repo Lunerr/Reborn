@@ -38,6 +38,24 @@ ABSOLUTE LIBERTY FOR ALL.
 \`\`\``;
 const bitfield = 2048;
 
+async function grant_trial_perms(guild, member, trial_role) {
+  const cases = await system.get_active_cases(guild.id, member.id);
+
+  if (cases.length) {
+    for (let i = 0; i < cases.length; i++) {
+      const c_case = cases[i];
+      const channel = guild.channels.get(c_case.channel_id);
+
+      if (channel) {
+        const reason = `Rejoined and has an active case (${c_case.id})`;
+
+        await channel.editPermission(member.id, bitfield, 0, 'member', reason);
+        await add_role(guild.id, member.id, trial_role, reason);
+      }
+    }
+  }
+}
+
 client.on('guildMemberAdd', async (guild, member) => {
   await discord.dm(member.user, msg, guild);
 
@@ -74,15 +92,7 @@ client.on('guildMemberAdd', async (guild, member) => {
     if (db_member.jailed && j_role) {
       await add_role(guild.id, member.id, jailed_role, 'Role persistence');
     }
-
-    const has_case = system.has_active_case(guild.id, member.id);
-    const channel = guild.channels.get(has_case.c_case.channel_id);
-
-    if (has_case.active && channel) {
-      const reason = `Rejoined and has an active case (${has_case.c_case.id})`;
-
-      await channel.editPermission(member.id, bitfield, 0, 'member', reason);
-      await add_role(guild.id, member.id, trial_role, reason);
-    }
   }
+
+  await grant_trial_perms(guild, member, trial_role);
 });
