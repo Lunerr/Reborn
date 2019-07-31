@@ -64,7 +64,7 @@ module.exports = new class AutoLawyer extends Command {
       await discord.create_msg(msg.channel, `${prefix}The auto lawyer process has begun.`);
 
       const { lawyer: { member_id: id }, amount } = await system.auto_pick_lawyer(
-        msg.channel.guild, channel_case, ''
+        msg.channel.guild, channel_case, '',
       );
       const member = msg.channel.guild.members.get(id) || await client.getRESTUser(id);
 

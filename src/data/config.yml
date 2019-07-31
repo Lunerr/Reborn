@@ -62,6 +62,8 @@ lawyer_innocence_bonus: 1
 # Time that a lawyer has to accept the request
 lawyer_accept_time: 3e5
 
+auto_lawyer_accept_time: 6e4
+
 # Interval when auto laywer is picked
 auto_pick_lawyer_time: 15e4
 

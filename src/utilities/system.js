@@ -31,11 +31,12 @@ const catch_discord = require('../utilities/catch_discord.js');
 const util = require('../utilities/util.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const accept_message = '{0} is offering you {1} to be their lawyer in case #{2}.\n\nReply with \
-`yes` within 5 minutes to accept or `no` to decline to this offer.';
+`yes` within {3} to accept or `no` to decline to this offer.';
 const statuses = ['online', 'dnd', 'idle', 'offline'];
 const max = 10;
 const double = 2;
 const to_cents = 100;
+const _time = number.msToTime(config.auto_lawyer_accept_time).minutes;
 
 module.exports = {
   chief_roles: ['chief_justice_role', 'chief_officer_role', 'house_speaker_role'],
@@ -199,7 +200,7 @@ and you cannot change it anymore.`);
     return exclude.concat(warrant.judge_id);
   },
 
-  async _valid_lawyer(lawyers, guild, channel_case, excluded, key, multiplier) {
+  async _valid_lawyer(lawyers, guild, channel_case, excluded, key, multiplier, time) {
     let picked = null;
 
     for (let i = 0; i < lawyers.length; i++) {
@@ -225,7 +226,7 @@ and you cannot change it anymore.`);
       const author = await client.getRESTUser(channel_case.defendant_id);
       const res = await this._verify({
         author, channel: { guild }, content: `!auto_lawyer${key}`
-      }, channel, member, lawyer.rate * multiplier);
+      }, channel, member, lawyer.rate * multiplier, time);
 
       if (!res) {
         continue;
@@ -238,24 +239,24 @@ and you cannot change it anymore.`);
     return picked;
   },
 
-  async auto_pick_lawyer(guild, channel_case, key = '_auto', multiplier = 1, counter = 0) {
+  async auto_pick_lawyer(guild, c_case, key = '_auto', time = _time, multiplier = 1, counter = 0) {
     const lawyers = util.shuffle(db.get_guild_lawyers(guild.id));
-    const excluded = db.get_fired_lawyers(channel_case.id)
-      .map(x => x.member_id).concat(this.get_excluded(channel_case));
+    const excluded = db.get_fired_lawyers(c_case.id)
+      .map(x => x.member_id).concat(this.get_excluded(c_case));
     const filtered = lawyers.filter(x => {
       const mem = guild.members.get(x.member_id);
 
       return mem && !mem.bot && mem.status === statuses[counter % statuses.length];
     });
     const picked = await this._valid_lawyer(
-      filtered, guild, channel_case, excluded, key, multiplier
+      filtered, guild, c_case, excluded, key, multiplier, time
     );
 
     if (!picked) {
       const multi = (counter + 1) % statuses.length === 0
         && counter !== 0 ? multiplier * double : multiplier;
 
-      return this.auto_pick_lawyer(guild, channel_case, key, multi, counter + 1);
+      return this.auto_pick_lawyer(guild, c_case, key, time, multi, counter + 1);
     }
 
     return {
@@ -263,10 +264,10 @@ and you cannot change it anymore.`);
     };
   },
 
-  async _verify(msg, channel, member, amount) {
+  async _verify(msg, channel, member, amount, time) {
     const {
       channel: found_channel, channel_case
-    } = await this.get_channel(channel, member, msg.author, amount / to_cents);
+    } = await this.get_channel(channel, member, msg.author, amount / to_cents, time);
 
     if (!found_channel) {
       return false;
@@ -279,8 +280,7 @@ and you cannot change it anymore.`);
       null,
       x => x.author.id === member.id
         && (x.content.toLowerCase() === 'yes' || x.content.toLowerCase() === 'no'),
-      `auto_lawyer-${channel_case.id}`,
-      config.lawyer_accept_time
+      `auto_lawyer-${channel_case.id}`
     ).then(x => x.promise);
 
     if (!result.success || result.reply.content.toLowerCase() === 'no') {
@@ -290,12 +290,15 @@ and you cannot change it anymore.`);
     return true;
   },
 
-  async get_channel(channel, member, author, amount) {
+  async get_channel(channel, member, author, amount, time) {
     const channel_case = db.get_channel_case(channel.id);
     let found_channel = await member.user.getDMChannel();
     const dm_result = await discord.dm(member.user, str.format(
       accept_message,
-      discord.tag(author).boldified, number.format(amount), channel_case.id
+      discord.tag(author).boldified,
+      number.format(amount),
+      channel_case.id,
+      `${time} minute${time === 1 ? '' : 's'}`
     ), channel.guild);
 
     if (!dm_result) {

@@ -20,12 +20,14 @@ const { Argument, Command, CommandResult } = require('patron.js');
 const { config } = require('../../services/data.js');
 const db = require('../../services/database.js');
 const client = require('../../services/client.js');
+const number = require('../../utilities/number.js');
 const reg = require('../../services/registry.js');
 const discord = require('../../utilities/discord.js');
 const system = require('../../utilities/system.js');
 const lawyer_enum = require('../../enums/lawyer.js');
 const min_amount = 0;
 const to_cents = 100;
+const time = number.msToTime(config.lawyer_accept_time).minutes;
 
 module.exports = new class RequestLawyer extends Command {
   constructor() {
@@ -68,22 +70,17 @@ module.exports = new class RequestLawyer extends Command {
     }
 
     const channel_case = db.get_channel_case(msg.channel.id);
-    const fired = db.get_fired_lawyers(channel_case.id).map(x => x.member_id);
-    const excluded = this.excluded(channel_case, args.member, fired);
+    const res = await this.should_err(channel_case, msg.channel, args.member);
 
-    if (excluded instanceof CommandResult) {
-      return excluded;
-    }
-
-    const pre = await this.preexisting(channel_case, msg.channel, args.member);
-
-    if (pre instanceof CommandResult) {
-      return pre;
+    if (res instanceof CommandResult) {
+      return res;
     }
 
     this.running[msg.channel.id] = true;
 
-    const { channel } = await system.get_channel(msg.channel, args.member, msg.author, args.amount);
+    const {
+      channel
+    } = await system.get_channel(msg.channel, args.member, msg.author, args.amount, time);
     const check = await this.checks(channel_case, channel);
 
     if (check instanceof CommandResult) {
@@ -128,6 +125,21 @@ ${left} more time${left === 1 ? '' : 's'}`}.\n\n`,
       true,
       amount * to_cents
     );
+  }
+
+  async should_err(channel_case, channel, member) {
+    const fired = db.get_fired_lawyers(channel_case.id).map(x => x.member_id);
+    const excluded = this.excluded(channel_case, member, fired);
+
+    if (excluded instanceof CommandResult) {
+      return excluded;
+    }
+
+    const pre = await this.preexisting(channel_case, channel, member);
+
+    if (pre instanceof CommandResult) {
+      return pre;
+    }
   }
 
   excluded(channel_case, member, exclude = []) {
