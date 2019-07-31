@@ -86,7 +86,7 @@ Timer(async () => {
         continue;
       }
 
-      await auto_lawyer_cmd.mutex.sync(
+      auto_lawyer_cmd.mutex.sync(
         c_case.channel_id, () => auto_lawyer_cmd.auto(c_case, channel, async () => {
           if (no_plea) {
             await no_plea_fn(guild, channel, c_case);

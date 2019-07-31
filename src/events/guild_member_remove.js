@@ -60,7 +60,7 @@ client.on('guildMemberRemove', async (guild, member) => {
         continue;
       }
 
-      await cmd.mutex.sync(cases[i].channel_id, () => cmd.auto(
+      cmd.mutex.sync(cases[i].channel_id, () => cmd.auto(
         cases[i], channel, () => get_lawyer(cases[i], channel, member, guild)
       ));
     }

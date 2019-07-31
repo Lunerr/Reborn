@@ -58,7 +58,7 @@ module.exports = new class AutoLawyer extends Command {
       }
     }
 
-    return this.mutex.sync(msg.channel.id, () => this.auto(channel_case, msg.channel, async () => {
+    this.mutex.sync(msg.channel.id, () => this.auto(channel_case, msg.channel, async () => {
       const prefix = `${discord.tag(msg.author).boldified}, `;
 
       await discord.create_msg(msg.channel, `${prefix}The auto lawyer process has begun.`);
