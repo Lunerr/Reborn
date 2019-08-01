@@ -64,7 +64,8 @@ module.exports = new class ApproveDetainment extends Command {
       const warrant = db.get_warrant(args.warrant.id);
 
       if (warrant.request !== 1) {
-        return CommandResult.fromError('This warrant is not a detainment.');
+        return CommandResult.fromError(`This warrant is not a detainment and can only be \
+executed by a cop by using the \`${config.prefix}arrest\` command.`);
       } else if (warrant.approved === 1) {
         return CommandResult.fromError('This detainment has already been approved.');
       } else if (warrant.defendant_id === msg.author.id) {
