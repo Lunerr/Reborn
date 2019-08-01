@@ -66,9 +66,7 @@ ${grant ? 'arresting' : 'detaining'} officer (${officer.mention})`,
       return this.take_cash(c_case, defendant, guild, -1, cost, lawyer_user);
     }
 
-    const def_balance = db.get_cash(defendant.id, guild.id);
-
-    return this.take_cash(c_case, defendant, guild, def_balance, cost, lawyer_user);
+    return this.take_cash(c_case, defendant, guild, cost, cost, lawyer_user);
   }
 
   async take_cash(c_case, user, guild, balance, rate, lawyer, allow_debt = false) {
