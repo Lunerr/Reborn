@@ -39,7 +39,7 @@ module.exports = new class RequestLawyer extends Command {
           key: 'member',
           name: 'member',
           type: 'member',
-          preconditions: ['no_bot', 'no_self']
+          preconditions: ['no_bot', 'no_self', 'not_muted']
         }),
         new Argument({
           example: '1000',

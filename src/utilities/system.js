@@ -306,8 +306,9 @@ and you cannot change it anymore.`);
       }
 
       const member = guild.members.get(lawyer.member_id);
+      const muted = member && this._prisoned_lawyer(guild, member);
 
-      if (!member) {
+      if (!member || muted) {
         continue;
       }
 
@@ -531,6 +532,14 @@ who recently got impeached`);
     }
 
     return null;
+  },
+
+  _prisoned_lawyer(guild, member) {
+    const query = db.fetch('guilds', { guild_id: guild.id });
+    const included = this.jailed_roles.slice(0, -1);
+    const roles = included.map(x => query[x]);
+
+    return member.roles.some(x => roles.includes(x));
   },
 
   async get_lawyer_payment(c_case, guilty) {
