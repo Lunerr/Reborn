@@ -21,6 +21,9 @@ const Timer = require('../utilities/timer.js');
 const util = require('util');
 const fs = require('fs');
 const path = require('path');
+const unlink = util.promisify(fs.unlink);
+const rm_folder = util.promisify(fs.rmdir);
+const read_dir = util.promisify(fs.readdir);
 const mk_dir = util.promisify(fs.mkdir);
 const copy_file = util.promisify(fs.copyFile);
 const dir = path.join(__dirname, '../../', config.db_backup_dir);
@@ -41,10 +44,38 @@ function create_dir(dest) {
   });
 }
 
+async function delete_folder(dir_path) {
+  const read_files = await read_dir(dir_path);
+
+  for (let i = 0; i < read_files.length; i++) {
+    const file = read_files[i];
+    const new_path = path.join(dir_path, file);
+
+    await unlink(new_path);
+  }
+
+  return rm_folder(dir_path);
+}
+
 Timer(async () => {
   await create_dir(dir);
 
-  const format = new Date().toLocaleString().replace(/(\/|,|\s|:)+/g, '_');
+  const now = new Date();
+  const previous = await read_dir(dir);
+
+  if (previous.length) {
+    const last = previous[previous.length - 1];
+    const [month, day, year] = last.split('_');
+    const prev_time = new Date(Number(year), Number(month) - 1, Number(day)).getTime();
+
+    if (now.getTime() - prev_time >= config.db_previous_time) {
+      await delete_folder(path.join(dir, last));
+    } else {
+      return;
+    }
+  }
+
+  const format = now.toLocaleString().replace(/(\/|,|\s|:)+/g, '_');
   const backup_folder = path.join(dir, format);
 
   await create_dir(backup_folder);

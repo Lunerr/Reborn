@@ -56,6 +56,9 @@ time_units: {
 
 restart: git pull && pm2 restart 0
 
+# When to replace the old db backup (ms)
+db_previous_time: 6048e5
+
 # Additional money granted to the lawyer if they get an not guilty verdict
 lawyer_innocence_bonus: 1
 
