@@ -49,7 +49,7 @@ module.exports = new class Misdemeanors extends Command {
 
   async run(msg, args) {
     const count = system.get_felon_count(msg.channel.guild.id, args.user.id, args.law);
-    const felon = count >= config.repeat_felon_count;
+    const felon = count >= config.repeat_felon_count || args.law.mandatory_felony;
     const self = msg.author.id === args.user.id;
     const user_tag = discord.tag(args.user).boldified;
     const start = self ? 'you are' : `${user_tag} is`;
