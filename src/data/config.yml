@@ -131,7 +131,7 @@ judge_case: 1e3
 guilty_granted_warrant: 250
 
 # Amount given to the cop if the case leads to a guilty verdict
-guilty_arrest: 250
+guilty_arrest: 500
 
 # Amount given to the approving judge if the case leads to a guilty verdict
 not_guilty_granted_warrant: -1500
