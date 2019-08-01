@@ -567,7 +567,7 @@ ${number.format(amount, true)} from the defendant, ${defendant.mention}, ${appen
     const arrest = detainment ? 'detaining' : 'arresting';
     const grant = detainment ? 'approving' : 'granting';
 
-    return `\n\n${lawyer.mention}, has been rewarded with ${split} from the ${grant} judge \
+    return `\n\n${lawyer.mention}, has been rewarded with ${split} each from the ${grant} judge \
 (${judge.mention}) and the ${arrest} officer (${officer.mention}) ${append}`;
   },
 
