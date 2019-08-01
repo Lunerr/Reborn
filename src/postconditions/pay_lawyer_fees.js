@@ -67,7 +67,7 @@ ${grant ? 'arresting' : 'detaining'} officer (${officer.mention})`,
     const { cost } = c_case;
 
     if (c_case.request === lawyer_plea.auto) {
-      return this.take_cash(c_case, defendant, guild, 0, cost, lawyer_user);
+      return this.take_cash(c_case, defendant, guild, -1, cost, lawyer_user);
     }
 
     return this.take_cash(c_case, defendant, guild, cost, cost, lawyer_user);

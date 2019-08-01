@@ -208,13 +208,13 @@ ${str_value}.`
     const warrant = db.get_warrant(c_case.warrant_id);
     const judge = await client.getRESTUser(warrant.judge_id);
     const payment = `The officer (${cop.mention}) and the approving judge \
-(${judge.mention}) will cover the legal fees if {0} not convicted of the crime.`;
+(${judge.mention}) will cover the legal fees if {0} not convicted of the crime`;
 
     await discord.dm(
       lawyer.user ? lawyer.user : lawyer,
       `You will receive a ${bonus} bonus for your legal services for ${discord.tag(user_def)} \
 if a not guilty verdict is reached in case #${c_case.id}. \
-${str.format(payment, `your client, ${discord.tag(user_def).boldified}, is`)}`,
+${str.format(payment, `your client, ${discord.tag(user_def).boldified}, is`)}.`,
       guild
     );
     await this.lawyer_picked(c_case.channel_id, guild, lawyer);
