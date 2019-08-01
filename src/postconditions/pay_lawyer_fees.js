@@ -43,7 +43,7 @@ ${grant ? 'arresting' : 'detaining'} officer (${officer.mention})`,
       const lawyer_user = await client.getRESTUser(lawyer.member_id);
 
       if (name === 'guilty') {
-        return this.guilty(result, msg.channel.guild, def, lawyer_user);
+        return this.guilty(result, msg.channel.guild, def, warrant, lawyer_user);
       }
 
       const bonus = held * (1 + config.lawyer_innocence_bonus);
@@ -52,24 +52,24 @@ ${grant ? 'arresting' : 'detaining'} officer (${officer.mention})`,
       const officer_bal = db.get_cash(warrant.officer_id, msg.channel.guild.id, false);
 
       return this.take_cash(
-        result, judge, msg.channel.guild, judge_bal, half, lawyer_user, true
+        result, judge, msg.channel.guild, judge_bal, half, lawyer_user, warrant, true
       ).then(() => this.take_cash(
-        result, officer, msg.channel.guild, officer_bal, half, lawyer_user, true
+        result, officer, msg.channel.guild, officer_bal, half, lawyer_user, warrant, true
       ));
     }
   }
 
-  async guilty(c_case, guild, defendant, lawyer_user) {
+  async guilty(c_case, guild, defendant, warrant, lawyer_user) {
     const { cost } = c_case;
 
     if (c_case.request === lawyer_plea.auto) {
-      return this.take_cash(c_case, defendant, guild, -1, cost, lawyer_user);
+      return this.take_cash(c_case, defendant, guild, -1, cost, lawyer_user, warrant);
     }
 
-    return this.take_cash(c_case, defendant, guild, cost, cost, lawyer_user);
+    return this.take_cash(c_case, defendant, guild, cost, cost, lawyer_user, warrant);
   }
 
-  async take_cash(c_case, user, guild, balance, rate, lawyer, allow_debt = false) {
+  async take_cash(c_case, user, guild, balance, rate, lawyer, warrant, allow_debt = false) {
     const case_verdict = db.get_verdict(c_case.id);
     const guilty = case_verdict.verdict === verdict.guilty;
     const case_result = guilty ? 'guilty' : 'not guilty';
@@ -86,8 +86,12 @@ ${grant ? 'arresting' : 'detaining'} officer (${officer.mention})`,
 
     if (balance >= rate || allow_debt) {
       if (user.id !== c_case.defendant_id) {
+        const detainment = warrant.request === 1;
+        const arrest = detainment ? 'detain' : 'arrest';
+        const grant = detainment ? 'grant a warrant' : 'approve the warrant';
+
         reason += ` and you have failed to successfully \
-${user.id === c_case.plaintiff_id ? 'arrest' : 'grant a warrant for'} the defendant`;
+${user.id === c_case.plaintiff_id ? arrest : grant} the defendant`;
       }
 
       db.add_cash(user.id, guild.id, -rate, false);
