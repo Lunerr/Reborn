@@ -207,7 +207,7 @@ ${str_value}.`
     const cop = await client.getRESTUser(c_case.plaintiff_id);
     const warrant = db.get_warrant(c_case.warrant_id);
     const judge = await client.getRESTUser(warrant.judge_id);
-    const payment = `The officer (${cop.mention}) and the approving judge \
+    const payment = `\n\nThe officer (${cop.mention}) and the approving judge \
 (${judge.mention}) will cover the legal fees if {0} not convicted of the crime`;
 
     await discord.dm(

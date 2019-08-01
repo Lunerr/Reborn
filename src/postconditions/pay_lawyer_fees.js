@@ -16,11 +16,7 @@ class PayLawyerFees extends Postcondition {
   }
 
   async run(msg, result) {
-    if (result.success !== false) {
-      if (result.lawyer_id === result.defendant_id) {
-        return;
-      }
-
+    if (result.success !== false && result.lawyer_id !== result.defendant_id) {
       const held = result.cost;
       const warrant = db.get_warrant(result.warrant_id);
       const judge = await client.getRESTUser(warrant.judge_id);
@@ -70,14 +66,17 @@ ${grant ? 'arresting' : 'detaining'} officer (${officer.mention})`,
       return this.take_cash(c_case, defendant, guild, -1, cost, lawyer_user);
     }
 
-    return this.take_cash(c_case, defendant, guild, cost, cost, lawyer_user);
+    const def_balance = db.get_cash(defendant.id, guild.id);
+
+    return this.take_cash(c_case, defendant, guild, def_balance, cost, lawyer_user);
   }
 
   async take_cash(c_case, user, guild, balance, rate, lawyer, allow_debt = false) {
     const case_verdict = db.get_verdict(c_case.id);
     const guilty = case_verdict.verdict === verdict.guilty;
     const case_result = guilty ? 'guilty' : 'not guilty';
-    const ending = `in case #${c_case.id} as the accused was found to be ${case_result}`;
+    const person = user.id === c_case.defendant_id ? 'you were' : 'the accused was';
+    const ending = `in case #${c_case.id} as ${person} found to be ${case_result}`;
 
     db.add_cash(lawyer.id, guild.id, rate, false);
     await system.dm_cash(
@@ -88,17 +87,23 @@ ${grant ? 'arresting' : 'detaining'} officer (${officer.mention})`,
     let reason = `legal fees ${ending}`;
 
     if (balance >= rate || allow_debt) {
-      reason += ` and you have failed to successfully \
+      if (user.id !== c_case.defendant_id) {
+        reason += ` and you have failed to successfully \
 ${user.id === c_case.plaintiff_id ? 'arrest' : 'grant a warrant for'} the defendant`;
+      }
+
       db.add_cash(user.id, guild.id, -rate, false);
 
       return system.dm_cash(user, guild, -rate / to_cents, reason, action, 'in');
     }
 
-    const paid_for = rate - balance;
+    const paid_for = rate - (balance < 0 ? 0 : balance);
 
-    reason += `. The government has covered ${number.format(paid_for, true)} of your legal fees to \
-protect ${guilty ? 'your' : 'the defendant\'s'} right of having an attorney`;
+    if (c_case.request === lawyer_plea.auto) {
+      reason += `. The government has covered ${number.format(paid_for, true)} of your legal \
+fees to protect ${guilty ? 'your' : 'the defendant\'s'} right of having an attorney`;
+    }
+
     db.add_cash(user.id, guild.id, -(rate - paid_for), false);
 
     return system.dm_cash(user, guild, -(rate - paid_for) / to_cents, reason, action, 'in');
