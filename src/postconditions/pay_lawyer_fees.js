@@ -49,7 +49,7 @@ ${grant ? 'arresting' : 'detaining'} officer (${officer.mention})`,
       const bonus = held * (1 + config.lawyer_innocence_bonus);
       const half = bonus / split;
       const judge_bal = db.get_cash(warrant.judge_id, msg.channel.guild.id, false);
-      const officer_bal = db.get_cash(warrant.officer_id, msg.channel.guild.id, false);
+      const officer_bal = db.get_cash(result.plaintiff_id, msg.channel.guild.id, false);
 
       return this.take_cash(
         result, judge, msg.channel.guild, judge_bal, half, lawyer_user, warrant, true
