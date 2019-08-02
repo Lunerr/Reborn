@@ -49,19 +49,13 @@ module.exports = new class Lawyer extends Command {
 
     if (!lawyer || lawyer.active === 0) {
       const is_self = args.member.id === msg.author.id;
-      const prefix = `${discord.tag(msg.author).boldified}, `;
-      const obj = discord.embed({
-        description: `${prefix}${is_self ? 'You\'re' : 'This user is'} not a lawyer.`,
-        color: error_color
-      });
+      const footer = is_self ? {
+        text: `Use the ${config.prefix}set_lawyer_rate command to become a lawyer.`
+      } : {};
 
-      if (is_self) {
-        obj.embed.footer = {
-          text: `Use the ${config.prefix}set_lawyer_rate command to become a lawyer.`
-        };
-      }
-
-      return msg.channel.createMessage(obj);
+      return discord.send_msg(
+        msg, `${is_self ? 'You\'re' : 'This user is'} not a lawyer.`, null, footer, error_color
+      );
     }
 
     const record = system.get_win_percent(args.member.id, msg.channel.guild);

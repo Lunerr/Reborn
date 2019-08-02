@@ -37,9 +37,7 @@ class Transfer extends Command {
 
     db.add_cash(args.member.id, msg.channel.guild.id, received);
 
-    const prefix = `${discord.tag(msg.author).boldified}, `;
-
-    return discord.create_msg(msg.channel, `${prefix}You have successfully transfered \
+    return discord.send_msg(msg, `You have successfully transfered \
 ${number.format(received)} to ${discord.tag(args.member.user)} with a transaction fee of \
 ${number.format(fee)}. Balance: ${number.format(res.cash, true)}.`);
   }

@@ -33,13 +33,13 @@ module.exports = new class Update extends Command {
   }
 
   async run(msg) {
-    await discord._create_prefix_msg(msg, 'The bot will be restarting shortly');
+    await discord.send_msg(msg, 'The bot will be restarting shortly');
 
     try {
       await promise_exec(restart);
     } catch (e) {
       logger.error(e);
-      await discord._create_prefix_msg(msg, 'An error has occurred while updating');
+      await discord.send_msg(msg, 'An error has occurred while updating');
     }
   }
 }();

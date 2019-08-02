@@ -45,13 +45,12 @@ module.exports = new class Plea extends Command {
   async run(msg, args) {
     const channel_case = db.get_channel_case(msg.channel.id);
     const keys = Object.keys(plea);
-    const prefix = `${discord.tag(msg.author).boldified}, `;
 
     if (channel_case.plea !== null) {
       const found_plea = keys.find(x => plea[x] === channel_case.plea);
 
       if (args.plea === empty_argument) {
-        return discord.create_msg(msg.channel, `${prefix}The plea is \`${found_plea}\`.`);
+        return discord.send_msg(msg, `The plea is \`${found_plea}\`.`);
       }
     }
 
@@ -70,6 +69,6 @@ The plea must be either \`${guilty}\` or \`${not_guilty}\`.`);
 
     db.set_case_plea(channel_case.id, found_plea);
 
-    return discord.create_msg(msg.channel, `${prefix}The plea has been set to \`${original}\`.`);
+    return discord.send_msg(msg, `The plea has been set to \`${original}\`.`);
   }
 }();

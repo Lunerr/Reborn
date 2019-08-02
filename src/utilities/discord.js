@@ -32,6 +32,19 @@ const bulk_del_time = 12e8;
 const rl = 4;
 
 module.exports = {
+  send_msg(msg, description, title = null, footer = null, color = null, reply = true, options) {
+    const new_description = reply ? `${this.tag(msg.author).boldified}, ` : '';
+    const embed = this.embed({
+      description: `${new_description}${description}`,
+      title,
+      footer,
+      color,
+      ...options
+    });
+
+    return create_message(msg.channel.id, embed);
+  },
+
   async delete_msgs(channel, msgs, reason) {
     const now = Date.now();
     const bulk_del = msgs.filter(x => now - x.timestamp < bulk_del_time);
@@ -66,12 +79,6 @@ module.exports = {
   _verify_fn(msg, member) {
     return msg.author.id === member.id
       && (msg.content.toLowerCase() === 'yes' || msg.content.toLowerCase() === 'no');
-  },
-
-  _create_prefix_msg(msg, reason) {
-    const prefix = `${this.tag(msg.author).boldified}, `;
-
-    return this.create_msg(msg.channel, `${prefix}${reason}.`);
   },
 
   async loop_guilds(fn) {

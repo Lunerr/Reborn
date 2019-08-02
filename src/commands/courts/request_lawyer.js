@@ -209,7 +209,7 @@ channel in this server.');
   }
 
   async verify(msg, member, channel, channel_case) {
-    await discord._create_prefix_msg(msg, `${member.mention} has been informed of your request`);
+    await discord.send_msg(msg, `${member.mention} has been informed of your request`);
 
     const res = discord.verify_channel_msg(
       msg,

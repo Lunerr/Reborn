@@ -34,9 +34,8 @@ module.exports = new class LegalFees extends Command {
   async run(msg) {
     const amount = system.large_sum_of_money(msg.channel.guild, config.max_money_percent);
     const format = number.format(amount, true);
-    const prefix = `${discord.tag(msg.author).boldified}, `;
 
-    return discord.create_msg(msg.channel, `${prefix}The government will cover up to ${format} \
+    return discord.send_msg(msg, `The government will cover up to ${format} \
 in legal fees in the event of an automatically picked attorney.`);
   }
 }();

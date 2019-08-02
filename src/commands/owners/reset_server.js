@@ -49,13 +49,12 @@ module.exports = new class ResetServer extends Command {
     }
 
     const content = verified.reply.content.toLowerCase();
-    const prefix = `${discord.tag(msg.author).boldified}, `;
 
     if (content === 'no') {
-      return discord.create_msg(msg.channel, `${prefix}The command has been cancelled.`);
+      return discord.send_msg(msg, 'The command has been cancelled.');
     }
 
     db.reset_server(msg.channel.guild.id);
-    await discord.create_msg(msg.channel, `${prefix}The server has been successfully wiped.`);
+    await discord.send_msg(msg, 'The server has been successfully wiped.');
   }
 }();

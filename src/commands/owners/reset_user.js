@@ -42,11 +42,10 @@ module.exports = new class ResetUser extends Command {
   async run(msg, args) {
     db.reset_user(args.user.id, msg.channel.guild.id);
 
-    const prefix = `${discord.tag(msg.author).boldified}, `;
     const str = discord.get_tag_or_self(msg.author, args.user);
 
-    await discord.create_msg(
-      msg.channel, `${prefix}You have successfully reset ${str} balance.`
+    await discord.send_msg(
+      msg, `You have successfully reset ${str} balance.`
     );
   }
 }();

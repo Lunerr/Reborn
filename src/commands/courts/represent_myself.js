@@ -60,14 +60,12 @@ module.exports = new class RepresentMyself extends Command {
       }
     }
 
-    const prefix = `${discord.tag(msg.author).boldified}, `;
-
     db.set_lawyer(msg.author.id, channel_case.id, lawyer_enum.self);
     db.update_lawyer_count(channel_case.id, channel_case.lawyer_count + 1);
     await system.lawyer_picked(channel_case.channel_id, msg.channel.guild, msg.author);
 
-    return discord.create_msg(
-      msg.channel, `${prefix}You are now representing yourself in this case. \
+    return discord.send_msg(
+      msg, `You are now representing yourself in this case. \
 You ${left === 0 ? 'cannot change your lawyer anymore' : `may change your lawyer up to ${left} \
 more time${left === 1 ? '' : 's'}`}.\n\nYou have ${config.auto_pick_lawyer} hours to give a plea \
 using \`${config.prefix}plea <plea>\` or you will be automatically replaced with a lawyer.`

@@ -29,22 +29,21 @@ class Gambling extends Command {
 
   async run(msg, args) {
     const roll = number.roll();
-    const prefix = `${discord.tag(msg.author).boldified}, `;
 
     if (roll >= this.odds) {
       const winnings = args.bet * this.payout;
       const { cash } = db.add_cash(msg.author.id, msg.channel.guild.id, winnings);
 
-      return discord.create_msg(
-        msg.channel, `${prefix}You rolled: ${roll.toFixed(trunc)}. Congrats, you won \
+      return discord.send_msg(
+        msg, `You rolled: ${roll.toFixed(trunc)}. Congrats, you won \
 ${number.format(winnings)}. Balance: ${number.format(cash, true)}.`
       );
     }
 
     const { cash } = db.add_cash(msg.author.id, msg.channel.guild.id, -args.bet);
 
-    return discord.create_msg(
-      msg.channel, `${prefix}You rolled: ${roll.toFixed(trunc)}. Unfortunately, you lost \
+    return discord.send_msg(
+      msg, `You rolled: ${roll.toFixed(trunc)}. Unfortunately, you lost \
 ${number.format(args.bet)}. Balance: ${number.format(cash, true)}.`
     );
   }

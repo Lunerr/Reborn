@@ -38,10 +38,8 @@ module.exports = new class ResignFromLawyer extends Command {
 
     db.set_inactive_lawyer(msg.channel.guild.id, msg.author.id);
 
-    const prefix = `${discord.tag(msg.author).boldified}, `;
-
-    return discord.create_msg(
-      msg.channel, `${prefix}You have successfully resigned from being a lawyer.`
+    return discord.send_msg(
+      msg, 'You have successfully resigned from being a lawyer.'
     );
   }
 }();

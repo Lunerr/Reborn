@@ -46,10 +46,8 @@ module.exports = new class SetLawyerWage extends Command {
   async run(msg, args) {
     db.set_rate(msg.channel.guild.id, msg.author.id, args.rate);
 
-    const prefix = `${discord.tag(msg.author).boldified}, `;
-
-    return discord.create_msg(
-      msg.channel, `${prefix}You have set your rate to ${number.format(args.rate)} per case.`
+    return discord.send_msg(
+      msg, `You have set your rate to ${number.format(args.rate)} per case.`
     );
   }
 }();

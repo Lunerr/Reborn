@@ -154,10 +154,7 @@ module.exports = new class Arrest extends Command {
         guild: msg.channel.guild, defendant, judge, officer: msg.author, trial_role,
         warrant: args.warrant, category: court_category, jailed: jailed_role
       });
-
-      const prefix = `${discord.tag(msg.author).boldified}, `;
-
-      await discord.create_msg(msg.channel, `${prefix}I have arrested ${defendant.mention}.`);
+      await discord.send_msg(msg, `I have arrested ${defendant.mention}.`);
     });
   }
 
@@ -166,15 +163,14 @@ module.exports = new class Arrest extends Command {
       court_category, judge_role, trial_role, jailed_role, imprisoned_role, chief_justice_role
     } = db.fetch('guilds', { guild_id: msg.channel.guild.id });
     const n_warrant = db.get_warrant(warrant.id);
-    const prefix = `${discord.tag(msg.author).boldified}, `;
     const defendant = msg.channel.guild.members.get(warrant.defendant_id);
 
     if (defendant && defendant.roles.includes(imprisoned_role)) {
-      await discord.create_msg(msg.channel, `${prefix}This user is already muted.`);
+      await discord.send_msg(msg, 'This user is already muted.');
 
       return false;
     } else if (n_warrant.executed === 1) {
-      await discord.create_msg(msg.channel, `${prefix}This warrant has already been executed.`);
+      await discord.send_msg(msg, 'This warrant has already been executed.');
 
       return false;
     }
@@ -184,13 +180,13 @@ module.exports = new class Arrest extends Command {
     )}`, null, 'yes');
 
     if (verified.conflicting) {
-      await discord.create_msg(
-        msg.channel, `${prefix}The previous interactive command has been cancelled.`
+      await discord.send_msg(
+        msg, 'The previous interactive command has been cancelled.'
       );
 
       return false;
     } else if (!verified.success) {
-      await discord.create_msg(msg.channel, `${prefix}The command has been cancelled.`);
+      await discord.send_msg(msg, 'The command has been cancelled.');
 
       return false;
     }
