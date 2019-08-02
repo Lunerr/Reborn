@@ -18,9 +18,6 @@
 'use strict';
 /*
  * TODO:
- * - Auto pick lawyer if member leaves
- * - 3 (configurable) attempts at choosing a lawyer
- * - Fire cases
  */
 // Set up the process.
 process.env.TZ = 'UTC';
