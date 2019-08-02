@@ -42,9 +42,7 @@ module.exports = new class Leaderboards extends Command {
       return CommandResult.fromError('There are no members on the leaderboards.');
     }
 
-    const embed = discord.embed({
-      title: 'The Richest Members', description: ''
-    });
+    let desc = '';
 
     for (let i = 0; i < members.length; i++) {
       const member = msg.channel.guild.members.get(members[i].member_id);
@@ -59,9 +57,9 @@ module.exports = new class Leaderboards extends Command {
       const cash = number.format(members[i].cash, true);
       const user = util.escape_markdown(discord.tag(member.user));
 
-      embed.embed.description += `${i + 1}. **${user}**: ${cash}\n`;
+      desc += `${i + 1}. **${user}**: ${cash}\n`;
     }
 
-    return msg.channel.createMessage(embed);
+    return discord.send_msg(msg, desc, 'The Richest Members', null, null, false);
   }
 }();

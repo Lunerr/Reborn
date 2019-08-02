@@ -38,11 +38,7 @@ module.exports = new class Lawyers extends Command {
       return CommandResult.fromError('There are no lawyers on the leaderboards.');
     }
 
-    const obj = discord.embed({
-      title: 'The Top Lawyers', description: '', footer: {
-        text: `Use ${config.prefix}lawyer @User for more info`
-      }
-    });
+    let desc = '';
 
     for (let i = 0; i < lawyers.length; i++) {
       const member = msg.channel.guild.members.get(lawyers[i].member_id);
@@ -58,9 +54,13 @@ module.exports = new class Lawyers extends Command {
       const user = util.escape_markdown(discord.tag(member.user));
       const win_loss = `${record.wins} wins, ${record.losses} losses`;
 
-      obj.embed.description += `${i + 1}. **${user}** ${win_loss}\n`;
+      desc += `${i + 1}. **${user}** ${win_loss}\n`;
     }
 
-    return msg.channel.createMessage(obj);
+    const footer = {
+      text: `Use ${config.prefix}lawyer @User for more info`
+    };
+
+    return discord.send_msg(msg, desc, 'The Top Lawyers', footer, null, false);
   }
 }();

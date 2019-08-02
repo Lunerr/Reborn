@@ -42,18 +42,19 @@ module.exports = new class Balance extends Command {
 
   async run(msg, args) {
     const cash = db.get_cash(args.member.id, msg.channel.guild.id);
-    const embed = discord.embed({
-      title: `${discord.tag(args.member.user)}'s Balance`,
-      description: `**Balance:** ${number.format(cash)}`
-    });
     const c_case = db.get_channel_case(msg.channel.id);
+    const add_footer = c_case && c_case.cost && msg.author.id === c_case.defendant_id;
+    const footer = add_footer ? {
+      text: `Your held balance in this case: ${number.format(c_case.cost, true)}`
+    } : {};
 
-    if (c_case && c_case.cost && msg.author.id === c_case.defendant_id) {
-      embed.embed.footer = {
-        text: `Your held balance in this case: ${number.format(c_case.cost, true)}`
-      };
-    }
-
-    return msg.channel.createMessage(embed);
+    return discord.send_msg(
+      msg,
+      `**Balance:** ${number.format(cash)}`,
+      `${discord.tag(args.member.user)}'s Balance`,
+      footer,
+      null,
+      false
+    );
   }
 }();

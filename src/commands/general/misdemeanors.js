@@ -55,12 +55,15 @@ module.exports = new class Misdemeanors extends Command {
     const start = self ? 'you are' : `${user_tag} is`;
     const append = felon ? `\n\n${start} subject to serving a prison sentence the next time \
 ${self ? 'you' : user_tag} breaks the law ${args.law.name} (${args.law.id}).` : '';
-    const embed = discord.embed({
-      title: `${discord.tag(args.user)}'s Misdemeanor Count`,
-      description: `${self ? 'Your' : `${user_tag}'s`} misdemeanor count is \
-${count} for the law **${args.law.name}** (${args.law.id}).${append}`
-    });
 
-    return msg.channel.createMessage(embed);
+    return discord.send_msg(
+      msg,
+      `${self ? 'Your' : `${user_tag}'s`} misdemeanor count is \
+${count} for the law \`${args.law.name}\` (${args.law.id}).${append}`,
+      `${discord.tag(args.user)}'s Misdemeanor Count`,
+      null,
+      null,
+      false
+    );
   }
 }();

@@ -55,10 +55,7 @@ module.exports = new class Case extends Command {
     }
 
     const { title, description } = await system.format_case(msg.channel.guild, c_case);
-    const embed = discord.embed({
-      title, description
-    });
 
-    return msg.channel.createMessage(embed);
+    return discord.send_msg(msg, description, title, null, null, false);
   }
 }();

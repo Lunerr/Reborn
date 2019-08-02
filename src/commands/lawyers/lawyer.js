@@ -61,12 +61,16 @@ module.exports = new class Lawyer extends Command {
     const record = system.get_win_percent(args.member.id, msg.channel.guild);
     const formatted_rate = number.format(lawyer.rate, true);
     const title = `${discord.tag(args.member.user)}'s Lawyer Profile`;
-    const embed = discord.embed({
-      title, description: `**Wins**: ${record.wins}\n**Losses:** ${record.losses}
-**Win Percent:** ${(record.win_percent * to_percent).toFixed(max_dec)}%\n**Rate:** \
-${formatted_rate} per case`
-    });
 
-    return msg.channel.createMessage(embed);
+    return discord.send_msg(
+      msg,
+      `**Wins**: ${record.wins}\n**Losses:** ${record.losses}
+**Win Percent:** ${(record.win_percent * to_percent).toFixed(max_dec)}%\n**Rate:** \
+${formatted_rate} per case`,
+      title,
+      null,
+      null,
+      false
+    );
   }
 }();
