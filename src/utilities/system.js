@@ -264,7 +264,8 @@ lawyer.`
 
   change_lawyer(c_case, channel, old_lawyer, type) {
     if (c_case.lawyer_count >= config.lawyer_change_count) {
-      const user = c_case.defendant_id === old_lawyer.id ? 'yourself' : discord.tag(old_lawyer);
+      const user = c_case.defendant_id === old_lawyer.id ? 'yourself' : discord
+        .tag(old_lawyer).boldified;
 
       return CommandResult.fromError(`You already have ${user} as your lawyer \
 and you cannot change it anymore.`);
