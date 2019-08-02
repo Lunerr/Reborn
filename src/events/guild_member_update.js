@@ -33,6 +33,7 @@ async function impeached(guild, member, jobs, impeachment_time) {
   const { roles: n_roles } = member;
   const was_impeached = db.get_impeachment(guild.id, member.id, false);
   const values = Object.values(jobs);
+  let removed = false;
 
   if (was_impeached && values.some(x => n_roles.includes(x))) {
     const time_left = was_impeached.last_modified_at + impeachment_time - Date.now();
@@ -45,11 +46,17 @@ ${discord.tag(member.user)} can be an official again \
 ${hours_left ? `in ${hours_left} hours` : 'soon'}.`;
       const has = n_roles.filter(x => values.includes(x));
 
+      if (has.length) {
+        removed = true;
+      }
+
       for (let i = 0; i < has.length; i++) {
         await remove_role(guild.id, member.id, has[i], reason);
       }
     }
   }
+
+  return removed;
 }
 
 async function remove_extra_roles(guild, member, jobs) {
@@ -158,7 +165,9 @@ client.on('guildMemberUpdate', async (guild, new_member, old_member) => {
 
       return a;
     }, {});
+  const roles_removed = await impeached(guild, new_member, jobs, config.impeachment_time);
 
-  await impeached(guild, new_member, jobs, config.impeachment_time);
-  await remove_extra_roles(guild, new_member, jobs);
+  if (!roles_removed) {
+    await remove_extra_roles(guild, new_member, jobs);
+  }
 });
