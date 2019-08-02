@@ -20,14 +20,13 @@ const client = require('../services/client.js');
 const { config } = require('../services/data.js');
 const catch_discord = require('../utilities/catch_discord.js');
 const discord = require('../utilities/discord.js');
-const number = require('../utilities/number.js');
+const util = require('../utilities/util.js');
 const db = require('../services/database.js');
 const verdict = require('../enums/verdict.js');
 const notifications = require('../enums/notifications.js');
 const system = require('../utilities/system.js');
 const remove_role = catch_discord(client.removeGuildMemberRole.bind(client));
 const edit_member = catch_discord(client.editGuildMember.bind(client));
-const to_hours = 24;
 
 async function impeached(guild, member, jobs, impeachment_time) {
   const { roles: n_roles } = member;
@@ -39,11 +38,9 @@ async function impeached(guild, member, jobs, impeachment_time) {
     const time_left = was_impeached.last_modified_at + impeachment_time - Date.now();
 
     if (time_left > 0) {
-      const { days, hours } = number.msToTime(time_left);
-      const hours_left = (days * to_hours) + hours;
+      const time = util.get_time(time_left, true);
       const reason = `This user cannot be an official because they were impeached. \
-${discord.tag(member.user)} can be an official again \
-${hours_left ? `in ${hours_left} hours` : 'soon'}.`;
+${discord.tag(member.user)} can be an official again ${time}.`;
       const has = n_roles.filter(x => values.includes(x));
 
       if (has.length) {
