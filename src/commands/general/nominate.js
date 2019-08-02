@@ -57,7 +57,11 @@ module.exports = new class Nominate extends Command {
     const was_impeached = db.get_impeachment(msg.channel.guild.id, args.member.id, false);
 
     if (was_impeached) {
-      return this.impeached_format(was_impeached, config.impeachment_time, args.member);
+      const result = this.impeached_format(was_impeached, config.impeachment_time, args.member);
+
+      if (result instanceof CommandResult) {
+        return result;
+      }
     }
 
     const res = db.fetch('guilds', { guild_id: msg.channel.guild.id });
@@ -101,14 +105,12 @@ module.exports = new class Nominate extends Command {
   impeached_format(impeachment, impeachment_time, member) {
     const time_left = impeachment.created_at + impeachment_time - Date.now();
 
-    if (time_left > 0 && 0) {
+    if (time_left > 0) {
       const { days, hours } = number.msToTime(time_left);
       const hours_left = (days * to_hours) + hours;
 
       return CommandResult.fromError(`This user cannot be nominated because they were impeached. \
 ${member.mention} can be nominated again ${hours_left ? `in ${hours_left} hours` : 'soon'}.`);
     }
-
-    return '';
   }
 }();
