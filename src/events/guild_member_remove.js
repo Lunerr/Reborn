@@ -22,6 +22,7 @@ const system = require('../utilities/system.js');
 const reg = require('../services/registry.js');
 const discord = require('../utilities/discord.js');
 const lawyer_enum = require('../enums/lawyer.js');
+const lawyer_state = require('../enums/lawyer_state.js');
 
 async function get_lawyer(c_case, channel, defendant, guild) {
   await discord.create_msg(channel, 'The auto lawyer process has automatically begun due to \
@@ -47,7 +48,7 @@ async function sync_cases(guild, member) {
     for (let i = 0; i < cases.length; i++) {
       const channel = guild.channels.get(cases[i].channel_id);
 
-      if (!channel) {
+      if (!channel || cases[i].lawyer_state !== lawyer_state.started) {
         continue;
       }
 
