@@ -54,7 +54,7 @@ module.exports = new class Misdemeanors extends Command {
     const user_tag = discord.tag(args.user).boldified;
     const start = self ? 'you are' : `${user_tag} is`;
     const append = felon ? `\n\n${start} subject to serving a prison sentence the next time \
-${self ? 'you' : user_tag} breaks the law ${args.law.name} (${args.law.id}).` : '';
+${self ? 'you break' : `${user_tag} breaks`} the law ${args.law.name} (${args.law.id}).` : '';
 
     return discord.send_msg(
       msg,
