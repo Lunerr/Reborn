@@ -98,7 +98,7 @@ Timer(async () => {
 
     for (let i = 0; i < cases.length; i++) {
       const case_verdict = db.get_verdict(cases[i].id);
-      const no_lawyer = cases[i].plea === null || cases[i].lawyer_id === null;
+      const no_lawyer = !cases[i].plea || !cases[i].lawyer_id;
 
       if (case_verdict || no_lawyer) {
         continue;
