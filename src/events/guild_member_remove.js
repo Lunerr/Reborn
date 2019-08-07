@@ -48,7 +48,7 @@ async function sync_cases(guild, member) {
     for (let i = 0; i < cases.length; i++) {
       const channel = guild.channels.get(cases[i].channel_id);
 
-      if (!channel || cases[i].lawyer_state !== lawyer_state.started) {
+      if (!channel || cases[i].lawyer_state === lawyer_state.started) {
         continue;
       }
 
