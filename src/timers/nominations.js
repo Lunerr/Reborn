@@ -91,7 +91,7 @@ async function dm(chief, guild, count) {
       .filter(x => x.created_at > now - impeached && x.created_at < now);
     const net = nominated_recently
       .filter(c => nominated_recently
-        .filter(x => x.member_id === c.member_id && x.guild_id === c.guild_id).length === 1);
+        .filter(x => x.nominatee === c.nominatee && x.guild_id === c.guild_id).length === 1);
 
     if (past && net.length < min_nominations) {
       return impeach(mem, chief, min_nominations);
