@@ -89,8 +89,9 @@ async function dm(chief, guild, count) {
     const nominated_recently = db
       .fetch_nominator_nominations(mem.id, guild.id)
       .filter(x => x.created_at > now - impeached && x.created_at < now);
+    const copy = [...nominated_recently];
     const net = nominated_recently
-      .filter(c => nominated_recently
+      .filter(c => copy
         .filter(x => x.nominatee === c.nominatee && x.guild_id === c.guild_id).length === 1);
 
     if (past && net.length < min_nominations) {
