@@ -67,7 +67,7 @@ module.exports = new class RepresentMyself extends Command {
     return discord.send_msg(
       msg, `You are now representing yourself in this case. \
 You ${left === 0 ? 'cannot change your lawyer anymore' : `may change your lawyer up to ${left} \
-more time${left === 1 ? '' : 's'}`}.\n\nYou have ${config.auto_pick_lawyer} hours to give a plea \
+more time${left === 1 ? '' : 's'}`}.\n\nYou have ${config.auto_pick_lawyer} minutes to give a plea \
 using \`${config.prefix}plea <plea>\` or you will be automatically replaced with a lawyer.`
     );
   }

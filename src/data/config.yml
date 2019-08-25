@@ -31,6 +31,9 @@ auto_verdict_time: 3e5
 # Interval for when the bot auto unmutes
 auto_unmute: 3e5
 
+# Interval for when the bot automatically checks giveaways
+auto_giveaway: 1e3
+
 # Interval for cleansing the server
 auto_cleanse: 3e5
 
@@ -76,8 +79,8 @@ max_money_percent: 0.25
 # Number of times a user can change their lawyer (doesn't account for auto lawyer due to no plea/lawyer)
 lawyer_change_count: 3
 
-# When a lawyer gets auto picked in hours
-auto_pick_lawyer: 24
+# When a lawyer gets auto picked in minutes
+auto_pick_lawyer: 15
 
 # Money multiplier for Congress when they send a valid message
 congress_cpm_multiplier: 8
@@ -147,6 +150,9 @@ cash_per_msg: 0.25
 
 # Cooldown for chat cash
 msg_cooldown: 3e4
+
+# Cooldown for chat giveaway entry
+msg_giveaway_cooldown: 6e4
 
 # Minimum character to get cash (Message is sanitized for links, emojis, and mentions)
 min_msg_length: 7

@@ -56,6 +56,7 @@ module.exports = new class Guilty extends Command {
           defaultValue: empty_argument
         })
       ],
+      preconditions: ['plea_set'],
       description: 'Renders a guilty verdict in the court case.',
       groupName: 'verdicts',
       names: ['guilty']
@@ -84,6 +85,10 @@ module.exports = new class Guilty extends Command {
       } else if (args.sentence !== empty_argument && !mute) {
         return CommandResult.fromError('The accused must be convicted of at least three \
 misdemeanors of this crime before a prison sentence is permissible.');
+      } else if (args.sentence > law.max_verdict) {
+        return CommandResult.fromError(`The sentence may not be higher than ${util.get_time(law.max_verdict)}.`);
+      } else if (args.sentence < law.min_verdict) {
+        return CommandResult.fromError(`The sentence may not be lower than ${util.get_time(law.min_verdict)}.`);
       }
 
       const prefix = `${discord.tag(msg.author).boldified}, `;
@@ -104,14 +109,14 @@ misdemeanors of this crime before a prison sentence is permissible.');
   }
 
   async end(msg, { law, sentence, defendant_id, opinion, case_id }) {
-    const time = this.get_time(sentence);
+    const time = typeof sentence === 'number' ? util.get_time(sentence, false) : '';
     const def = msg.channel.guild.members.get(defendant_id)
       || await client.getRESTUser(defendant_id);
     const repeated = await this.shouldMute({
       ids: {
         guild: msg.channel.guild.id, case: case_id, defendant: defendant_id
       },
-      opinion, sentence, law, guild: msg.channel.guild
+      opinion, sentence, law, guild: msg.channel.guild, time
     });
     const ending = `${law.mandatory_felony || (!law.mandatory_felony && repeated) ? `sentenced to \
 ${time} in prison${repeated ? ` for repeatedly breaking the law \`${law.name}\` \
@@ -127,15 +132,7 @@ case #${case_id}.${append}`
     await system.close_case(msg, msg.channel);
   }
 
-  get_time(time, soon = false) {
-    if (typeof time === 'number') {
-      return util.get_time(time, soon);
-    }
-
-    return '';
-  }
-
-  async shouldMute({ ids, opinion, sentence, law, guild }) {
+  async shouldMute({ ids, opinion, sentence, law, guild, time }) {
     const update = {
       guild_id: ids.guild,
       case_id: ids.case,
@@ -157,9 +154,6 @@ case #${case_id}.${append}`
 
     if (in_server && add_sentence && sentence !== empty_argument) {
       update.sentence = sentence;
-
-      const time = this.get_time(sentence);
-
       await add_role(ids.guild, ids.defendant, imprisoned_role, `Sentenced to ${time}`);
     }
 

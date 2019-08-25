@@ -22,6 +22,7 @@ const formatter = Intl.NumberFormat('en-US', {
   minimumFractionDigits: 2
 });
 const to_cents = 100;
+const hour = 3600000;
 
 module.exports = {
   nextInt(min, max) {
@@ -44,6 +45,10 @@ module.exports = {
     return formatter.format(cents ? this.value(num) : num);
   },
 
+  hoursToMs(input) {
+    return input * hour;
+  },
+
   msToTime(input) {
     /* eslint-disable no-magic-numbers */
     return {
@@ -54,5 +59,9 @@ module.exports = {
       days: parseInt(input / (1000 * 60 * 60 * 24))
     };
     /* eslint-enable no-magic-numbers */
+  },
+
+  isEven(value) {
+    return value % 2 === 0;
   }
 };

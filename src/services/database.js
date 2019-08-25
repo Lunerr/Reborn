@@ -128,10 +128,6 @@ module.exports = {
     return queries.close_law.run(id);
   },
 
-  close_command(id) {
-    return queries.close_cmd.run(id);
-  },
-
   set_law_edited_at(law_id, time) {
     return queries.set_law_edited_at.run(time, law_id);
   },
@@ -198,6 +194,14 @@ module.exports = {
       ...member,
       cash: value
     };
+  },
+
+  set_giveaway_timer(timer, guild_id) {
+    return queries.set_giveaway_timer.run(timer, guild_id);
+  },
+
+  set_giveaway_link(link, guild_id) {
+    return queries.set_giveaway_link.run(link, guild_id);
   },
 
   add_cash(member_id, guild_id, amount, convert = true) {
@@ -322,6 +326,14 @@ module.exports = {
     return queries.reset_user.run(member_id, guild_id);
   },
 
+  set_min_verdict(min_verdict, id) {
+    return queries.set_min_verdict.run(min_verdict, id);
+  },
+
+  set_max_verdict(max_verdict, id) {
+    return queries.set_max_verdict.run(max_verdict, id);
+  },
+
   set_rate(guild_id, member_id, rate, convert = true) {
     this.get_lawyer(guild_id, member_id);
 
@@ -380,9 +392,5 @@ module.exports = {
 
   fetch_verdicts(guild_id) {
     return queries.select_verdicts.all(guild_id);
-  },
-
-  fetch_commands(guild_id) {
-    return queries.select_commands.all(guild_id);
   }
 };

@@ -100,15 +100,16 @@ ${user.id === c_case.plaintiff_id ? arrest : grant} the defendant`;
     }
 
     const paid_for = rate - (balance < 0 ? 0 : balance);
+    const true_payment = -(rate - paid_for);
 
     if (c_case.request === lawyer_plea.auto) {
-      reason += `. The government has covered ${number.format(paid_for, true)} of your legal \
+      reason += `. The government has covered ${number.format(true_payment, true)} of your legal \
 fees to protect ${guilty ? 'your' : 'the defendant\'s'} right of having an attorney`;
     }
 
-    db.add_cash(user.id, guild.id, -(rate - paid_for), false);
+    db.add_cash(user.id, guild.id, true_payment, false);
 
-    return system.dm_cash(user, guild, -(rate - paid_for) / to_cents, reason, action, 'in');
+    return system.dm_cash(user, guild, true_payment / to_cents, reason, action, 'in');
   }
 }
 

@@ -55,7 +55,7 @@ async function new_lawyer(channel, c_case, guild, no_plea, reason, resume = fals
         fmt = 'no lawyer being set';
       }
 
-      fmt += ' after 24 hours';
+      fmt += ' after 15 minutes';
     }
 
     await discord.create_msg(channel, `The auto lawyer process has automatically begun due to \

@@ -26,14 +26,14 @@ module.exports = new class Law extends TypeReader {
   }
 
   async read(cmd, msg, arg, args, val) {
-    const lower = val.toLowerCase();
     const laws = db
       .fetch_laws(msg.channel.guild.id)
-      .filter(x => x.active === 1);
+      .filter(x => x.active === 1
+        && String(x.id) === val);
 
     return handle_matches(
       cmd,
-      laws.filter(x => x.name.toLowerCase() === lower),
+      laws,
       'That law does not exist.'
     );
   }

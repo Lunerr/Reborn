@@ -153,7 +153,7 @@ older than 5 minutes, consider getting a judge to grant a warrant for this user.
     const law = laws.find(x => x.name.toLowerCase() === reply && x.active === 1);
 
     if (law) {
-      if (law.active === 0) {
+      if (law.active === 0 || law.in_effect === 0) {
         const new_content = `This law is not in effect yet, please try again.\n
 Type \`cancel\` to cancel the command.`;
 

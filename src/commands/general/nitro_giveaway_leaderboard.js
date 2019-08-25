@@ -16,35 +16,30 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
-const { Command, CommandResult } = require('patron.js');
-const db = require('../../services/database.js');
+const { Command } = require('patron.js');
+const chat = require('../../services/chat.js');
+const client = require('../../services/client.js');
 const discord = require('../../utilities/discord.js');
 
-module.exports = new class RemoveAllHot extends Command {
+module.exports = new class NitroGiveawayLeaderboard extends Command {
   constructor() {
     super({
-      description: 'Removes all of your custom commands.',
-      groupName: 'congress',
-      names: ['remove_all_hot', 'remove_all']
+      description: 'View the nitro giveaway leaderboard.',
+      groupName: 'general',
+      names: ['nitro_lottery_leaderboard', 'nitro_giveaway_leaderboard', 'nitro_leaderboard', 'giveaway_leaderboard']
     });
   }
 
   async run(msg) {
-    const cmds = db
-      .fetch_commands(msg.channel.guild.id)
-      .filter(x => x.creator_id === msg.author.id && x.active === 1);
+    let message = '';
+    const entries = Object.values(chat.giveaway_entries);
 
-    if (!cmds.length) {
-      return CommandResult.fromError('You have no active custom commands to remove.');
+    for (let i = 0; i < entries.length; i++) {
+      const author = await client.users.get(entries[i].author);
+
+      message += `${discord.tag(author).boldified}: ${entries[i].count}\n`;
     }
 
-    for (let i = 0; i < cmds.length; i++) {
-      db.close_command(cmds[i].id);
-    }
-
-    await discord.create_msg(
-      msg.channel,
-      `${discord.tag(msg.author).boldified}, I've removed all of your custom commands.`
-    );
+    return discord.send_msg(msg, message, 'Giveaway Entries', null, null, false);
   }
 }();

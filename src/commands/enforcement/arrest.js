@@ -122,6 +122,8 @@ module.exports = new class Arrest extends Command {
   }
 
   async run(msg, args) {
+    const law = db.get_law(args.warrant.law_id);
+
     return this.mutex.sync(`${msg.channel.guild.id}-${args.warrant.id}`, async () => {
       if (args.warrant.request === 1) {
         return CommandResult.fromError(
@@ -131,6 +133,8 @@ module.exports = new class Arrest extends Command {
         return CommandResult.fromError('This warrant was already served.');
       } else if (args.warrant.defendant_id === msg.author.id) {
         return CommandResult.fromError('You cannot arrest yourself.');
+      } else if (law.in_effect === 0) {
+        return CommandResult.fromError('This law is not in effect.');
       }
 
       const res = await this.prerequisites(msg, args.warrant);
@@ -216,7 +220,10 @@ module.exports = new class Arrest extends Command {
     const format = this.format_evidence(warrant.evidence);
     const evidence = Array.isArray(format) ? format[0] : format;
     const innocence_bias = number.format(config.judge_case * config.innocence_bias);
-    const last_id = db.get_last_table_sequence('cases').seq + 1;
+    const last_id = db.get_last_table_sequence('cases');
+
+    last_id === undefined ? 1 : last_id.seq + 1;
+
     const content = str.format(
       opening_msg,
       officer.mention, defendant.mention, last_id, judge.mention, law.name, law.id,

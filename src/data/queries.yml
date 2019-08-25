@@ -7,6 +7,8 @@ laws_table: |-
     name TEXT NOT NULL,
     content TEXT NOT NULL,
     mandatory_felony TINYINT NOT NULL DEFAULT 0,
+    min_verdict INTEGER,
+    max_verdict INTEGER,
     active TINYINT NOT NULL DEFAULT 1,
     in_effect TINYINT NOT NULL DEFAULT 0,
     edited_at INTEGER
@@ -103,8 +105,12 @@ guilds_table: |-
     house_speaker_role TEXT,
     court_category TEXT,
     law_channel TEXT,
+    giveaway_channel TEXT,
     warrant_channel TEXT,
     case_channel TEXT,
+    audit_channel TEXT,
+    giveaway_timer INTEGER DEFAULT 0,
+    giveaway_link TEXT,
     cleanse TINYINT DEFAULT 0
   )
 
@@ -138,19 +144,6 @@ public_channels_table: |-
     guild_id TEXT NOT NULL REFERENCES guilds(guild_id),
     created_at INTEGER NOT NULL,
     last_modified_at INTEGER NOT NULL,
-    active TINYINT NOT NULL DEFAULT 1
-  )
-
-commands_table: |-
-  CREATE TABLE IF NOT EXISTS commands (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    guild_id TEXT NOT NULL REFERENCES guilds(guild_id),
-    creator_id TEXT NOT NULL,
-    created_at INTEGER NOT NULL,
-    last_modified_at INTEGER NOT NULL,
-    name TEXT NOT NULL,
-    response TEXT,
-    image TEXT,
     active TINYINT NOT NULL DEFAULT 1
   )
 
@@ -248,6 +241,10 @@ serve_verdict: UPDATE verdicts SET served = 1 WHERE id = ?
 
 set_jailed: UPDATE members SET jailed = ? WHERE member_id = ? AND guild_id = ?
 
+set_giveaway_timer: UPDATE guilds SET giveaway_timer = ? WHERE guild_id = ?
+
+set_giveaway_link: UPDATE guilds SET giveaway_link = ? WHERE guild_id = ?
+
 get_member: SELECT * FROM members WHERE member_id = ? AND guild_id = ?
 
 get_guild_members: SELECT * FROM members WHERE guild_id = ?
@@ -258,9 +255,11 @@ close_warrant: UPDATE warrants SET executed = 1 WHERE id = ?
 
 approve_warrant: UPDATE warrants SET approved = 1, judge_id = ? WHERE id = ?
 
-close_law: UPDATE laws SET active = 0 WHERE id = ?
+set_min_verdict: UPDATE laws SET min_verdict = ? WHERE id = ?
 
-close_cmd: UPDATE commands SET active = 0 WHERE id = ?
+set_max_verdict: UPDATE laws SET max_verdict = ? WHERE id = ?
+
+close_law: UPDATE laws SET active = 0 WHERE id = ?
 
 set_case_inactive_count: UPDATE cases SET inactive_count = ? WHERE id = ?
 
@@ -283,8 +282,6 @@ select_member_verdicts: SELECT * FROM verdicts WHERE guild_id = ? AND defendant_
 select_verdicts: SELECT * FROM verdicts WHERE guild_id = ?
 
 select_verdict: SELECT * FROM verdicts WHERE case_id = ?
-
-select_commands: SELECT * FROM commands WHERE guild_id = ?
 
 select_impeachment: SELECT * FROM impeachments WHERE guild_id = ? AND member_id = ?
 

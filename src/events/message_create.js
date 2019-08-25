@@ -100,34 +100,6 @@ ${result.context === Context.Guild ? 'DMs' : 'a server'}.`;
   await discord.create_msg(msg.channel, reply.slice(0, max_len), error_color);
 }
 
-async function custom_cmd(msg) {
-  const custom_cmds = db.fetch_commands(msg.channel.guild.id);
-  const names = msg.content
-    .slice(msg.content.startsWith(prefix) ? prefix.length : 0)
-    .toLowerCase()
-    .split(' ')
-    .filter(x => x)
-    .map(x => x.replace(/\W+/g, ''));
-  const custom = custom_cmds
-    .find(x => x.active === 1 && names.some(c => c === x.name.toLowerCase()));
-
-  if (custom) {
-    const options = {};
-
-    if (custom.image) {
-      options.file = {
-        file: await discord.resolve_image_link(custom.image), name: custom.image
-      };
-    }
-
-    if (custom.response) {
-      options.content = custom.response;
-    }
-
-    return msg.channel.createMessage(options.content, options.file);
-  }
-}
-
 client.on('messageCreate', catch_discord(async msg => {
   if (msg.author && !msg.author.bot) {
     await msg_collector.check(msg);
@@ -137,19 +109,13 @@ client.on('messageCreate', catch_discord(async msg => {
     return;
   }
 
-  const isCommand = await handler.parseCommand(msg, prefix.length);
-
-  if ((!msg.content.startsWith(prefix) || !isCommand.success) && msg.channel.guild) {
-    const public_channels = db.fetch_channels(msg.channel.guild.id).filter(x => x.active === 1);
-    const is_public = public_channels.some(x => x.channel_id === msg.channel.id);
-
-    if (is_public) {
-      await custom_cmd(msg);
-    }
-  }
-
   if (!msg.content.startsWith(prefix)) {
-    return msg.channel.guild ? chat.add_cash(msg) : null;
+    if (msg.channel.guild) {
+      await chat.add_cash(msg);
+      await chat.add_court_messages(msg);
+
+      return chat.add_giveaway_entry(msg);
+    }
   }
 
   const result = await handler.run(msg, prefix.length);

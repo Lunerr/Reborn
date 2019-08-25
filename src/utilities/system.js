@@ -60,11 +60,6 @@ module.exports = {
     };
   },
 
-  _hot_cmd(msg, name, type) {
-    return discord.create_msg(msg.channel, `${discord.tag(msg.author).boldified}, \
-I've ${type} a custom command with the name ${name}.`);
-  },
-
   _public_channel(msg, channel, type) {
     return discord.create_msg(
       msg.channel, `${discord.tag(msg.author).boldified}, ${channel.mention} has \
@@ -113,6 +108,14 @@ ${str_value}.`
       for (let i = 0; i < verdicts.length; i++) {
         await fn(guild, id, verdicts[i]);
       }
+    });
+  },
+
+  async loop_guilds(fn) {
+    return discord.loop_guilds(async (guild, id) => {
+      const guildfetch = db.fetch('guilds', { guild_id: guild.id });
+
+      await fn(guild, id, guildfetch);
     });
   },
 
@@ -768,9 +771,18 @@ ${number.format(amount, true)} from the defendant, ${defendant.mention}, ${appen
     const msgs = [];
 
     for (let i = 0; i < laws.length; i++) {
-      const { name, content, mandatory_felony, created_at, id, edited_at } = laws[i];
+      const { name, content, min_verdict, max_verdict,
+        mandatory_felony, created_at, id, edited_at } = laws[i];
       const { embed } = discord.embed({});
       let description = `${content}${mandatory_felony ? ' (felony)' : ''}`;
+
+      if (min_verdict !== null) {
+        description += `\n**Minimum:** ${util.get_time(min_verdict)}`;
+      }
+
+      if (max_verdict !== null) {
+        description += `\n**Maximum:** ${util.get_time(max_verdict)}`;
+      }
 
       if (edited_at !== null) {
         const expires = number.msToTime(edited_at + config.law_in_effect - Date.now());

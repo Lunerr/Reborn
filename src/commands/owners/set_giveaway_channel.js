@@ -16,33 +16,30 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
-const { Command, CommandResult } = require('patron.js');
-const db = require('../../services/database.js');
-const discord = require('../../utilities/discord.js');
+const { Argument, Command } = require('patron.js');
+const system = require('../../utilities/system.js');
 
-module.exports = new class HotCommands extends Command {
+module.exports = new class SetGiveawayChannel extends Command {
   constructor() {
     super({
-      description: 'View the server\'s custom commands.',
-      groupName: 'general',
-      names: ['hot_commands', 'hot_cmds', 'hots']
+      args: [
+        new Argument({
+          example: 'Giveaway',
+          key: 'channel',
+          name: 'channel',
+          type: 'textchannel',
+          remainder: true
+        })
+      ],
+      description: 'Sets the giveaway channel.',
+      groupName: 'owners',
+      names: ['set_giveaway_channel']
     });
   }
 
-  async run(msg) {
-    const cmds = db
-      .fetch_commands(msg.channel.guild.id)
-      .filter(x => x.active === 1);
-
-    if (!cmds.length) {
-      return CommandResult.fromError('There are no hot commands.');
-    }
-
-    const names = cmds.map(x => x.name).join(', ');
-
-    await discord.create_msg(msg.channel, {
-      title: 'Custom Commands',
-      description: names
-    });
+  async run(msg, args) {
+    await system.set_db_property(
+      msg, 'giveaway_channel', args.channel.id, 'Giveaway channel', args.channel.mention
+    );
   }
 }();

@@ -18,6 +18,7 @@
 'use strict';
 const { MultiMutex } = require('patron.js');
 const { config } = require('../services/data.js');
+const discord = require('../utilities/discord.js');
 const db = require('../services/database.js');
 const util = require('../utilities/util.js');
 const link = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g;
@@ -26,6 +27,8 @@ const mentions = /@(everyone|here)|(<@(!|#|&)?(\d{17,19})>)/g;
 
 module.exports = {
   messages: {},
+  giveaway_entries: {},
+  court_messages: {},
   mutex: new MultiMutex(),
 
   prune(content) {
@@ -35,18 +38,89 @@ module.exports = {
       .replace(mentions, ''));
   },
 
+  async add_court_messages(msg) {
+    const key = `${msg.channel.guild.id}-${msg.channel.id}`;
+
+    return this.mutex.sync(key, async () => {
+      const now = Date.now();
+      const channel_case = db.get_channel_case(msg.channel.id);
+
+      if (channel_case) {
+        const last_message = this.court_messages[key];
+        const cooldown = !last_message || last_message.started + 6e4 > now;
+        const send_message = !last_message || last_message.senders.length >= 2 && last_message.count >= 10;
+
+        if (last_message && !last_message.sent) {
+          if (send_message) {
+            this.court_messages[key].sent = true;
+
+            return discord.create_msg(discord.get_main_channel(msg.channel.guild.id), `FIRE CASE IN ${msg.channel.mention} BOIS!`);
+          }
+
+          if (last_message.senders.find(x => x === msg.author.id) === undefined) {
+            this.court_messages[key].senders.push(msg.author.id);
+          }
+
+          if (cooldown && !send_message) {
+            this.court_messages[key].senders.push(msg.author.id);
+            this.court_messages[key].count += 1;
+          }
+        } else {
+          this.court_messages[key] = {
+            senders: [msg.author.id],
+            sent: false,
+            started: now,
+            count: 1
+          };
+        }
+      }
+    });
+  },
+
+  async add_giveaway_entry(msg) {
+    const key = `${msg.author.id}-${msg.channel.guild.id}`;
+
+    return this.mutex.sync(key, async () => {
+      const now = Date.now();
+      const last_message = this.giveaway_entries[key];
+      const cooldown = config.msg_giveaway_cooldown;
+      const cd_over = !last_message || now - last_message.time > cooldown;
+      const long_enough = this.prune(msg.content).length >= config.min_msg_length;
+      const not_max_entries = !last_message || last_message.count < 90;
+      const guild = db.fetch('guilds', { guild_id: msg.channel.guild.id });
+      const active_giveaway = guild.giveaway_timer > 0;
+
+      if (!active_giveaway && Object.keys(this.giveaway_entries).length > 0) {
+        this.giveaway_entries = {};
+      }
+
+      if (cd_over && long_enough && not_max_entries && active_giveaway) {
+        if (last_message) {
+          this.giveaway_entries[key].count += 1;
+          this.giveaway_entries[key].time = now;
+        } else {
+          this.giveaway_entries[key] = {
+            count: 1,
+            author: msg.author.id,
+            time: now
+          };
+        }
+      }
+    });
+  },
+
   async add_cash(msg) {
     const key = `${msg.author.id}-${msg.channel.guild.id}`;
 
     return this.mutex.sync(key, async () => {
       const now = Date.now();
-      const lastMessage = this.messages[key];
+      const last_message = this.messages[key];
       const cooldown = config.msg_cooldown;
-      const cdOver = !lastMessage || now - lastMessage.time > cooldown;
-      const longEnough = this.prune(msg.content).length >= config.min_msg_length;
+      const cd_over = !last_message || now - last_message.time > cooldown;
+      const long_enough = this.prune(msg.content).length >= config.min_msg_length;
 
-      if (cdOver && longEnough) {
-        if (lastMessage) {
+      if (cd_over && long_enough) {
+        if (last_message) {
           this.messages[key].ids.push(msg.id);
           this.messages[key].time = now;
         } else {

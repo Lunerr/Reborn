@@ -19,7 +19,6 @@
 const { Group } = require('patron.js');
 
 module.exports = new Group({
-  description: 'The big boys of the government.',
-  name: 'congress',
-  preconditions: ['congress', 'in_debt']
+  description: 'System statistics of the bot.',
+  name: 'system'
 });

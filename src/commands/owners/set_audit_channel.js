@@ -16,42 +16,30 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 'use strict';
-const { Argument, Command, CommandResult } = require('patron.js');
-const db = require('../../services/database.js');
+const { Argument, Command } = require('patron.js');
 const system = require('../../utilities/system.js');
 
-module.exports = new class RemoveHot extends Command {
+module.exports = new class SetAuditChannel extends Command {
   constructor() {
     super({
-      preconditions: ['guild_db_exists'],
       args: [
         new Argument({
-          example: 'johns genitals',
-          key: 'name',
-          name: 'name',
-          type: 'string',
-          remainder: true,
-          preconditions: ['custom_command']
+          example: 'Logs',
+          key: 'channel',
+          name: 'channel',
+          type: 'textchannel',
+          remainder: true
         })
       ],
-      description: 'Removes a custom command.',
-      groupName: 'congress',
-      names: ['remove_hot', 'delete_hot']
+      description: 'Sets the audit logs channel.',
+      groupName: 'owners',
+      names: ['set_audit_channel']
     });
   }
 
   async run(msg, args) {
-    const cmd = db
-      .fetch_commands(msg.channel.guild.id)
-      .find(x => x.name.toLowerCase() === args.name.toLowerCase() && x.active === 1);
-
-    if (!cmd) {
-      return CommandResult.fromError('This command does not exist.');
-    } else if (cmd.active === 0) {
-      return CommandResult.fromError('This command was already removed.');
-    }
-
-    db.close_command(cmd.id);
-    await system._hot_cmd(msg, args.name, 'removed');
+    await system.set_db_property(
+      msg, 'audit_channel', args.channel.id, 'Audit channel', args.channel.mention
+    );
   }
 }();

@@ -8,6 +8,7 @@ package-lock.json
 *.db
 *.db-wal
 *.db-shm
+*.db.sqbpro
 
 # our info
 logs/

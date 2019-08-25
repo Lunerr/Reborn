@@ -26,8 +26,7 @@ module.exports = new Group({
     'court_case',
     'can_trial',
     'judge_creator',
-    'lawyer_set',
-    'plea_set'
+    'lawyer_set'
   ],
   postconditions: ['case_finished', 'pay_lawyer_fees', 'inform_judge']
 });

@@ -22,6 +22,7 @@ const catch_discord = require('./catch_discord.js');
 const client = require('../services/client.js');
 const msg_collector = require('../services/message_collector.js');
 const util = require('../utilities/util.js');
+const number = require('../utilities/number.js');
 const str = require('../utilities/string.js');
 const db = require('../services/database.js');
 const handler = require('../services/handler.js');
@@ -43,6 +44,51 @@ module.exports = {
     });
 
     return create_message(msg.channel.id, embed);
+  },
+
+  async dm_fields_message(user, fieldsAndValues, inline = true, color = null) {
+    try {
+      const dm = await user.getDMChannel();
+      const fields = [];
+
+      for (let i = 0; i < fieldsAndValues.length - 1; i++) {
+        if (number.isEven(i)) {
+          fields.push({
+            name: fieldsAndValues[i], value: fieldsAndValues[i + 1], inline
+          });
+        }
+      }
+
+      const embed = this.embed({
+        fields,
+        color
+      });
+
+      await dm.createMessage(embed);
+
+      return true;
+    } catch (_) {
+      return false;
+    }
+  },
+
+  send_fields_message(channel, fieldsAndValues, inline = true, color = null) {
+    const fields = [];
+
+    for (let i = 0; i < fieldsAndValues.length - 1; i++) {
+      if (number.isEven(i)) {
+        fields.push({
+          name: fieldsAndValues[i], value: fieldsAndValues[i + 1], inline
+        });
+      }
+    }
+
+    const embed = this.embed({
+      fields,
+      color
+    });
+
+    return create_message(channel, embed);
   },
 
   async delete_msgs(channel, msgs, reason) {

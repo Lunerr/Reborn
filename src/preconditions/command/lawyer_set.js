@@ -20,7 +20,7 @@ const { Precondition, PreconditionResult } = require('patron.js');
 const { config } = require('../../services/data.js');
 const db = require('../../services/database.js');
 const util = require('../../utilities/util.js');
-const hour_to_ms = 36e5;
+const minutes_to_ms = 6e4;
 
 module.exports = new class LawyerSet extends Precondition {
   constructor() {
@@ -29,7 +29,7 @@ module.exports = new class LawyerSet extends Precondition {
 
   async run(cmd, msg) {
     const channel_case = db.get_channel_case(msg.channel.id);
-    const ms = config.auto_pick_lawyer * hour_to_ms;
+    const ms = config.auto_pick_lawyer * minutes_to_ms;
     const remaining = util.get_time(
       channel_case.created_at + ms - Date.now(), true
     );

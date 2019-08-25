@@ -38,7 +38,7 @@ module.exports = new class Law extends Command {
   }
 
   async run(msg, args) {
-    const law = db.fetch_laws(msg.channel.guild.id).find(x => x.id === args.law && x.active === 1);
+    const law = db.fetch_laws(msg.channel.guild.id).find(x => x.id === args.law);
 
     if (!law) {
       return CommandResult.fromError('This law does not exist.');
